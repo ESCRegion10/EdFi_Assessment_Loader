@@ -14,6 +14,9 @@ as
   - T. Esposito   10/02/20            original beta version
   -
   ----------------------------------------------------------------------*/
+  
+  -- global variable - for debugging
+  gn_debug_on number := 0;   -- 0 = debugging OFF, 1 = debugging level 1 ON (no other debugging levels available at this time)
    
   -- functions used for testing procedures
   function fun_check_file_name_format (v_district_id varchar2, v_test_type varchar2, v_file varchar2, v_user_id varchar2) return varchar2;
@@ -62,8 +65,8 @@ create or replace package body pkg_assessment_upload as
   begin
     
     delete assessment_stu_id_mismatch 
-      where district_id = v_district_id
-      and assessment_type = v_test_type;
+    where district_id = v_district_id
+    and assessment_type = v_test_type;
     
     commit;
     
@@ -89,17 +92,32 @@ create or replace package body pkg_assessment_upload as
   is
     s_sql_insert_data varchar2(4000);
     s_sql_close_db_link varchar2(200);
+    n_minimal_sat_used number := 0;
     e_unknown_test_type exception;
   begin
     
     delete assessment_stu_id_mismatch 
-      where district_id = v_district_id  
-      and file_name =  v_file 
-      and assessment_type = v_test_type;
+    where district_id = v_district_id  
+    and file_name =  v_file 
+    and assessment_type = v_test_type;
       
-    commit;                      
+    commit;   
+    
+    begin
+          
+      select parameter_value
+      into n_minimal_sat_used
+      from assessment_config
+      where parameter_name = 'minimal_sat_used'
+      and parameter_district_id = v_district_id;
+        
+      exception 
+        when no_data_found then
+          prc_log_status('prc_load_stu_id_mismatch(): District ' || v_district_id || ' not enabled to use minimal SAT format', 'WARN-02', v_user_id); 
+              
+    end;                             
  
-    if v_test_type = 'IB' then
+    if v_test_type = 'IB' then                                 -- IB tests can do student mismatch by district student id within assessment file
       
       s_sql_insert_data := 'insert into assessment_stu_id_mismatch
                             select distinct
@@ -115,8 +133,30 @@ create or replace package body pkg_assessment_upload as
                             where student_id not in (select "LocalCode"
                                                      from edfi.v_StudentIds@' || v_db_link ||')
                             and file_name = ''' || v_file || ''''; 
-                              
-    elsif v_test_type in ('AP', 'ACT', 'TSI', 'SAT') then  
+                            
+    elsif n_minimal_sat_used = 1 and v_test_type = 'SAT' then  -- SAT tests from districts that use a modified SAT format
+                                                               -- which can do a student mismatch lookup by student id 
+                                                               -- using the secondary id column (which contains the student id)
+                                                               -- within the assessment file.  See the assessment_config table, 
+                                                               -- parameter_name = 'minimal_sat_used', for districts that use this format
+     
+      s_sql_insert_data := 'insert into assessment_stu_id_mismatch
+                            select distinct
+                              upper(last_name)
+                             ,upper(first_name)
+                             ,birth_date
+                             ,loaded_date
+                             ,district_id
+                             , ''' || v_file || '''
+                             , ''' || v_test_type || '''
+                             ,secondary_id   -- district_stu_id
+                            from edfidata.district_' || v_test_type ||'_data 
+                            where secondary_id not in 
+                                      (select "LocalCode" as district_stu_id
+                                       from edfi.v_StudentIds@' || v_db_link ||')
+                            and file_name = ''' || v_file || '''';        
+            
+    elsif v_test_type in ('AP', 'ACT', 'TSI', 'SAT') then      -- SAT tests do student mismatch by student first, last name and DOB
         
       s_sql_insert_data := 'insert into assessment_stu_id_mismatch
                             select distinct
@@ -133,6 +173,7 @@ create or replace package body pkg_assessment_upload as
                                       (select distinct replace(trim(upper("FirstName") || upper("LastSurname") || to_char("BirthDate", ''MM/DD/YYYY'')),'' '', '''') as name
                                        from edfi.v_StudentIds@' || v_db_link ||')
                             and file_name = ''' || v_file || '''';                           
+   
     else
       raise e_unknown_test_type;
     end if;
@@ -322,19 +363,40 @@ create or replace package body pkg_assessment_upload as
     type tbl_field_table is table of r_field_type index by binary_integer;
     t_field_results tbl_field_table;
     t_empty_field_results tbl_field_table;
+    n_minimal_sat_used number := 0;
     e_file_header_format_error exception;
   begin
- 
-    if v_test_type = 'ACT' then   -- ACT raw file has no header
+   
+     begin
+          
+        select parameter_value
+        into n_minimal_sat_used
+        from assessment_config
+        where parameter_name = 'minimal_sat_used'
+        and parameter_district_id = v_district_id;
+        
+        exception 
+          when no_data_found then
+             prc_log_status('prc_check_file_header_format(): District ' || v_district_id || ' not enabled to use minimal SAT format', 'WARN-03', v_user_id); 
+    
+      end;
+
+    if v_test_type = 'ACT' then                                -- ACT raw file has no header
+      v_file_processed := null;
+      v_out_test_type  := null;
+      t_field_results := t_empty_field_results;
+      
+    elsif n_minimal_sat_used = 1 and v_test_type = 'SAT' then  -- SAT file with minimal headers, do not check header
       v_file_processed := null;
       v_out_test_type  := null;
       t_field_results := t_empty_field_results; 
+       
     else
       
       delete edfidata.district_assessment_header
-        where filename = v_file
-        and assessment_type = v_test_type
-        and district_id = v_district_id; 
+      where filename = v_file
+      and assessment_type = v_test_type
+      and district_id = v_district_id; 
 
       -- see table edfidata.assessment_std_file_format where
       -- for SAT, column position (1,6,7,8,23,26,42,47,48,49)
@@ -370,71 +432,103 @@ create or replace package body pkg_assessment_upload as
       commit;    
     
       -- for debugging only 
-      -----------------------------------------------------
-      -- insert into edfidata.debug_assessment_header
-      -- select * from edfidata.district_assessment_header;     
-      -- commit;  
+      if gn_debug_on = 1 then 
+     
+        delete edfidata.district_assessment_header; 
+         
+        -- for troubleshooting, store and look at assessment header that is being read from file
+        insert into edfidata.debug_assessment_header
+        select * from edfidata.district_assessment_header;     
+      
+        commit;  
+      
+      end if;  
     
       -- NOTE: No matter how the columns appear in the assessment file, all column names,
       --       when read into the edfidata.district_assessment_header table, will have any
       --       spaces replaced with an underscore ('_').  E.g. if the assessment file has
       --       a column name of FIRST NAME it will be converted to FIRST_NAME.  This is due 
       --       to the way the apex_data_parser procedure works.  
-         
-      select column_position, upper(column_name) as column_name 
-        bulk collect 
-        into t_field_results
-      from
-        (select column_position, upper(column_name) as column_name 
-         from edfidata.district_assessment_header  
-         where filename = v_file
-         and assessment_type = v_test_type
-         and district_id = v_district_id
-           minus 
-         select column_position, upper(column_name) as column_name 
-         from edfidata.assessment_std_file_format
-         where standard_type = v_test_type
-        )
-       union all
-        (select column_position, upper(column_name) as column_name 
-         from edfidata.assessment_std_file_format 
-         where standard_type = v_test_type
-           minus 
-         select column_position, upper(column_name) as column_name  
-         from edfidata.district_assessment_header 
-         where filename = v_file 
-         and assessment_type = v_test_type
-         and district_id = v_district_id
-        );
-  
-        if t_field_results.COUNT > 0 then 
-          v_file_processed := v_file;
-          v_out_test_type  := v_test_type;
-          t_field_results := t_empty_field_results; 
-          raise e_file_header_format_error;
-        else
-          v_file_processed := null;
-          v_out_test_type  := null;
-          t_field_results := t_empty_field_results; 
-        end if;
       
+      if v_test_type = 'TSI' then -- for any TSI test type
+        
+        select column_position, upper(column_name) as column_name 
+          bulk collect 
+          into t_field_results
+        from
+          (select column_position, upper(column_name) as column_name 
+           from edfidata.district_assessment_header  
+           where filename = v_file
+           and assessment_type = v_test_type
+           and district_id = v_district_id
+             minus 
+           select column_position, upper(column_name) as column_name 
+           from edfidata.assessment_std_file_format
+           where standard_type = v_test_type
+             minus
+           select column_position, upper(column_name) as column_name 
+           from edfidata.assessment_std_file_format
+           where standard_type = 'TSI2'  
+          );
+            
+      else   -- all other test types
+         
+        select column_position, upper(column_name) as column_name 
+          bulk collect 
+          into t_field_results
+        from
+          (select column_position, upper(column_name) as column_name 
+           from edfidata.district_assessment_header  
+           where filename = v_file
+           and assessment_type = v_test_type
+           and district_id = v_district_id
+             minus 
+           select column_position, upper(column_name) as column_name 
+           from edfidata.assessment_std_file_format
+           where standard_type = v_test_type
+          )
+         union all
+          (select column_position, upper(column_name) as column_name 
+           from edfidata.assessment_std_file_format 
+           where standard_type = v_test_type
+             minus 
+           select column_position, upper(column_name) as column_name  
+           from edfidata.district_assessment_header 
+           where filename = v_file 
+           and assessment_type = v_test_type
+           and district_id = v_district_id
+          );
+        
       end if;
+  
+      if t_field_results.COUNT > 0 then 
+        v_file_processed := v_file;
+        v_out_test_type  := v_test_type;
+        t_field_results := t_empty_field_results; 
+        raise e_file_header_format_error;
+      else
+        v_file_processed := null;
+        v_out_test_type  := null;
+        t_field_results := t_empty_field_results; 
+      end if;
+      
+    end if;
            
-      exception
-        when e_file_header_format_error then
-          prc_log_status('prc_check_file_header_format(): File header format error with file ' || v_file, 'ERROR-07', v_user_id);
-          apex_error.add_error(p_message          => 'File header format error with file ' || v_file,
-                               p_additional_info  => substr(sqlerrm, 1, 200),
-                               p_display_location => apex_error.c_inline_with_field_and_notif,
-                               p_page_item_name   => '');
-          raise;                     
-        when others then
-          prc_log_status('prc_check_file_header_format(): File upload error with file ' || sqlerrm || ' ' || v_file, 'ERROR-08', v_user_id);
-          apex_error.add_error(p_message          => 'File upload error with file ' || sqlerrm || ' ' || v_file,
-                               p_additional_info  => substr(sqlerrm, 1, 200),
-                               p_display_location => apex_error.c_inline_with_field_and_notif,
-                               p_page_item_name   => '');
-          raise;                      
+    exception
+      when e_file_header_format_error then
+        prc_log_status('prc_check_file_header_format(): File header format error with file ' || v_file, 'ERROR-07', v_user_id);
+        apex_error.add_error(p_message          => 'File header format error with file ' || v_file,
+                             p_additional_info  => substr(sqlerrm, 1, 200),
+                             p_display_location => apex_error.c_inline_with_field_and_notif,
+                             p_page_item_name   => '');
+        raise;                     
+      when others then
+        prc_log_status('prc_check_file_header_format(): File upload error with file ' || sqlerrm || ' ' || v_file, 'ERROR-08', v_user_id);
+        apex_error.add_error(p_message          => 'File upload error with file ' || sqlerrm || ' ' || v_file,
+                             p_additional_info  => substr(sqlerrm, 1, 200),
+                             p_display_location => apex_error.c_inline_with_field_and_notif,
+                             p_page_item_name   => '');
+        raise;                      
       
   end prc_check_file_header_format;
   
@@ -474,16 +568,77 @@ create or replace package body pkg_assessment_upload as
     c_act_row_clob clob;
     n_clob_length number;
     n_act_csv_rec_len number;
+    n_minimal_sat_used number := 0;    -- flag for district using minimal fields for SAT
+    n_minimal_ap_used number := 0;     -- flag for district using minimal fields for AP
     e_unknown_test_type exception;
   begin
     
     if v_test_type = 'SAT' then
       
       delete edfidata.district_sat_data
-        where district_id = v_district_id  
-        and file_name = v_file;  
+      where district_id = v_district_id  
+      and file_name = v_file; 
+       
+      begin
+          
+        select parameter_value
+        into n_minimal_sat_used
+        from assessment_config
+        where parameter_name = 'minimal_sat_used'
+        and parameter_district_id = v_district_id;
+        
+        exception 
+          when no_data_found then
+             prc_log_status('prc_upload_test_data(): District ' || v_district_id || ' not enabled to use minimal SAT format', 'WARN-04', v_user_id); 
+              
+      end;
+            
+      if n_minimal_sat_used = 1 then       -- district is using minimal fields for SAT
+        
+        insert into edfidata.district_sat_data
+        select 
+          col001,  -- ai_code
+          col002,  -- name_last
+          col003,  -- name_first
+          substr(col004,1,1),  -- name_mi
+          case 
+            -- when instr(col023, '-') > 0 then substr(col023,6,2) ||'/'|| substr(col023,9,2) ||'/'|| substr(col023,1,4)
+            when instr(col005, '-') > 0 then to_char(to_date(col005,'YYYY-MM-DD'),'MM/DD/YYYY') -- handles leading zeroes issue
+            when instr(col005, '/') > 0 then to_char(to_date(col005,'MM/DD/YYYY'),'MM/DD/YYYY') -- handles leading zeroes issue
+            else col005
+          end,     -- birth_date  (MM/DD/YYYY)
+          col006,  -- latest_sat_total
+          col007,  -- latest_sat_ebrw
+          col008,  -- latest_sat_math_section
+          col009,  -- latest_registration_num
+          case 
+            when instr(col010, '/') > 0 then to_date(col010, 'MM/DD/YYYY')
+            else to_date(col010, 'YYYY-MM-DD')
+          end,     -- latest_sat_date - assessment test date                          
+          sysdate, -- loaded date
+          v_district_id, --- district id
+          v_file,  -- file name only
+          line_number, -- file line number (line number after file header)
+          col011   -- secondary_id - district student id
+        from
+          apex_application_temp_files f, 
+        table
+          (
+            apex_data_parser.parse
+            (
+              p_content                     => f.blob_content,
+              p_add_headers_row             => 'Y',
+              p_max_rows                    => 20000,
+              p_skip_rows                   => 1,
+              p_store_profile_to_collection => 'FILE_PARSER_COLLECTION',
+              p_file_name                   => f.filename 
+            ) 
+          ) p
+        where f.name = v_fullpath_file;   -- fullpath file name here!
       
-      insert into edfidata.district_sat_data
+      else  
+      
+        insert into edfidata.district_sat_data
         select 
           col001,  -- ai_code
           col006,  -- name_last
@@ -508,27 +663,29 @@ create or replace package body pkg_assessment_upload as
           v_file,  -- file name only
           line_number, -- file line number (line number after file header)
           substr(col026,1,15) -- secondary_id
-      from
-       apex_application_temp_files f, 
-       table
-         (
-           apex_data_parser.parse
-           (
-             p_content                     => f.blob_content,
-             p_add_headers_row             => 'Y',
-             p_max_rows                    => 20000,
-             p_skip_rows                   => 1,
-             p_store_profile_to_collection => 'FILE_PARSER_COLLECTION',
-             p_file_name                   => f.filename 
-           ) 
-         ) p
-      where f.name = v_fullpath_file;   -- fullpath file name here!
+        from
+          apex_application_temp_files f, 
+          table
+            (
+              apex_data_parser.parse
+              (
+                p_content                     => f.blob_content,
+                p_add_headers_row             => 'Y',
+                p_max_rows                    => 20000,
+                p_skip_rows                   => 1,
+                p_store_profile_to_collection => 'FILE_PARSER_COLLECTION',
+                p_file_name                   => f.filename 
+              ) 
+            ) p
+          where f.name = v_fullpath_file;   -- fullpath file name here!
+      
+      end if;    
       
     elsif v_test_type = 'TSI' then
     
       delete edfidata.district_tsi_data
-        where district_id = v_district_id  
-        and file_name = v_file; 
+      where district_id = v_district_id  
+      and file_name = v_file; 
   
       insert into edfidata.district_tsi_data
       select 
@@ -540,9 +697,9 @@ create or replace package body pkg_assessment_upload as
         substr(col005,1,10), -- State Assigned Number -> STUDENT_ID
         case 
           when instr(col006, '-') > 0 then to_char(to_date(col006,'YYYY-MM-DD'),'MM/DD/YYYY') -- handles leading zeroes issue
-          when instr(col006, '-') > 0 then to_char(to_date(col006,'MM/DD/YYYY'),'MM/DD/YYYY') -- handles leading zeroes issue 
+          when instr(col006, '/') > 0 and length(col006) <= 8 then to_char(to_date(col006,'MM/DD/YY'),'MM/DD/YYYY') -- no century and handles leading zeroes issue     
+          when instr(col006, '/') > 0 then to_char(to_date(col006,'MM/DD/YYYY'),'MM/DD/YYYY') -- handles leading zeroes issue 
           else col006
-        -- col006, -- Date of Birth 
         end,    -- Date of Birth 
         col007, -- Test Site Code -> SITE_ID
         col008, -- Test Site Location -> INST_ID
@@ -576,8 +733,8 @@ create or replace package body pkg_assessment_upload as
     elsif v_test_type = 'IB' then
       
       delete edfidata.district_ib_data
-        where district_id = v_district_id  
-        and file_name = v_file;
+      where district_id = v_district_id  
+      and file_name = v_file;
         
       insert into edfidata.district_ib_data
       select 
@@ -615,80 +772,164 @@ create or replace package body pkg_assessment_upload as
     elsif v_test_type = 'AP' then
       
       delete edfidata.district_ap_data
-        where district_id = v_district_id  
-        and file_name = v_file;  
-         
-      insert into edfidata.district_ap_data
-      select 
-        line_number,
-        col002, -- last name
-        col003, -- first name
-        substr(col004,1,1), -- middle initial
-        case when length(trim(col014)) > 0 then
-          case when length(trim(col014)) = 5 then '0' || substr(trim(col014),1,1) || '/' || substr(trim(col014),2,2) || '/20' || substr(trim(col014),4,2) 
-               else substr(trim(col014),1,2) || '/' || substr(trim(col014),3,2) || '/20' || substr(trim(col014),5,2)    
-          end
-          else '07/07/2077'
-        end,    -- DOB
-        case when length(trim(col059)) > 0 then to_date('20'||trim(col059)||'-05-01', 'YYYY-MM-DD') else null end, 
-        col060, -- code01
-        col061, -- grade01
-        case when length(trim(col065)) > 0 then to_date('20'||trim(col065)||'-05-01', 'YYYY-MM-DD') else null end,  
-        col066, -- code02
-        col067, -- grade02
-        case when length(trim(col071)) > 0 then to_date('20'||trim(col071)||'-05-01', 'YYYY-MM-DD') else null end,  
-        col072, -- code03
-        col073, -- grade03
-        case when length(trim(col077)) > 0 then to_date('20'||trim(col077)||'-05-01', 'YYYY-MM-DD') else null end,   
-        col078, -- code04
-        col079, -- grade04
-        case when length(trim(col083)) > 0 then to_date('20'||trim(col083)||'-05-01', 'YYYY-MM-DD') else null end,   
-        col084, -- code05
-        col085, -- grade05
-        case when length(trim(col089)) > 0 then to_date('20'||trim(col089)||'-05-01', 'YYYY-MM-DD') else null end,  
-        col090, -- code06
-        col091, -- grade06
-        case when length(trim(col095)) > 0 then to_date('20'||trim(col095)||'-05-01', 'YYYY-MM-DD') else null end,   
-        col096, -- code07
-        col097, -- grade07
-        case when length(trim(col101)) > 0 then to_date('20'||trim(col101)||'-05-01', 'YYYY-MM-DD') else null end,     
-        col102, -- code08
-        col103, -- grade08
-        case when length(trim(col107)) > 0 then to_date('20'||trim(col107)||'-05-01', 'YYYY-MM-DD') else null end,         
-        col108, -- code09
-        col109, -- grade09
-        case when length(trim(col113)) > 0 then to_date('20'||trim(col113)||'-05-01', 'YYYY-MM-DD') else null end,       
-        col114, -- code10
-        col115, -- grade10  
-        sysdate,  -- loaded_date
-        v_district_id,
-        v_file  -- file name only
-      from
-        apex_application_temp_files f, 
-      table
-        (
-          apex_data_parser.parse
+      where district_id = v_district_id  
+      and file_name = v_file;  
+      
+      begin
+          
+        select parameter_value
+        into n_minimal_ap_used
+        from assessment_config
+        where parameter_name = 'minimal_ap_used'
+        and parameter_district_id = v_district_id;
+        
+        exception 
+          when no_data_found then
+             prc_log_status('prc_upload_test_data(): District ' || v_district_id || ' not enabled to use minimal AP format', 'WARN-05', v_user_id); 
+              
+      end;
+            
+      if n_minimal_ap_used = 1 then       -- district is using minimal fields for AP
+        
+        insert into edfidata.district_ap_data
+        select 
+          line_number,
+          col002, -- last name
+          col003, -- first name
+          substr(col004,1,1), -- middle initial
+          case 
+            when instr(col005, '-') > 0 then to_char(to_date(col005,'YYYY-MM-DD'),'MM/DD/YYYY') -- handles leading zeroes issue
+            when instr(col005, '/') > 0 and length(col005) <= 8 then to_char(to_date(col005,'MM/DD/YY'),'MM/DD/YYYY') -- no century and handles leading zeroes issue     
+            when instr(col005, '/') > 0 then to_char(to_date(col005,'MM/DD/YYYY'),'MM/DD/YYYY') -- handles leading zeroes issue 
+            when length(col005) = 5 then to_char(to_date(replace('0' || col005,'"',''),'MMDDYY'),'MM/DD/YYYY') -- handles leading zeroes issue 
+            else to_char(to_date(col005,'MMDDYY'),'MM/DD/YYYY') -- no leading zeroes issue exists so do this
+          end,    -- DOB   
+          case when length(trim(col006)) > 0 then to_date('20'||trim(col006)||'-05-01', 'YYYY-MM-DD') else null end, 
+          col007, -- code01
+          col008, -- grade01
+          case when length(trim(col009)) > 0 then to_date('20'||trim(col009)||'-05-01', 'YYYY-MM-DD') else null end,  
+          col010, -- code02
+          col011, -- grade02
+          case when length(trim(col012)) > 0 then to_date('20'||trim(col012)||'-05-01', 'YYYY-MM-DD') else null end,  
+          col013, -- code03
+          col014, -- grade03
+          case when length(trim(col015)) > 0 then to_date('20'||trim(col015)||'-05-01', 'YYYY-MM-DD') else null end,   
+          col016, -- code04
+          col017, -- grade04
+          case when length(trim(col018)) > 0 then to_date('20'||trim(col018)||'-05-01', 'YYYY-MM-DD') else null end,   
+          col019, -- code05
+          col020, -- grade05
+          case when length(trim(col021)) > 0 then to_date('20'||trim(col021)||'-05-01', 'YYYY-MM-DD') else null end,  
+          col022, -- code06
+          col023, -- grade06
+          case when length(trim(col024)) > 0 then to_date('20'||trim(col024)||'-05-01', 'YYYY-MM-DD') else null end,   
+          col025, -- code07
+          col026, -- grade07
+          case when length(trim(col027)) > 0 then to_date('20'||trim(col027)||'-05-01', 'YYYY-MM-DD') else null end,     
+          col028, -- code08
+          col029, -- grade08
+          case when length(trim(col030)) > 0 then to_date('20'||trim(col030)||'-05-01', 'YYYY-MM-DD') else null end,         
+          col031, -- code09
+          col032, -- grade09
+          case when length(trim(col033)) > 0 then to_date('20'||trim(col033)||'-05-01', 'YYYY-MM-DD') else null end,       
+          col034, -- code10
+          col035, -- grade10  
+          sysdate,  -- loaded_date
+          v_district_id,
+          v_file  -- file name only
+        from
+          apex_application_temp_files f, 
+        table
           (
-            p_content                     => f.blob_content,
-            p_add_headers_row             => 'Y',
-            p_max_rows                    => 20000,
-            p_skip_rows                   => 1,  
-            p_store_profile_to_collection => 'FILE_PARSER_COLLECTION',
-            p_file_name                   => f.filename 
-          ) 
-        ) p
-      where
-        f.name = v_fullpath_file;     -- fullpath file name here!
+            apex_data_parser.parse
+            (
+              p_content                     => f.blob_content,
+              p_add_headers_row             => 'Y',
+              p_max_rows                    => 20000,
+              p_skip_rows                   => 1,  
+              p_store_profile_to_collection => 'FILE_PARSER_COLLECTION',
+              p_file_name                   => f.filename 
+            ) 
+          ) p
+        where
+          f.name = v_fullpath_file;     -- fullpath file name here!
+ 
+      else   
+         
+        insert into edfidata.district_ap_data
+        select 
+          line_number,
+          replace(col002,'"',''), -- last name
+          replace(col003,'"',''), -- first name
+          replace(substr(col004,1,1),'"',''), -- middle initial
+          case 
+            when instr(replace(col014,'"',''), '-') > 0 then to_char(to_date(replace(col014,'"',''),'YYYY-MM-DD'),'MM/DD/YYYY') -- handles leading zeroes issue
+            when instr(replace(col014,'"',''), '/') > 0 and length(replace(col014,'"','')) <= 8 then to_char(to_date(replace(col014,'"',''),'MM/DD/YY'),'MM/DD/YYYY') -- no century and handles leading zeroes issue     
+            when instr(replace(col014,'"',''), '/') > 0 then to_char(to_date(replace(col014,'"',''),'MM/DD/YYYY'),'MM/DD/YYYY') -- handles leading zeroes issue 
+            when length(col014) = 5 then to_char(to_date(replace('0' || col014,'"',''),'MMDDYY'),'MM/DD/YYYY') -- handles leading zeroes issue 
+            else to_char(to_date(replace(col014,'"',''),'MMDDYY'),'MM/DD/YYYY') -- no leading zeroes issue exists so do this
+          end,  -- DOB  
+          case when length(trim(replace(col059,'"',''))) > 0 then to_date('20'||trim(replace(col059,'"',''))||'-05-01', 'YYYY-MM-DD') else null end, 
+          replace(col060,'"',''), -- code01
+          replace(col061,'"',''), -- grade01
+          case when length(trim(replace(col065,'"',''))) > 0 then to_date('20'||trim(replace(col065,'"',''))||'-05-01', 'YYYY-MM-DD') else null end,  
+          replace(col066,'"',''), -- code02
+          replace(col067,'"',''), -- grade02
+          case when length(trim(replace(col071,'"',''))) > 0 then to_date('20'||trim(replace(col071,'"',''))||'-05-01', 'YYYY-MM-DD') else null end,  
+          replace(col072,'"',''), -- code03
+          replace(col073,'"',''), -- grade03
+          case when length(trim(replace(col077,'"',''))) > 0 then to_date('20'||trim(replace(col077,'"',''))||'-05-01', 'YYYY-MM-DD') else null end,   
+          replace(col078,'"',''), -- code04
+          replace(col079,'"',''), -- grade04
+          case when length(trim(replace(col083,'"',''))) > 0 then to_date('20'||trim(replace(col083,'"',''))||'-05-01', 'YYYY-MM-DD') else null end,   
+          replace(col084,'"',''), -- code05
+          replace(col085,'"',''), -- grade05
+          case when length(trim(replace(col089,'"',''))) > 0 then to_date('20'||trim(replace(col089,'"',''))||'-05-01', 'YYYY-MM-DD') else null end,  
+          replace(col090,'"',''), -- code06
+          replace(col091,'"',''), -- grade06
+          case when length(trim(replace(col095,'"',''))) > 0 then to_date('20'||trim(replace(col095,'"',''))||'-05-01', 'YYYY-MM-DD') else null end,   
+          replace(col096,'"',''), -- code07
+          replace(col097,'"',''), -- grade07
+          case when length(trim(replace(col101,'"',''))) > 0 then to_date('20'||trim(replace(col101,'"',''))||'-05-01', 'YYYY-MM-DD') else null end,     
+          replace(col102,'"',''), -- code08
+          replace(col103,'"',''), -- grade08
+          case when length(trim(replace(col107,'"',''))) > 0 then to_date('20'||trim(replace(col107,'"',''))||'-05-01', 'YYYY-MM-DD') else null end,         
+          replace(col108,'"',''), -- code09
+          replace(col109,'"',''), -- grade09
+          case when length(trim(replace(col113,'"',''))) > 0 then to_date('20'||trim(replace(col113,'"',''))||'-05-01', 'YYYY-MM-DD') else null end,       
+          replace(col114,'"',''), -- code10
+          replace(col115,'"',''), -- grade10  
+          sysdate,  -- loaded_date
+          v_district_id,
+          v_file  -- file name only
+        from
+          apex_application_temp_files f, 
+        table
+          (
+            apex_data_parser.parse
+            (
+              p_content                     => f.blob_content,
+              p_add_headers_row             => 'Y',
+              p_max_rows                    => 20000,
+              p_skip_rows                   => 1,  
+              p_store_profile_to_collection => 'FILE_PARSER_COLLECTION',
+              p_file_name                   => f.filename 
+            ) 
+          ) p
+        where
+          f.name = v_fullpath_file;     -- fullpath file name here!
+        
+      end if;  
   
     elsif v_test_type = 'ACT' then
       
       delete edfidata.district_temp_act_data
-        where district_id = v_district_id  
-        and file_name = v_file; 
+      where district_id = v_district_id  
+      and file_name = v_file; 
         
       delete edfidata.district_act_data
-        where district_id = v_district_id  
-        and file_name = v_file; 
+      where district_id = v_district_id  
+      and file_name = v_file; 
 
       insert into edfidata.district_temp_act_data
       select 
@@ -725,8 +966,12 @@ create or replace package body pkg_assessment_upload as
       select parameter_value
       into n_act_csv_rec_len
       from assessment_config
-      where parameter_name = 'act_csv_rec_len';       
-       
+      where parameter_name = 'act_csv_rec_len';  
+      
+      if gn_debug_on = 1 then       -- is global debug variable set?
+        prc_log_status('prc_upload_test_data(): ACT file header length for first column is ' || n_clob_length, 'INFO-03', v_user_id);     
+      end if;
+        
       if n_clob_length > n_act_csv_rec_len then   -- ACT fixed-width file
     
         -- parse CLOB column to get field data
@@ -758,7 +1003,58 @@ create or replace package body pkg_assessment_upload as
        
         forall idx2 in t_act_data.first..t_act_data.last
           insert into edfidata.district_act_data values t_act_data(idx2);
-        
+          
+      elsif n_clob_length = 6 then              -- new (as of school year 2021) ACT CSV format, first column header is 8 chars ("ACT ID")
+                                                -- ACT CSV created by Assessment Loader is 10 chars ("Other Id")                                    
+        insert into edfidata.district_act_data
+        select 
+          replace(col001,'"',''),                -- other_id
+          line_number,                           -- line_number
+          replace(col002,'"',''),                -- last_name
+          replace(col003,'"',''),                -- first_name
+          substr(replace(col004,'"',''),1,1),    -- mid_init
+          substr(replace(col008,'"',''),1,1),    -- gender
+          to_char(to_date(replace(col006,'"',''),'MM/DD/YYYY'),'MM/DD/YYYY'), -- birth_date or DOB and handles leading zeroes issue
+          replace(col009,'"',''),                -- act_scale_scores_composite
+          replace(col012,'"',''),                -- act_scale_scores_english 
+          replace(col010,'"',''),                -- act_scale_scores_math
+          replace(col013,'"',''),                -- act_scale_scores_reading
+          replace(col011,'"',''),                -- act_scale_scores_science
+          case                                   -- test_date_month_and_year - comes from file in a format like December 2020 or Dec-20
+            when substr(replace(col005,'"',''),1,3) = 'Jan' then '01/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'Feb' then '02/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'Mar' then '03/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'Apr' then '04/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'May' then '05/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'Jun' then '06/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'Jul' then '07/01/20' || substr(replace(col005,'"',''),-2,2)           
+            when substr(replace(col005,'"',''),1,3) = 'Aug' then '08/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'Sep' then '09/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'Oct' then '10/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'Nov' then '11/01/20' || substr(replace(col005,'"',''),-2,2)
+            when substr(replace(col005,'"',''),1,3) = 'Dec' then '12/01/20' || substr(replace(col005,'"',''),-2,2)
+          end,               
+          substr(replace(col007,'"',''),1,2),    -- grade_level
+          sysdate,                               -- loaded_date
+          v_district_id,                         -- district_id
+          v_file                                 -- file_name
+        from
+          apex_application_temp_files f, 
+        table
+          (
+            apex_data_parser.parse
+            (
+              p_content                     => f.blob_content,
+              p_add_headers_row             => 'Y',
+              p_max_rows                    => 20000,
+              p_skip_rows                   => 1,        -- skip first row on ACT CSV file as it has a header
+              p_csv_col_delimiter           => ',',
+              p_store_profile_to_collection => 'FILE_PARSER_COLLECTION',
+              p_file_name                   => f.filename 
+            ) 
+          ) p
+        where f.name = v_fullpath_file;   -- fullpath file name here!
+              
       else   -- ACT CSV file
          
         insert into edfidata.district_act_data
@@ -769,7 +1065,7 @@ create or replace package body pkg_assessment_upload as
           replace(col003,'"',''),  -- first_name
           substr(replace(col004,'"',''),1,1),  -- mid_init
           replace(col005,'"',''),  -- gender
-          replace(col006,'"',''),  -- birth_date
+          to_char(to_date(replace(col006,'"',''),'MM/DD/YYYY'),'MM/DD/YYYY'), -- birth_date or DOB and handles leading zeroes issue
           replace(col007,'"',''),  -- act_scale_scores_composite
           replace(col008,'"',''),  -- act_scale_scores_english 
           replace(col009,'"',''),  -- act_scale_scores_math
@@ -980,9 +1276,27 @@ create or replace package body pkg_assessment_upload as
     s_sql_select_data varchar2(1000);
     s_sql_close_db_link varchar2(200);
     f_output utl_file.file_type;
+    n_minimal_sat_used number := 0;
     e_zero_rows exception;
-  begin  
-    s_sql_select_data := 'select distinct 
+  begin 
+    
+    begin
+          
+      select parameter_value
+      into n_minimal_sat_used
+      from assessment_config
+      where parameter_name = 'minimal_sat_used'
+      and parameter_district_id = substr(v_file,1,6);
+        
+      exception 
+        when no_data_found then
+           prc_log_status('prc_process_sat_data_output: District ' || substr(v_file,1,6) || ' not enabled to use minimal SAT format', 'WARN-06', v_user_id); 
+              
+    end;
+   
+    if n_minimal_sat_used = 1 then
+      
+      s_sql_select_data := 'select distinct 
          stu."StudentUniqueId"
          ,ai_code
          ,latest_assessment_date
@@ -990,10 +1304,25 @@ create or replace package body pkg_assessment_upload as
          ,latest_sat_math_section
          ,latest_sat_ebrw
         from edfidata.district_sat_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
-      ' on file_name = ' || '''' || v_file || '''' ||
+      ' on s.file_name = ' || '''' || v_file || '''' ||
+      ' and s.secondary_id = stu."LocalCode"'; -- handles leading zeroes issue    
+    
+    else
+      
+      s_sql_select_data := 'select distinct 
+         stu."StudentUniqueId"
+         ,ai_code
+         ,latest_assessment_date
+         ,latest_sat_total
+         ,latest_sat_math_section
+         ,latest_sat_ebrw
+        from edfidata.district_sat_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
+      ' on s.file_name = ' || '''' || v_file || '''' ||
       ' and upper(s.first_name) = upper(stu."FirstName")
       and upper(s.last_name) = upper(stu."LastSurname")
       and to_char(to_date(s.birth_date,''MM/DD/YYYY''),''MM/DD/YYYY'') = to_char(stu."BirthDate", ''MM/DD/YYYY'')'; -- handles leading zeroes issue    
+    
+    end if;
             
     execute immediate s_sql_select_data bulk collect into t_sat_data;
     commit;    -- due to distributed transaction over dblink
@@ -1027,6 +1356,7 @@ create or replace package body pkg_assessment_upload as
       utl_file.put(f_output,t_sat_data(i).latest_sat_math_section || ',');
       utl_file.put(f_output,t_sat_data(i).latest_sat_ebrw);
       utl_file.put(f_output,chr(10));
+      utl_file.fflush(f_output);
     end loop;  -- end output to file loop
       
     t_sat_data := t_empty_sat_data;
@@ -1279,6 +1609,7 @@ create or replace package body pkg_assessment_upload as
       utl_file.put(f_output,t_act_data(i).test_date_month_and_year || ',');
       utl_file.put(f_output,t_act_data(i).grade_level);
       utl_file.put(f_output,chr(10));
+      utl_file.fflush(f_output);     -- add flush to ensure all recs written
     end loop;  -- end output to file loop
       
     t_act_data := t_empty_act_data;
@@ -1389,6 +1720,7 @@ create or replace package body pkg_assessment_upload as
       utl_file.put(f_output,ltrim(t_ap_data(i).code,'0') || ',');
       utl_file.put(f_output,t_ap_data(i).score);
       utl_file.put(f_output,chr(10));
+      utl_file.fflush(f_output);     -- add flush to ensure all recs written
     end loop;  -- end output to file loop
       
     t_ap_data := t_empty_ap_data;
@@ -1472,6 +1804,7 @@ create or replace package body pkg_assessment_upload as
       utl_file.put(f_output,t_ib_data(i).subject || ',');
       utl_file.put(f_output,t_ib_data(i).exam_grade);
       utl_file.put(f_output,chr(10));
+      utl_file.fflush(f_output);     -- add flush to ensure all recs written
     end loop;  -- end output to file loop
       
     t_ib_data := t_empty_ib_data;

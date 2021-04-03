@@ -1,0 +1,7 @@
+update ASSESSMENT_STD_FILE_FORMAT t set t.column_name = 'TEST_END' where t.standard_type = 'TSI' and t.column_position = 1; 
+update ASSESSMENT_STD_FILE_FORMAT t set t.column_name = 'STUDENT_ID' where t.standard_type = 'TSI' and t.column_position = 5; 
+update ASSESSMENT_STD_FILE_FORMAT t set t.column_name = 'BIRTH_DATE' where t.standard_type = 'TSI' and t.column_position = 6; 
+update ASSESSMENT_STD_FILE_FORMAT t set t.column_name = 'TSI_MATHEMATICS_PLACEMENT' where t.standard_type = 'TSI' and t.column_position = 10; 
+update ASSESSMENT_STD_FILE_FORMAT t set t.column_name = 'TSI_READING_PLACEMENT' where t.standard_type = 'TSI' and t.column_position = 11; 
+update ASSESSMENT_STD_FILE_FORMAT t set t.column_name = 'TSI_WRITING_PLACEMENT' where t.standard_type = 'TSI' and t.column_position = 12; 
+update ASSESSMENT_STD_FILE_FORMAT t set t.column_name = 'TSI_WRITEPLACER' where t.standard_type = 'TSI' and t.column_position = 13; 
