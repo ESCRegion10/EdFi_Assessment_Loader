@@ -1,0 +1,1748 @@
+{
+    "title": "mapping-TSI2-May-2021",
+    "description": "mapping-TSI2-2021 exported mapping May 6 2021",
+    "apiVersion": "3.5.5",
+    "template": {
+        "maps": [
+            {
+                "name": "mapping-TSI2-2021",
+                "resourcePath": "/ed-fi/studentAssessments",
+                "columnHeaders": [
+                    "TEST_START",
+                    "STUDENT_ID",
+                    "TSI2_MATH_READINESS",
+                    "TSI2_MATH_DIAGNOSTIC",
+                    "TSI2_ELAR_READINESS",
+                    "TSI2_ELAR_DIAGNOSTIC",
+                    "TSI2_ELAR_ESSAY"
+                ],
+                "map": {
+                    "studentAssessmentIdentifier": {
+                        "Column": "STUDENT_ID"
+                    },
+                    "assessmentReference": {
+                        "assessmentIdentifier": "TSI2-2021",
+                        "namespace": "uri://ed-fi.org/Assessment"
+                    },
+                    "studentReference": {
+                        "studentUniqueId": {
+                            "Column": "STUDENT_ID"
+                        }
+                    },
+                    "administrationDate": {
+                        "Column": "TEST_START"
+                    },
+                    "studentObjectiveAssessments": [
+                        {
+                            "objectiveAssessmentReference": {
+                                "identificationCode": "TSI2_MATH_READINESS"
+                            },
+                            "scoreResults": [
+                                {
+                                    "assessmentReportingMethodDescriptor": "uri://ed-fi.org/AssessmentReportingMethodDescriptor#Number score",
+                                    "resultDatatypeTypeDescriptor": "uri://ed-fi.org/ResultDatatypeTypeDescriptor#Integer",
+                                    "result": {
+                                        "Column": "TSI2_MATH_READINESS",
+                                        "Default": "#N/A"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "objectiveAssessmentReference": {
+                                "identificationCode": "TSI2_MATH_DIAGNOSTIC"
+                            },
+                            "scoreResults": [
+                                {
+                                    "assessmentReportingMethodDescriptor": "uri://ed-fi.org/AssessmentReportingMethodDescriptor#Number score",
+                                    "resultDatatypeTypeDescriptor": "uri://ed-fi.org/ResultDatatypeTypeDescriptor#Integer",
+                                    "result": {
+                                        "Column": "TSI2_MATH_DIAGNOSTIC",
+                                        "Default": "#N/A"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "objectiveAssessmentReference": {
+                                "identificationCode": "TSI2_ELAR_READINESS"
+                            },
+                            "scoreResults": [
+                                {
+                                    "assessmentReportingMethodDescriptor": "uri://ed-fi.org/AssessmentReportingMethodDescriptor#Number score",
+                                    "resultDatatypeTypeDescriptor": "uri://ed-fi.org/ResultDatatypeTypeDescriptor#Integer",
+                                    "result": {
+                                        "Column": "TSI2_ELAR_READINESS",
+                                        "Default": "#N/A"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "objectiveAssessmentReference": {
+                                "identificationCode": "TSI2_ELAR_DIAGNOSTIC"
+                            },
+                            "scoreResults": [
+                                {
+                                    "assessmentReportingMethodDescriptor": "uri://ed-fi.org/AssessmentReportingMethodDescriptor#Number score",
+                                    "resultDatatypeTypeDescriptor": "uri://ed-fi.org/ResultDatatypeTypeDescriptor#Integer",
+                                    "result": {
+                                        "Column": "TSI2_ELAR_DIAGNOSTIC",
+                                        "Default": "#N/A"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "objectiveAssessmentReference": {
+                                "identificationCode": "TSI2_ELAR_ESSAY"
+                            },
+                            "scoreResults": [
+                                {
+                                    "assessmentReportingMethodDescriptor": "uri://ed-fi.org/AssessmentReportingMethodDescriptor#Number score",
+                                    "resultDatatypeTypeDescriptor": "uri://ed-fi.org/ResultDatatypeTypeDescriptor#Integer",
+                                    "result": {
+                                        "Column": "TSI2_ELAR_ESSAY",
+                                        "Default": "#N/A"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "bootstraps": [
+            {
+                "name": "assessments",
+                "resourcePath": "/ed-fi/assessments",
+                "data": [
+                    {
+                        "assessmentIdentifier": "CB-AP-2018",
+                        "assessmentTitle": "CB-AP-2018",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Composite"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "CB-AP-2018"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-THEATRE HL",
+                        "assessmentTitle": "IB-THEATRE HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-THEATRE HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-MUSIC GR.PERF SL",
+                        "assessmentTitle": "IB-MUSIC GR.PERF SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-MUSIC GR.PERF SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-MUSIC SL",
+                        "assessmentTitle": "IB-MUSIC SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-MUSIC SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-FILM SL",
+                        "assessmentTitle": "IB-FILM SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-FILM SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-PHILOSOPHY SL",
+                        "assessmentTitle": "IB-PHILOSOPHY SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-PHILOSOPHY SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-MUSIC SO.PERF SL",
+                        "assessmentTitle": "IB-MUSIC SO.PERF SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-MUSIC SO.PERF SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-HIST.AMERICAS HL",
+                        "assessmentTitle": "IB-HIST.AMERICAS HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-HIST.AMERICAS HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-MATH.STUDIES SL",
+                        "assessmentTitle": "IB-MATH.STUDIES SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-MATH.STUDIES SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-BIOLOGY SL",
+                        "assessmentTitle": "IB-BIOLOGY SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-BIOLOGY SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-FRENCH B SL",
+                        "assessmentTitle": "IB-FRENCH B SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-FRENCH B SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-CHEMISTRY SL",
+                        "assessmentTitle": "IB-CHEMISTRY SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-CHEMISTRY SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-PSYCHOLOGY SL",
+                        "assessmentTitle": "IB-PSYCHOLOGY SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-PSYCHOLOGY SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-LATIN HL",
+                        "assessmentTitle": "IB-LATIN HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-LATIN HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-COMPUTER SC. SL",
+                        "assessmentTitle": "IB-COMPUTER SC. SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-COMPUTER SC. SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-COMPUTER SC. HL",
+                        "assessmentTitle": "IB-COMPUTER SC. HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-COMPUTER SC. HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-MATHEMATICS HL",
+                        "assessmentTitle": "IB-MATHEMATICS HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-MATHEMATICS HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-PSYCHOLOGY HL",
+                        "assessmentTitle": "IB-PSYCHOLOGY HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-PSYCHOLOGY HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-LATIN SL",
+                        "assessmentTitle": "IB-LATIN SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-LATIN SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-FRENCH B HL",
+                        "assessmentTitle": "IB-FRENCH B HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-FRENCH B HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "CB-SAT-2018",
+                        "assessmentTitle": "CB-SAT-2018",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Composite"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "CB-SAT-2018"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "TSI-2018",
+                        "assessmentTitle": "TSI-2018",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Composite"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "TSI-2018"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "ACT-2018",
+                        "assessmentTitle": "ACT-2018",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Composite"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "ACT-2018"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-FILM HL",
+                        "assessmentTitle": "IB-FILM HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-FILM HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-MUSIC HL",
+                        "assessmentTitle": "IB-MUSIC HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-MUSIC HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-SPANISH B HL",
+                        "assessmentTitle": "IB-SPANISH B HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-SPANISH B HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-MUSIC HL",
+                        "assessmentTitle": "IB-MUSIC HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-MUSIC HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-PHYSICS HL",
+                        "assessmentTitle": "IB-PHYSICS HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-PHYSICS HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-VISUAL ARTS HL",
+                        "assessmentTitle": "IB-VISUAL ARTS HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-VISUAL ARTS HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-VISUAL ARTS OPTION A SL",
+                        "assessmentTitle": "IB-VISUAL ARTS OPTION A SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-VISUAL ARTS OPTION A SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-BIOLOGY HL",
+                        "assessmentTitle": "IB-BIOLOGY HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-BIOLOGY HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-ECONOMICS SL",
+                        "assessmentTitle": "IB-ECONOMICS SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-ECONOMICS SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-CHEMISTRY HL",
+                        "assessmentTitle": "IB-CHEMISTRY HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-CHEMISTRY HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-VISUAL ARTS SL",
+                        "assessmentTitle": "IB-VISUAL ARTS SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-VISUAL ARTS SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-ENV. AND SOC. SL",
+                        "assessmentTitle": "IB-ENV. AND SOC. SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-ENV. AND SOC. SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-PHYSICS SL",
+                        "assessmentTitle": "IB-PHYSICS SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-PHYSICS SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-ENGLISH A: Literature HL",
+                        "assessmentTitle": "IB-ENGLISH A: Literature HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-ENGLISH A: Literature HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-ENGLISH A: Literature SL",
+                        "assessmentTitle": "IB-ENGLISH A: Literature SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-ENGLISH A: Literature SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-MATHEMATICS SL",
+                        "assessmentTitle": "IB-MATHEMATICS SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-MATHEMATICS SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-HISTORY AMERICAS HL",
+                        "assessmentTitle": "IB-HISTORY AMERICAS HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-HISTORY AMERICAS HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-HISTORY SL",
+                        "assessmentTitle": "IB-HISTORY SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-HISTORY SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-SPANISH B SL",
+                        "assessmentTitle": "IB-SPANISH B SL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-SPANISH B SL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "IB-VISUAL ARTS OPTION A HL",
+                        "assessmentTitle": "IB-VISUAL ARTS OPTION A HL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#International Baccalaureate",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "IB-VISUAL ARTS OPTION A HL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-UNITED STATES HISTORY",
+                        "assessmentTitle": "AP-UNITED STATES HISTORY",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-UNITED STATES HISTORY"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ART HISTORY",
+                        "assessmentTitle": "AP-ART HISTORY",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ART HISTORY"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ART:STUDIO ART-DRAWING",
+                        "assessmentTitle": "AP-ART:STUDIO ART-DRAWING",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ART:STUDIO ART-DRAWING"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ART:STUDIO ART-2D DESIGN",
+                        "assessmentTitle": "AP-ART:STUDIO ART-2D DESIGN",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ART:STUDIO ART-2D DESIGN"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ART:STUDIO ART-3D DESIGN",
+                        "assessmentTitle": "AP-ART:STUDIO ART-3D DESIGN",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ART:STUDIO ART-3D DESIGN"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-BIOLOGY",
+                        "assessmentTitle": "AP-BIOLOGY",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-BIOLOGY"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-SEMINAR",
+                        "assessmentTitle": "AP-SEMINAR",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-SEMINAR"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AAP-RESEARCH",
+                        "assessmentTitle": "AP-RESEARCH",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-RESEARCH"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-CHEMISTRY",
+                        "assessmentTitle": "AP-CHEMISTRY",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-CHEMISTRY"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-CHINESE LANGUAGE AND CULTURE",
+                        "assessmentTitle": "AP-CHINESE LANGUAGE AND CULTURE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-CHINESE LANGUAGE AND CULTURE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-COMPUTER SCIENCE A",
+                        "assessmentTitle": "AP-COMPUTER SCIENCE A",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-COMPUTER SCIENCE A"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-COMPUTER SCIENCE PRINCIPLES",
+                        "assessmentTitle": "AP-COMPUTER SCIENCE PRINCIPLES",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-COMPUTER SCIENCE PRINCIPLES"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ECONOMICS: MICROECONOMICS",
+                        "assessmentTitle": "AP-ECONOMICS: MICROECONOMICS",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ECONOMICS: MICROECONOMICS"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ECONOMICS: MACROECONOMICS",
+                        "assessmentTitle": "AP-ECONOMICS: MACROECONOMICS",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ECONOMICS: MACROECONOMICS"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ENGLISH LANGUAGE AND COMPOSITION",
+                        "assessmentTitle": "AP-ENGLISH LANGUAGE AND COMPOSITION",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ENGLISH LANGUAGE AND COMPOSITION"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ENGLISH LITERATURE AND COMPOSITION",
+                        "assessmentTitle": "AP-ENGLISH LITERATURE AND COMPOSITION",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ENGLISH LITERATURE AND COMPOSITION"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ENVIRONMENTAL SCIENCE",
+                        "assessmentTitle": "AP-ENVIRONMENTAL SCIENCE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ENVIRONMENTAL SCIENCE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-EUROPEAN HISTORY",
+                        "assessmentTitle": "AP-EUROPEAN HISTORY",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-EUROPEAN HISTORY"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-FRENCH LANGUAGE AND CULTURE",
+                        "assessmentTitle": " AP-FRENCH LANGUAGE AND CULTURE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-FRENCH LANGUAGE AND CULTURE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-HUMAN GEOGRAPHY",
+                        "assessmentTitle": "AP-HUMAN GEOGRAPHY",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-HUMAN GEOGRAPHY"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-GERMAN LANGUAGE AND CULTURE",
+                        "assessmentTitle": "AP-GERMAN LANGUAGE AND CULTURE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-GERMAN LANGUAGE AND CULTURE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-GOVERNMENT AND POLITICS: UNITED STATES",
+                        "assessmentTitle": "AP-GOVERNMENT AND POLITICS: UNITED STATES",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-GOVERNMENT AND POLITICS: UNITED STATES"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-GOVERNMENT AND POLITICS: COMPARATIVE",
+                        "assessmentTitle": "AP-GOVERNMENT AND POLITICS: COMPARATIVE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-GOVERNMENT AND POLITICS: COMPARATIVE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-LATIN",
+                        "assessmentTitle": "AP-LATIN",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-LATIN"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-ITALIAN LANGUAGE AND CULTURE",
+                        "assessmentTitle": "AP-ITALIAN LANGUAGE AND CULTURE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-ITALIAN LANGUAGE AND CULTURE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-JAPANESE LANGUAGE AND CULTURE",
+                        "assessmentTitle": "AP-JAPANESE LANGUAGE AND CULTURE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-JAPANESE LANGUAGE AND CULTURE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-CALCULUS AB",
+                        "assessmentTitle": "AP-CALCULUS AB",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-CALCULUS AB"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-CALCULUS BC",
+                        "assessmentTitle": "AP-CALCULUS BC",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-CALCULUS BC"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-CALCULUS AB SUBSCORE",
+                        "assessmentTitle": "AP-CALCULUS AB SUBSCORE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-CALCULUS AB SUBSCORE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-MUSIC THEORY",
+                        "assessmentTitle": "AP-MUSIC THEORY",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-MUSIC THEORY"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-AURAL",
+                        "assessmentTitle": "AP-AURAL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-AURAL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-NON AURAL",
+                        "assessmentTitle": "AP-NON AURAL",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-NON AURAL"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-PHYSICS C: MECHANICS",
+                        "assessmentTitle": "AP-PHYSICS C: MECHANICS",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-PHYSICS C: MECHANICS"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-PHYSICS C: ELECTRICITY AND MAGNETISM",
+                        "assessmentTitle": "AP-PHYSICS C: ELECTRICITY AND MAGNETISM",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-PHYSICS C: ELECTRICITY AND MAGNETISM"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-PHYSICS 1",
+                        "assessmentTitle": "AP-PHYSICS 1",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-PHYSICS 1"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-PHYSICS 2",
+                        "assessmentTitle": "AP-PHYSICS 2",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-PHYSICS 2"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-PSYCHOLOGY",
+                        "assessmentTitle": "AP-PSYCHOLOGY",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-PSYCHOLOGY"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-SPANISH LANGUAGE AND CULTURE",
+                        "assessmentTitle": "AP-SPANISH LANGUAGE AND CULTURE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-SPANISH LANGUAGE AND CULTURE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-SPANISH LITERATURE AND CULTURE",
+                        "assessmentTitle": "AP-SPANISH LITERATURE AND CULTURE",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-SPANISH LITERATURE AND CULTURE"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-STATISTICS",
+                        "assessmentTitle": "AP-STATISTICS",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-STATISTICS"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "AP-WORLD HISTORY",
+                        "assessmentTitle": "AP-WORLD HISTORY",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2018,
+                        "assessmentCategoryDescriptor": "uri://ed-fi.org/AssessmentCategoryDescriptor#Advanced Placement",
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Other"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "AP-WORLD HISTORY"
+                            }
+                        ]
+                    },
+                    {
+                        "assessmentIdentifier": "TSI2-2021",
+                        "assessmentTitle": "TSI2-2021",
+                        "namespace": "uri://ed-fi.org/Assessment",
+                        "assessmentVersion": 2021,
+                        "academicSubjects": [
+                            {
+                                "academicSubjectDescriptor": "uri://ed-fi.org/AcademicSubjectDescriptor#Composite"
+                            }
+                        ],
+                        "identificationCodes": [
+                            {
+                                "assessmentIdentificationSystemDescriptor": "uri://ed-fi.org/AssessmentIdentificationSystemDescriptor#Test Contractor",
+                                "identificationCode": "TSI2-2021"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "Objective Assessments",
+                "resourcePath": "/ed-fi/objectiveAssessments",
+                "data": [
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "ACT-2018",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "English"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "ACT-2018",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "Math"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "CB-SAT-2018",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "Math"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "CB-SAT-2018",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "English"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "TSI-2018",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "TSI Math"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "TSI-2018",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "TSI Reading"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "TSI-2018",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "TSI Writing"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "TSI-2018",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "TSI Essay"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "TSI2-2021",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "TSI2_MATH_READINESS"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "TSI2-2021",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "TSI2_MATH_DIAGNOSTIC"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "TSI2-2021",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "TSI2_ELAR_READINESS"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "TSI2-2021",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "TSI2_ELAR_DIAGNOSTIC"
+                    },
+                    {
+                        "assessmentReference": {
+                            "assessmentIdentifier": "TSI2-2021",
+                            "namespace": "uri://ed-fi.org/Assessment"
+                        },
+                        "identificationCode": "TSI2_ELAR_ESSAY"
+                    }
+                ]
+            }
+        ],
+        "lookups": []
+    }
+}
