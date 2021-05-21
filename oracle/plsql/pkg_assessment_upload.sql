@@ -47,6 +47,7 @@ as
   -- procedure prc_process_ap_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
   -- procedure prc_process_act_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
   -- procedure prc_process_ib_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
+  -- procedure prc_process_tsi2_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
  
 end pkg_assessment_upload;
 /
@@ -156,7 +157,7 @@ create or replace package body pkg_assessment_upload as
                                        from edfi.v_StudentIds@' || v_db_link ||')
                             and file_name = ''' || v_file || '''';        
             
-    elsif v_test_type in ('AP', 'ACT', 'TSI', 'SAT') then      -- SAT tests do student mismatch by student first, last name and DOB
+    elsif v_test_type in ('AP', 'ACT', 'TSI', 'SAT', 'TSI2') then      -- SAT tests do student mismatch by student first, last name and DOB
         
       s_sql_insert_data := 'insert into assessment_stu_id_mismatch
                             select distinct
@@ -216,7 +217,7 @@ create or replace package body pkg_assessment_upload as
     e_invalid_log_status_type exception;
   begin 
     
-    if v_status_type like 'INFO%' then
+    if v_status_type like 'INFO%' or v_status_type like 'DEBUG%' then
       
       insert into assessment_status_log (created, created_by, statuscode, callstack, errorstack, backtrace, status_message, status_type, user_id) 
       values (systimestamp, user, 0, 'None', 'None', 'None', v_status_message, v_status_type, v_user_id);
@@ -312,7 +313,14 @@ create or replace package body pkg_assessment_upload as
       select count(*)
       into n_assessment_cdc_cnt
       from dual
-      where upper(substr(v_file,INSTR(v_file,'/',-1)+8,3)) = v_test_type;   
+      where upper(substr(v_file,INSTR(v_file,'/',-1)+8,3)) = v_test_type; 
+      
+    elsif v_test_type in ('TSI2') then 
+    
+      select count(*)
+      into n_assessment_cdc_cnt
+      from dual
+      where upper(substr(v_file,INSTR(v_file,'/',-1)+8,4)) = v_test_type;      
       
     else
       raise e_assessment_file_format_error;  
@@ -403,6 +411,7 @@ create or replace package body pkg_assessment_upload as
       -- for TSI, column position (1,2,3,5,6,10,11,12,13)
       -- for AP, column position (2,3,4,14,59,60,61,65,66,67,71,72,73,77,78,79,83,84,85,89,90,91,95,96,97,101,102,103,107,108,109,113,114,115)
       -- for IB, column position (1,2,3,4,5,6,7)
+      -- for TSI2 column position (1-13)
       insert into edfidata.district_assessment_header 
         select distinct
           column_position,
@@ -432,6 +441,8 @@ create or replace package body pkg_assessment_upload as
       commit;    
     
       -- for debugging only 
+      -- if you leave the global flag 'on' (gn_debug_on = 1) then the header format logic may not work properly, 
+      -- so turn the global flag 'off' (gn_debug_on = 0) before going to production
       if gn_debug_on = 1 then 
      
         delete edfidata.district_assessment_header; 
@@ -566,7 +577,7 @@ create or replace package body pkg_assessment_upload as
     v_file_type varchar2(10);
     idx1 number;
     c_act_row_clob clob;
-    n_clob_length number;
+    n_clob_length number := 0;         -- reset ACT CLOB to 0 on each pass
     n_act_csv_rec_len number;
     n_minimal_sat_used number := 0;    -- flag for district using minimal fields for SAT
     n_minimal_ap_used number := 0;     -- flag for district using minimal fields for AP
@@ -729,7 +740,54 @@ create or replace package body pkg_assessment_upload as
         ) p
       where
         f.name = v_fullpath_file;     -- fullpath file name here!
-        
+    
+    elsif v_test_type = 'TSI2' then
+    
+      delete edfidata.district_tsi2_data
+      where district_id = v_district_id  
+      and file_name = v_file; 
+  
+      insert into edfidata.district_tsi2_data
+      select 
+        line_number,
+        to_date(col001,'MM/DD/YYYY'), -- Test Date -> TEST_START
+        col002, -- Last Name -> LAST_NAME
+        col003, -- First Name -> FIRST_NAME
+        substr(col004,1,1),  -- Middle Initial -> MIDDLE_INITIAL
+        substr(col005,1,10), -- State Assigned Number -> STUDENT_ID
+        case 
+          when instr(col006, '-') > 0 then to_char(to_date(col006,'YYYY-MM-DD'),'MM/DD/YYYY') -- handles leading zeroes issue
+          when instr(col006, '/') > 0 and length(col006) <= 8 then to_char(to_date(col006,'MM/DD/YY'),'MM/DD/YYYY') -- no century and handles leading zeroes issue     
+          when instr(col006, '/') > 0 then to_char(to_date(col006,'MM/DD/YYYY'),'MM/DD/YYYY') -- handles leading zeroes issue 
+          else col006
+        end,    -- Date of Birth -> BIRTH_DATE
+        col007, -- Test Site Code -> SITE_ID
+        col008, -- Test Site Location -> INST_ID
+        col009, -- TSIA2 Mathematics College and Career Readiness -> TSI2_MATH_READINESS 
+        col010, -- TSIA2 Mathematics Diagnostic -> TSI2_MATH_DIAGNOSTIC 
+        col011, -- TSIA2 English Language Arts and Reading College and Career Readiness -> TSI2_ELAR_READINESS 
+        col012, -- TSIA2 English Language Arts and Reading Diagnostic -> TSI2_ELAR_DIAGNOSTIC
+        col013, -- TSIA2 WritePlacer -> TSI2_ELAR_ESSAY
+        v_district_id,  -- district id
+        v_file, -- input file (file name only)
+        sysdate -- loaded date
+      from
+        apex_application_temp_files f, 
+      table
+        (
+          apex_data_parser.parse
+          (
+            p_content                     => f.blob_content,
+            p_add_headers_row             => 'Y',
+            p_max_rows                    => 20000,
+            p_skip_rows                   => 1,  
+            p_store_profile_to_collection => 'FILE_PARSER_COLLECTION',
+            p_file_name                   => f.filename 
+          ) 
+        ) p
+      where
+        f.name = v_fullpath_file;     -- fullpath file name here!
+    
     elsif v_test_type = 'IB' then
       
       delete edfidata.district_ib_data
@@ -969,7 +1027,7 @@ create or replace package body pkg_assessment_upload as
       where parameter_name = 'act_csv_rec_len';  
       
       if gn_debug_on = 1 then       -- is global debug variable set?
-        prc_log_status('prc_upload_test_data(): ACT file header length for first column is ' || n_clob_length, 'INFO-03', v_user_id);     
+        prc_log_status('prc_upload_test_data(): ACT file header length for first column is ' || n_clob_length, 'DEBUG-01', v_user_id);     
       end if;
         
       if n_clob_length > n_act_csv_rec_len then   -- ACT fixed-width file
@@ -1004,8 +1062,10 @@ create or replace package body pkg_assessment_upload as
         forall idx2 in t_act_data.first..t_act_data.last
           insert into edfidata.district_act_data values t_act_data(idx2);
           
-      elsif n_clob_length = 6 then              -- new (as of school year 2021) ACT CSV format, first column header is 8 chars ("ACT ID")
-                                                -- ACT CSV created by Assessment Loader is 10 chars ("Other Id")                                    
+      elsif n_clob_length between 6 and 8 then   -- new (as of school year 2021) ACT CSV format, first column header is 8 chars ("ACT ID")
+                                                 -- could also be 6 chars if no double qoutes are used in first column header (ACT ID)
+                                                 -- ACT CSV created by Assessment Loader is 10 chars ("Other Id")  
+                                                                                                 
         insert into edfidata.district_act_data
         select 
           replace(col001,'"',''),                -- other_id
@@ -1071,7 +1131,21 @@ create or replace package body pkg_assessment_upload as
           replace(col009,'"',''),  -- act_scale_scores_math
           replace(col010,'"',''),  -- act_scale_scores_reading
           replace(col011,'"',''),  -- act_scale_scores_science
-          replace(col012,'"',''),  -- test_date_month_and_year
+     --     replace(col012,'"',''),  -- test_date_month_and_year
+          case                     -- test_date_month_and_year - comes from file in a format like December 2020 or Dec-20
+            when substr(replace(col012,'"',''),1,3) = 'Jan' then '01/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'Feb' then '02/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'Mar' then '03/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'Apr' then '04/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'May' then '05/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'Jun' then '06/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'Jul' then '07/01/20' || substr(replace(col012,'"',''),-2,2)           
+            when substr(replace(col012,'"',''),1,3) = 'Aug' then '08/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'Sep' then '09/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'Oct' then '10/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'Nov' then '11/01/20' || substr(replace(col012,'"',''),-2,2)
+            when substr(replace(col012,'"',''),1,3) = 'Dec' then '12/01/20' || substr(replace(col012,'"',''),-2,2)
+          end,     
           replace(col013,'"',''),  -- grade_level
           sysdate,                 -- loaded_date
           v_district_id,           -- district_id
@@ -1118,7 +1192,7 @@ create or replace package body pkg_assessment_upload as
           raise;                                  
         when others then
           prc_log_status('prc_upload_test_data(): File upload error with file ' || v_file, 'ERROR-11', v_user_id);  
-          apex_error.add_error(p_message          => 'File upload error with file ' || v_file,
+          apex_error.add_error(p_message          => 'File upload error with file ' || v_file || ', error: ' || dbms_utility.format_error_stack,
                                p_additional_info  => substr(sqlerrm, 1, 200),
                                p_display_location => apex_error.c_inline_with_field_and_notif,
                                p_page_item_name   => '');
@@ -1409,28 +1483,29 @@ create or replace package body pkg_assessment_upload as
     e_zero_rows exception;
   begin  
     s_sql_select_data := 'select 
-       stu."StudentUniqueId"
-       ,test_start
-       ,tsi_mathematics_placement
-       ,tsi_reading_placement
-       ,tsi_writing_placement
-       ,tsi_writeplacer
-      from edfidata.district_tsi_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
+       stu."StudentUniqueId",
+       s.test_start,
+       max(s.tsi_mathematics_placement) as tsi_mathematics_placement,
+       max(s.tsi_reading_placement) as tsi_reading_placement,
+       max(s.tsi_writing_placement) as tsi_writing_placement,
+       max(s.tsi_writeplacer) as tsi_writeplacer
+       from edfidata.district_tsi_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
       ' on file_name = ' || '''' || v_file || '''' ||
       ' and coalesce(s.student_id, ''0'') = stu."StudentUniqueId"
-      union
-      select 
-       stu."StudentUniqueId"
-       ,test_start
-       ,tsi_mathematics_placement
-       ,tsi_reading_placement
-       ,tsi_writing_placement
-       ,tsi_writeplacer
-      from edfidata.district_tsi_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
+       group by stu."StudentUniqueId", test_start
+         union
+       select stu."StudentUniqueId", 
+       s.test_start,
+       max(s.tsi_mathematics_placement) as tsi_mathematics_placement,
+       max(s.tsi_reading_placement) as tsi_reading_placement,
+       max(s.tsi_writing_placement) as tsi_writing_placement,
+       max(s.tsi_writeplacer) as tsi_writeplacer
+       from edfidata.district_tsi_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
       ' on file_name = ' || '''' || v_file || '''' ||
       ' and (upper(s.first_name) = upper(stu."FirstName")
-      and upper(s.last_name) = upper(substr(stu."LastSurname",1,length(s.last_name))) 
-      and to_char(to_date(s.birth_date,''MM/DD/YYYY''),''MM/DD/YYYY'') = to_char(stu."BirthDate", ''MM/DD/YYYY''))'; -- handles leading zeroes issue 
+       and upper(s.last_name) = upper(substr(stu."LastSurname",1,length(s.last_name))) 
+       and to_char(to_date(s.birth_date,''MM/DD/YYYY''),''MM/DD/YYYY'') = to_char(stu."BirthDate", ''MM/DD/YYYY''))
+       group by stu."StudentUniqueId", test_start'; 
             
     execute immediate s_sql_select_data bulk collect into t_tsi_data;
     commit;    -- due to distributed transaction over dblink
@@ -1443,30 +1518,18 @@ create or replace package body pkg_assessment_upload as
     if t_tsi_data.count = 0 then
       raise e_zero_rows;
     else
-        s_sql_count_stu_ids := 'select count(distinct("StudentUniqueId")) 
-        from (select 
-        stu."StudentUniqueId"
-       ,test_start
-       ,tsi_mathematics_placement
-       ,tsi_reading_placement
-       ,tsi_writing_placement
-       ,tsi_writeplacer
-      from edfidata.district_tsi_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
-      ' on file_name = ' || '''' || v_file || '''' ||
-      ' and coalesce(s.student_id, ''0'') = stu."StudentUniqueId"
-      union
-      select 
-       stu."StudentUniqueId"
-       ,test_start
-       ,tsi_mathematics_placement
-       ,tsi_reading_placement
-       ,tsi_writing_placement
-       ,tsi_writeplacer
-      from edfidata.district_tsi_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
-      ' on file_name = ' || '''' || v_file || '''' ||
-      ' and (upper(s.first_name) = upper(stu."FirstName")
-      and upper(s.last_name) = upper(substr(stu."LastSurname",1,length(s.last_name))) 
-      and to_char(to_date(s.birth_date,''MM/DD/YYYY''),''MM/DD/YYYY'') = to_char(stu."BirthDate", ''MM/DD/YYYY'')))';
+        s_sql_count_stu_ids := 'select count(student_ids) 
+        from (select stu."StudentUniqueId" as student_ids
+              from edfidata.district_tsi_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
+            ' on file_name = ' || '''' || v_file || '''' ||
+            ' and coalesce(s.student_id, ''0'') = stu."StudentUniqueId"
+                union
+              select stu."StudentUniqueId" as student_ids
+              from edfidata.district_tsi_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
+            ' on file_name = ' || '''' || v_file || '''' ||
+            ' and (upper(s.first_name) = upper(stu."FirstName")
+              and upper(s.last_name) = upper(substr(stu."LastSurname",1,length(s.last_name))) 
+              and to_char(to_date(s.birth_date,''MM/DD/YYYY''),''MM/DD/YYYY'') = to_char(stu."BirthDate", ''MM/DD/YYYY'')))';
     
       execute immediate s_sql_count_stu_ids into n_rows_with_stu_id;
       commit;    -- due to distributed transaction over dblink
@@ -1517,6 +1580,136 @@ create or replace package body pkg_assessment_upload as
         raise; 
      
   end prc_process_tsi_data_output;
+  
+   /*---------------------------------------------------------------------
+  - 
+  - Procedure:    prc_process_tsi2_data_output
+  - Purpose:      retrieve, modify and output TSI2 data to server file
+  -
+  ---------------------------------------------------------------------*/ 
+  
+  procedure prc_process_tsi2_data_output (v_db_link varchar2, v_file varchar2, n_rows_with_stu_id out number, v_output_directory varchar2, v_user_id varchar2)
+  is
+    type r_tsi2_data is record (
+      StudentUniqueId           varchar2(10),
+      test_start                edfidata.district_tsi2_data.test_start%type,
+      tsi2_math_readiness       edfidata.district_tsi2_data.tsi2_math_readiness%type,
+      tsi2_math_diagnostic      edfidata.district_tsi2_data.tsi2_math_diagnostic%type,
+      tsi2_elar_readiness       edfidata.district_tsi2_data.tsi2_elar_readiness%type,
+      tsi2_elar_diagnostic      edfidata.district_tsi2_data.tsi2_elar_diagnostic%type,
+      tsi2_elar_essay           edfidata.district_tsi2_data.tsi2_elar_essay%type
+    );
+    type tbl_tsi2_data is table of r_tsi2_data index by pls_integer;
+    t_tsi2_data tbl_tsi2_data;
+    t_empty_tsi2_data tbl_tsi2_data;
+    s_sql_select_data varchar2(4000);
+    s_sql_count_stu_ids varchar2(4000);
+    s_sql_close_db_link varchar2(200);
+    f_output utl_file.file_type;
+    e_zero_rows exception;
+  begin  
+    s_sql_select_data := 'select 
+       stu."StudentUniqueId"
+       ,test_start
+       ,max(s.tsi2_math_readiness) as tsi2_math_readiness
+       ,max(s.tsi2_math_diagnostic) as tsi2_math_diagnostic
+       ,max(s.tsi2_elar_readiness) as tsi2_elar_readiness
+       ,max(s.tsi2_elar_diagnostic) as tsi2_elar_diagnostic
+       ,max(s.tsi2_elar_essay) as tsi2_elar_essay
+      from edfidata.district_tsi2_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
+      ' on file_name = ' || '''' || v_file || '''' ||
+      ' and coalesce(s.student_id, ''0'') = stu."StudentUniqueId"
+      group by stu."StudentUniqueId", test_start
+        union
+      select 
+       stu."StudentUniqueId"
+       ,test_start
+       ,max(s.tsi2_math_readiness) as tsi2_math_readiness
+       ,max(s.tsi2_math_diagnostic) as tsi2_math_diagnostic
+       ,max(s.tsi2_elar_readiness) as tsi2_elar_readiness
+       ,max(s.tsi2_elar_diagnostic) as tsi2_elar_diagnostic
+       ,max(s.tsi2_elar_essay) as tsi2_elar_essay
+      from edfidata.district_tsi2_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
+      ' on file_name = ' || '''' || v_file || '''' ||
+      ' and (upper(s.first_name) = upper(stu."FirstName")
+      and upper(s.last_name) = upper(substr(stu."LastSurname",1,length(s.last_name))) 
+      and to_char(to_date(s.birth_date,''MM/DD/YYYY''),''MM/DD/YYYY'') = to_char(stu."BirthDate", ''MM/DD/YYYY''))
+      group by stu."StudentUniqueId", test_start';  
+            
+    execute immediate s_sql_select_data bulk collect into t_tsi2_data;
+    commit;    -- due to distributed transaction over dblink
+      
+    s_sql_close_db_link :=  'alter session close database link ' || v_db_link;
+    execute immediate s_sql_close_db_link;
+   
+    -- test for 0 rows found for students in ODS and raise exception if 0,
+    -- otherwise, save count of rows with student ids found and store in n_rows_with_stu_id
+    if t_tsi2_data.count = 0 then
+      raise e_zero_rows;
+    else
+        s_sql_count_stu_ids := 'select count(student_ids) 
+        from (select stu."StudentUniqueId" as student_ids
+              from edfidata.district_tsi2_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
+            ' on file_name = ' || '''' || v_file || '''' ||
+            ' and coalesce(s.student_id, ''0'') = stu."StudentUniqueId"
+                union
+              select stu."StudentUniqueId" as student_ids
+              from edfidata.district_tsi2_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
+            ' on file_name = ' || '''' || v_file || '''' ||
+            ' and (upper(s.first_name) = upper(stu."FirstName")
+              and upper(s.last_name) = upper(substr(stu."LastSurname",1,length(s.last_name))) 
+              and to_char(to_date(s.birth_date,''MM/DD/YYYY''),''MM/DD/YYYY'') = to_char(stu."BirthDate", ''MM/DD/YYYY'')))';
+    
+      execute immediate s_sql_count_stu_ids into n_rows_with_stu_id;
+      commit;    -- due to distributed transaction over dblink
+      
+      execute immediate s_sql_close_db_link;
+    end if;
+   
+    -- open output file
+    f_output := utl_file.fopen(v_output_directory, v_file, 'w');
+    -- write file header to server (maybe get column names from ASSESSMENT_STANDARD_FORMAT table?)  
+    utl_file.put_line(f_output,'STUDENT_ID,TEST_START,TSI2_MATH_READINESS,TSI2_MATH_DIAGNOSTIC,TSI2_ELAR_READINESS,TSI2_ELAR_DIAGNOSTIC,TSI2_ELAR_ESSAY');
+  
+    -- write contents from table to file on server
+    for i in 1 .. t_tsi2_data.count loop 
+      utl_file.put(f_output,t_tsi2_data(i).StudentUniqueId || ','); 
+      if instr(t_tsi2_data(i).test_start, '/') > 0 then
+        utl_file.put(f_output,t_tsi2_data(i).test_start || ',');       
+      else
+        utl_file.put(f_output,to_char(to_date(t_tsi2_data(i).test_start,'DD-MON-YY'),'MM/DD/YYYY') || ',');
+      end if;                       
+      utl_file.put(f_output,t_tsi2_data(i).tsi2_math_readiness || ',');
+      utl_file.put(f_output,t_tsi2_data(i).tsi2_math_diagnostic || ',');
+      utl_file.put(f_output,t_tsi2_data(i).tsi2_elar_readiness || ',');
+      utl_file.put(f_output,t_tsi2_data(i).tsi2_elar_diagnostic || ',');
+      utl_file.put(f_output,t_tsi2_data(i).tsi2_elar_essay);
+      utl_file.put(f_output,chr(10));
+      utl_file.fflush(f_output);     -- add flush to ensure all recs written
+    end loop;  -- end output to file loop
+      
+    t_tsi2_data := t_empty_tsi2_data;
+    utl_file.fflush(f_output);       -- add flush to ensure all recs written
+    utl_file.fclose(f_output);
+    commit;  -- due to distributed transaction over dblink 
+    
+    exception
+      when e_zero_rows then
+        prc_log_status('prc_process_tsi2_data_output(): Zero matching student records found in ODS for file ' || v_file, 'ERROR-40', v_user_id); 
+        apex_error.add_error(p_message          => 'Zero matching student records found in ODS for file ' || v_file,
+                             p_additional_info  => substr(sqlerrm, 1, 200),
+                             p_display_location => apex_error.c_inline_with_field_and_notif,
+                             p_page_item_name   => '');
+        raise; 
+      when others then
+        prc_log_status('prc_process_tsi2_data_output(): Unkwown error with data in file ' || v_file, 'ERROR-41', v_user_id);
+        apex_error.add_error(p_message          => 'Unkwown error with data in file ' || v_file,
+                             p_additional_info  => substr(sqlerrm, 1, 200),
+                             p_display_location => apex_error.c_inline_with_field_and_notif,
+                             p_page_item_name   => '');
+        raise; 
+     
+  end prc_process_tsi2_data_output;
   
   /*---------------------------------------------------------------------
   - 
@@ -1855,6 +2048,8 @@ create or replace package body pkg_assessment_upload as
       prc_process_ap_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
     elsif v_test_type = 'ACT' then
       prc_process_act_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
+    elsif v_test_type = 'TSI2' then
+      prc_process_tsi2_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
     else
       raise e_unknown_test_type;
     end if;
@@ -1898,7 +2093,7 @@ create or replace package body pkg_assessment_upload as
     -- (a) added commit at end of anonymous block that calls sp_reset_agent -- TE 12/17/20
     -- (b) don't know for certain why but I need to do this call more than once to reset the agent,
     --     possibly a lock conflict with SQL Server -- TE 12/17/20
-    for n_counter in 1..5
+    for n_counter in 1..10
     loop
       s_sql_call_reset_agent := 'declare retcode number(8); begin retcode := dbms_hs_passthrough.execute_immediate@' || v_db_link || '(''exec sp_reset_agent''); commit; end;';
       execute immediate s_sql_call_reset_agent;  
@@ -2035,7 +2230,7 @@ create or replace package body pkg_assessment_upload as
         || n_rows_total_students_uploaded || '</span> total uploaded students that had no valid student id found in the ODS.  These students without a valid student id <span style="color: yellow;">will not</span> be imported into your ODS.
         Please review the Student Id Mismatch report to resolve this issue';     
     else
-      apex_application.g_print_success_message := 'Load successful without warnings for : ' || v_file || ' with ' || n_rows_with_stu_id || ' rows uploaded.';
+      apex_application.g_print_success_message := 'Load successful without warnings for : ' || v_file || ' with ' || n_rows_with_stu_id || ' student(s) uploaded.';
     end if;
     
     exception
