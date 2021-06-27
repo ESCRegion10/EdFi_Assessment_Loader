@@ -1,0 +1,33 @@
+SID_LIST_LISTENER_EDFI_##DISTUPPER## =
+  (SID_LIST =
+    (SID_DESC =
+      (SID_NAME = edfi_##DISTRICT##)
+      (ORACLE_HOME = /u01/app/oracle/12.1/db_1)
+      (PROGRAM = dg4odbc)
+      (ENVS=LD_LIBRARY_PATH=/opt/microsoft/msodbcsql/lib64/libmsodbcsql-13.1.so.4.0:/u01/app/oracle/12.1/db_1/lib)
+    )
+  )
+
+LISTENER_EDFI_##DISTUPPER## =
+  (DESCRIPTION_LIST =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 10.10.2.32)(PORT = ##PORT1##))
+    )
+  )
+
+SID_LIST_LISTENER_EDFI_##DISTUPPER##_IMPORT =
+  (SID_LIST =
+    (SID_DESC =
+      (SID_NAME = edfi_##DISTRICT##_import)
+      (ORACLE_HOME = /u01/app/oracle/12.1/db_1)
+      (PROGRAM = dg4odbc)
+      (ENVS=LD_LIBRARY_PATH=/opt/microsoft/msodbcsql/lib64/libmsodbcsql-13.1.so.4.0:/u01/app/oracle/12.1/db_1/lib)
+    )
+  )
+
+LISTENER_EDFI_##DISTUPPER##_IMPORT =
+  (DESCRIPTION_LIST =
+    (DESCRIPTION =
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 10.10.2.32)(PORT = ##PORT2##))
+    )
+  )

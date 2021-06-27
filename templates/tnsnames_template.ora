@@ -1,0 +1,17 @@
+edfi_##DISTRICT## =
+  (DESCRIPTION =
+    (ADDRESS =
+      (PROTOCOL = TCP)(HOST = 10.10.2.32)(PORT = ##PORT1##)
+    )
+    (CONNECT_DATA =
+      (SID = edfi_##DISTRICT##))
+    (HS=OK))
+
+edfi_##DISTRICT##_import =
+  (DESCRIPTION =
+    (ADDRESS =
+      (PROTOCOL = TCP)(HOST = 10.10.2.32)(PORT = ##PORT2##)
+    )
+    (CONNECT_DATA =
+      (SID = edfi_##DISTRICT##_import))
+    (HS=OK))

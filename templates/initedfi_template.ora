@@ -1,0 +1,26 @@
+# This is a sample agent init file that contains the HS parameters that are
+# needed for the Database Gateway for ODBC
+
+#
+# HS init parameters
+#
+HS_FDS_CONNECT_INFO=edfi_##DISTRICT##
+HS_FDS_SHAREABLE_NAME=/usr/lib64/libodbc.so
+#HS_FDS_TRACE_LEVEL=255
+
+HS_LANGUAGE=american_america.we8iso8859p1
+HS_NLS_NCHAR=UCS2
+#HS_NLS_NCHAR=AL32UTF8
+
+HS_KEEP_REMOTE_COLUMN_SIZE=ALL
+HS_NLS_LENGTH_SEMANTICS=CHAR
+
+#
+# set max open cursors
+#
+HS_OPEN_CURSORS=1000
+
+#
+# ODBC specific environment variables
+#
+set ODBCINI=/etc/odbc.ini

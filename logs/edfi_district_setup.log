@@ -1,0 +1,193 @@
+255902
+grand_bend
+
+SQL*Plus: Release 12.1.0.2.0 Production on Sat Jun 26 19:48:40 2021
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 12c Standard Edition Release 12.1.0.2.0 - 64bit Production
+
+SQL> SQL> 
+Directory created.
+
+SQL> 
+Directory created.
+
+SQL> 
+Directory created.
+
+SQL> 
+Directory created.
+
+SQL> 
+Directory created.
+
+SQL> 
+Directory created.
+
+SQL> SQL> insert into EDFIDATA.DISTRICT_OUTPUT_DIR values ('255902', 'GRAND_BEND_ACT_OUT_DIR', sysdate, 'ACT')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (EDFIDATA.PK_DISTRICT_OUTPUT_DIR) violated
+
+
+SQL> insert into EDFIDATA.DISTRICT_OUTPUT_DIR values ('255902', 'GRAND_BEND_AP_OUT_DIR', sysdate, 'AP')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (EDFIDATA.PK_DISTRICT_OUTPUT_DIR) violated
+
+
+SQL> insert into EDFIDATA.DISTRICT_OUTPUT_DIR values ('255902', 'GRAND_BEND_IB_OUT_DIR', sysdate, 'IB')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (EDFIDATA.PK_DISTRICT_OUTPUT_DIR) violated
+
+
+SQL> insert into EDFIDATA.DISTRICT_OUTPUT_DIR values ('255902', 'GRAND_BEND_SAT_OUT_DIR', sysdate, 'SAT')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (EDFIDATA.PK_DISTRICT_OUTPUT_DIR) violated
+
+
+SQL> insert into EDFIDATA.DISTRICT_OUTPUT_DIR values ('255902', 'GRAND_BEND_TSI_OUT_DIR', sysdate, 'TSI')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (EDFIDATA.PK_DISTRICT_OUTPUT_DIR) violated
+
+
+SQL> insert into EDFIDATA.DISTRICT_OUTPUT_DIR values ('255902', 'GRAND_BEND_TSI2_OUT_DIR', sysdate, 'TSI2')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (EDFIDATA.PK_DISTRICT_OUTPUT_DIR) violated
+
+
+SQL> SQL> 
+Commit complete.
+
+SQL> SQL> 
+Grant succeeded.
+
+SQL> 
+Grant succeeded.
+
+SQL> 
+Grant succeeded.
+
+SQL> 
+Grant succeeded.
+
+SQL> 
+Grant succeeded.
+
+SQL> 
+Grant succeeded.
+
+SQL> SQL> Disconnected from Oracle Database 12c Standard Edition Release 12.1.0.2.0 - 64bit Production
+The Oracle base remains unchanged with value /u01/app/oracle
+
+LSNRCTL for Linux: Version 12.1.0.2.0 - Production on 26-JUN-2021 19:48:40
+
+Copyright (c) 1991, 2014, Oracle.  All rights reserved.
+
+Starting /u01/app/oracle/12.1/db_1/bin/tnslsnr: please wait...
+
+TNSLSNR for Linux: Version 12.1.0.2.0 - Production
+System parameter file is /u01/app/oracle/12.1/db_1/network/admin/listener.ora
+Log messages written to /u01/app/oracle/diag/tnslsnr/headstartdbqa01/listener_edfi_grand_bend/alert/log.xml
+Listening on: (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=10.10.2.32)(PORT=1622)))
+
+Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.2.32)(PORT=1622)))
+STATUS of the LISTENER
+------------------------
+Alias                     LISTENER_EDFI_GRAND_BEND
+Version                   TNSLSNR for Linux: Version 12.1.0.2.0 - Production
+Start Date                26-JUN-2021 19:48:40
+Uptime                    0 days 0 hr. 0 min. 0 sec
+Trace Level               off
+Security                  ON: Local OS Authentication
+SNMP                      OFF
+Listener Parameter File   /u01/app/oracle/12.1/db_1/network/admin/listener.ora
+Listener Log File         /u01/app/oracle/diag/tnslsnr/headstartdbqa01/listener_edfi_grand_bend/alert/log.xml
+Listening Endpoints Summary...
+  (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=10.10.2.32)(PORT=1622)))
+Services Summary...
+Service "edfi_grand_bend" has 1 instance(s).
+  Instance "edfi_grand_bend", status UNKNOWN, has 1 handler(s) for this service...
+The command completed successfully
+The Oracle base remains unchanged with value /u01/app/oracle
+
+LSNRCTL for Linux: Version 12.1.0.2.0 - Production on 26-JUN-2021 19:48:40
+
+Copyright (c) 1991, 2014, Oracle.  All rights reserved.
+
+Starting /u01/app/oracle/12.1/db_1/bin/tnslsnr: please wait...
+
+TNSLSNR for Linux: Version 12.1.0.2.0 - Production
+System parameter file is /u01/app/oracle/12.1/db_1/network/admin/listener.ora
+Log messages written to /u01/app/oracle/diag/tnslsnr/headstartdbqa01/inst_564952441541082658/alert/log.xml
+Listening on: (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=10.10.2.32)(PORT=1623)))
+
+Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.2.32)(PORT=1623)))
+STATUS of the LISTENER
+------------------------
+Alias                     LISTENER_EDFI_GRAND_BEND_IMPORT
+Version                   TNSLSNR for Linux: Version 12.1.0.2.0 - Production
+Start Date                26-JUN-2021 19:48:40
+Uptime                    0 days 0 hr. 0 min. 0 sec
+Trace Level               off
+Security                  ON: Local OS Authentication
+SNMP                      OFF
+Listener Parameter File   /u01/app/oracle/12.1/db_1/network/admin/listener.ora
+Listener Log File         /u01/app/oracle/diag/tnslsnr/headstartdbqa01/inst_564952441541082658/alert/log.xml
+Listening Endpoints Summary...
+  (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=10.10.2.32)(PORT=1623)))
+Services Summary...
+Service "edfi_grand_bend_import" has 1 instance(s).
+  Instance "edfi_grand_bend_import", status UNKNOWN, has 1 handler(s) for this service...
+The command completed successfully
+
+SQL*Plus: Release 12.1.0.2.0 Production on Sat Jun 26 19:48:40 2021
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 12c Standard Edition Release 12.1.0.2.0 - 64bit Production
+
+SQL> Connected.
+SQL>   create database link EDFI_GRAND_BEND.REGION10.ORG connect to EDFI_STATS identified by "C33c!a8Qz*Y$" using 'edfi_grand_bend'
+                       *
+ERROR at line 1:
+ORA-02011: duplicate database link name
+
+
+SQL>   create database link EDFI_GRAND_BEND_IMPORT.REGION10.ORG connect to EDFI_STATS identified by "C33c!a8Qz*Y$" using 'edfi_grand_bend_import'
+                       *
+ERROR at line 1:
+ORA-02011: duplicate database link name
+
+
+SQL> Disconnected from Oracle Database 12c Standard Edition Release 12.1.0.2.0 - 64bit Production
+
+SQL*Plus: Release 12.1.0.2.0 Production on Sat Jun 26 19:48:40 2021
+
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 12c Standard Edition Release 12.1.0.2.0 - 64bit Production
+
+SQL> Connected.
+SQL> 
+STATUS
+-------
+success
+
+SQL> 
+STATUS
+-------
+success
+
+SQL> Disconnected from Oracle Database 12c Standard Edition Release 12.1.0.2.0 - 64bit Production
