@@ -15,7 +15,7 @@ begin
 wwv_flow_api.import_begin (
  p_version_yyyy_mm_dd=>'2019.03.31'
 ,p_release=>'19.1.0.00.15'
-,p_default_workspace_id=>18926485818449631
+,p_default_workspace_id=>30716031763993174
 ,p_default_application_id=>130
 ,p_default_owner=>'EDFIAPP'
 );
@@ -27,7 +27,7 @@ prompt APPLICATION 130 - CCMR Assessment File Data Loader
 -- Application Export:
 --   Application:     130
 --   Name:            CCMR Assessment File Data Loader
---   Date and Time:   14:35 Wednesday July 14, 2021
+--   Date and Time:   16:51 Wednesday July 14, 2021
 --   Exported By:     EDFI
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -37,10 +37,10 @@ prompt APPLICATION 130 - CCMR Assessment File Data Loader
 
 -- Application Statistics:
 --   Pages:                     26
---     Items:                   71
+--     Items:                   70
 --     Validations:              5
---     Processes:               31
---     Regions:                 92
+--     Processes:               30
+--     Regions:                 91
 --     Buttons:                 49
 --     Dynamic Actions:         24
 --   Shared Components:
@@ -114,8 +114,8 @@ wwv_flow_api.create_flow(
 ,p_auto_time_zone=>'N'
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'CCMR Assessment File Data Loader'
-,p_last_updated_by=>'ADAM.WARNER@REGION10.ORG'
-,p_last_upd_yyyymmddhh24miss=>'20210714123922'
+,p_last_updated_by=>'EDFI'
+,p_last_upd_yyyymmddhh24miss=>'20210623103750'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'/i/')
 ,p_files_version=>8
 ,p_ui_type_name => null
@@ -639,7 +639,7 @@ wwv_flow_api.create_list_item(
 ,p_list_item_current_for_pages=>'750'
 );
 wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(44545175371733102)
+ p_id=>wwv_flow_api.id(52467167019463087)
 ,p_list_item_display_sequence=>65
 ,p_list_item_link_text=>'TSI2'
 ,p_list_item_link_target=>'f?p=&APP_ID.:850:&SESSION.::&DEBUG.::::'
@@ -746,7 +746,7 @@ wwv_flow_api.create_list_item(
 ,p_list_item_current_type=>'TARGET_PAGE'
 );
 wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(44188389406277722)
+ p_id=>wwv_flow_api.id(47268169386168055)
 ,p_list_item_display_sequence=>7
 ,p_list_item_link_text=>'Help'
 ,p_list_item_link_target=>'https://reveal.region10.org/ords/f?p=115:1:::::P1_CATEGORY:CCMR%20Insights'
@@ -11987,14 +11987,14 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20210128092910'
+,p_last_upd_yyyymmddhh24miss=>'20210623103706'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(32513206675647028)
 ,p_plug_name=>'CCMR Assessment File Data Loader'
 ,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
 ,p_plug_template=>wwv_flow_api.id(32423732821647198)
-,p_plug_display_sequence=>10
+,p_plug_display_sequence=>20
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
@@ -12014,7 +12014,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_name=>'<p style="color:red;"><u>Important Notice</u></p>'
 ,p_region_template_options=>'#DEFAULT#:t-Alert--colorBG:t-Alert--horizontal:t-Alert--defaultIcons:t-Alert--warning'
 ,p_plug_template=>wwv_flow_api.id(32394861046647226)
-,p_plug_display_sequence=>20
+,p_plug_display_sequence=>30
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
 ,p_plug_item_display_point=>'BELOW'
@@ -12033,7 +12033,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_name=>'User Help'
 ,p_region_template_options=>'#DEFAULT#:t-Alert--colorBG:t-Alert--horizontal:t-Alert--defaultIcons:t-Alert--info'
 ,p_plug_template=>wwv_flow_api.id(32394861046647226)
-,p_plug_display_sequence=>30
+,p_plug_display_sequence=>40
 ,p_plug_display_point=>'BODY'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '<a href="https://region10.atlassian.net/wiki/spaces/CIFU/pages/555778203/CCMR+Assessment+File+Data+Loader+-+User+s+Guide">User''s Guide</a><br>',
@@ -14480,8 +14480,8 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_step_template=>wwv_flow_api.id(32389539971647231)
 ,p_page_template_options=>'#DEFAULT#'
-,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20210618090002'
+,p_last_updated_by=>'TONYE_EDFI'
+,p_last_upd_yyyymmddhh24miss=>'20210618090038'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(39449444051319228)
@@ -16108,14 +16108,14 @@ wwv_flow_api.create_page(
 ,p_step_title=>'Upload Data Reports'
 ,p_autocomplete_on_off=>'OFF'
 ,p_page_template_options=>'#DEFAULT#'
-,p_last_updated_by=>'ADAM.WARNER@REGION10.ORG'
-,p_last_upd_yyyymmddhh24miss=>'20210714123922'
+,p_last_updated_by=>'TONY.ESPOSITO@REGION10.ORG'
+,p_last_upd_yyyymmddhh24miss=>'20201113205121'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(38227215424730143)
 ,p_plug_name=>'<h1>Upload Data Reports</h1>'
-,p_region_template_options=>'#DEFAULT#:t-TabsRegion-mod--pill'
-,p_plug_template=>wwv_flow_api.id(32430585101647193)
+,p_region_template_options=>'#DEFAULT#:t-Region--removeHeader:t-Region--accent5:t-Region--hiddenOverflow'
+,p_plug_template=>wwv_flow_api.id(32401702999647215)
 ,p_plug_display_sequence=>10
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_display_point=>'BODY'
@@ -17135,6 +17135,9 @@ wwv_flow_api.create_worksheet_column(
 ,p_column_label=>'School Session'
 ,p_column_type=>'STRING'
 );
+end;
+/
+begin
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(39009282979976345)
 ,p_db_column_name=>'SUBJECT'
@@ -17143,9 +17146,6 @@ wwv_flow_api.create_worksheet_column(
 ,p_column_label=>'Subject'
 ,p_column_type=>'STRING'
 );
-end;
-/
-begin
 wwv_flow_api.create_worksheet_column(
  p_id=>wwv_flow_api.id(39009310812976346)
 ,p_db_column_name=>'EXAM_GRADE'
@@ -17412,235 +17412,6 @@ wwv_flow_api.create_worksheet_rpt(
 ,p_sort_column_6=>'0'
 ,p_sort_direction_6=>'ASC'
 );
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(45922546613555338)
-,p_plug_name=>'TSI2 Data Report'
-,p_parent_plug_id=>wwv_flow_api.id(38227215424730143)
-,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
-,p_component_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(32423732821647198)
-,p_plug_display_sequence=>60
-,p_plug_display_point=>'BODY'
-,p_query_type=>'SQL'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select * ',
-'from v_district_tsi2_data ',
-'where district_id = :G_DISTRICT_ID',
-'order by loaded_date desc',
-''))
-,p_plug_source_type=>'NATIVE_IR'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_prn_content_disposition=>'ATTACHMENT'
-,p_prn_document_header=>'APEX'
-,p_prn_units=>'INCHES'
-,p_prn_paper_size=>'LETTER'
-,p_prn_width=>8.5
-,p_prn_height=>11
-,p_prn_orientation=>'HORIZONTAL'
-,p_prn_page_header_font_color=>'#000000'
-,p_prn_page_header_font_family=>'Helvetica'
-,p_prn_page_header_font_weight=>'normal'
-,p_prn_page_header_font_size=>'12'
-,p_prn_page_footer_font_color=>'#000000'
-,p_prn_page_footer_font_family=>'Helvetica'
-,p_prn_page_footer_font_weight=>'normal'
-,p_prn_page_footer_font_size=>'12'
-,p_prn_header_bg_color=>'#9bafde'
-,p_prn_header_font_color=>'#000000'
-,p_prn_header_font_family=>'Helvetica'
-,p_prn_header_font_weight=>'normal'
-,p_prn_header_font_size=>'10'
-,p_prn_body_bg_color=>'#efefef'
-,p_prn_body_font_color=>'#000000'
-,p_prn_body_font_family=>'Helvetica'
-,p_prn_body_font_weight=>'normal'
-,p_prn_body_font_size=>'10'
-,p_prn_border_width=>.5
-,p_prn_page_header_alignment=>'CENTER'
-,p_prn_page_footer_alignment=>'CENTER'
-,p_plug_header=>'<div style="overflow: auto; height: 700px;">'
-,p_plug_footer=>'</div>'
-);
-wwv_flow_api.create_worksheet(
- p_id=>wwv_flow_api.id(45922731249555340)
-,p_max_row_count=>'1000000'
-,p_allow_report_saving=>'N'
-,p_show_nulls_as=>'-'
-,p_report_list_mode=>'TABS'
-,p_show_detail_link=>'N'
-,p_show_select_columns=>'N'
-,p_show_rows_per_page=>'N'
-,p_show_control_break=>'N'
-,p_show_highlight=>'N'
-,p_show_computation=>'N'
-,p_show_aggregate=>'N'
-,p_show_chart=>'N'
-,p_show_pivot=>'N'
-,p_show_flashback=>'N'
-,p_show_reset=>'N'
-,p_show_help=>'N'
-,p_download_formats=>'CSV:HTML:EMAIL:XLS:PDF:RTF'
-,p_owner=>'EDFI'
-,p_internal_uid=>45922731249555340
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(45922897817555341)
-,p_db_column_name=>'LINE_NUMBER'
-,p_display_order=>10
-,p_column_identifier=>'A'
-,p_column_label=>'Line Number'
-,p_column_type=>'NUMBER'
-,p_column_alignment=>'RIGHT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(45922961446555342)
-,p_db_column_name=>'TEST_START'
-,p_display_order=>20
-,p_column_identifier=>'B'
-,p_column_label=>'Test Start'
-,p_column_type=>'DATE'
-,p_column_alignment=>'CENTER'
-,p_tz_dependent=>'N'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(45923024543555343)
-,p_db_column_name=>'LAST_NAME'
-,p_display_order=>30
-,p_column_identifier=>'C'
-,p_column_label=>'Last Name'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(45923151146555344)
-,p_db_column_name=>'FIRST_NAME'
-,p_display_order=>40
-,p_column_identifier=>'D'
-,p_column_label=>'First Name'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(45923278767555345)
-,p_db_column_name=>'MIDDLE_INITIAL'
-,p_display_order=>50
-,p_column_identifier=>'E'
-,p_column_label=>'Middle Initial'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(45923365684555346)
-,p_db_column_name=>'STUDENT_ID'
-,p_display_order=>60
-,p_column_identifier=>'F'
-,p_column_label=>'Student Id'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(46743729954697515)
-,p_db_column_name=>'SUPPLEMENTAL_ID'
-,p_display_order=>70
-,p_column_identifier=>'R'
-,p_column_label=>'Supplemental Id'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(45923452974555347)
-,p_db_column_name=>'BIRTH_DATE'
-,p_display_order=>80
-,p_column_identifier=>'G'
-,p_column_label=>'Birth Date'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(45923516430555348)
-,p_db_column_name=>'SITE_ID'
-,p_display_order=>90
-,p_column_identifier=>'H'
-,p_column_label=>'Site Id'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(45923648770555349)
-,p_db_column_name=>'INST_ID'
-,p_display_order=>100
-,p_column_identifier=>'I'
-,p_column_label=>'Inst Id'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(46742801950697506)
-,p_db_column_name=>'DISTRICT_ID'
-,p_display_order=>110
-,p_column_identifier=>'J'
-,p_column_label=>'District Id'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(46742962119697507)
-,p_db_column_name=>'FILE_NAME'
-,p_display_order=>120
-,p_column_identifier=>'K'
-,p_column_label=>'File Name'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(46743070211697508)
-,p_db_column_name=>'LOADED_DATE'
-,p_display_order=>130
-,p_column_identifier=>'L'
-,p_column_label=>'Loaded Date'
-,p_column_type=>'DATE'
-,p_column_alignment=>'CENTER'
-,p_tz_dependent=>'N'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(46743277659697510)
-,p_db_column_name=>'TSI2_MATH_READINESS'
-,p_display_order=>140
-,p_column_identifier=>'M'
-,p_column_label=>'Tsi2 Math Readiness'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(46743300428697511)
-,p_db_column_name=>'TSI2_MATH_DIAGNOSTIC'
-,p_display_order=>150
-,p_column_identifier=>'N'
-,p_column_label=>'Tsi2 Math Diagnostic'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(46743407609697512)
-,p_db_column_name=>'TSI2_ELAR_READINESS'
-,p_display_order=>160
-,p_column_identifier=>'O'
-,p_column_label=>'Tsi2 Elar Readiness'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(46743520721697513)
-,p_db_column_name=>'TSI2_ELAR_DIAGNOSTIC'
-,p_display_order=>170
-,p_column_identifier=>'P'
-,p_column_label=>'Tsi2 Elar Diagnostic'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(46743651423697514)
-,p_db_column_name=>'TSI2_ELAR_ESSAY'
-,p_display_order=>180
-,p_column_identifier=>'Q'
-,p_column_label=>'Tsi2 Elar Essay'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_rpt(
- p_id=>wwv_flow_api.id(46753596136707647)
-,p_application_user=>'APXWS_DEFAULT'
-,p_report_seq=>10
-,p_report_alias=>'467536'
-,p_status=>'PUBLIC'
-,p_is_default=>'Y'
-,p_report_columns=>'LINE_NUMBER:TEST_START:LAST_NAME:FIRST_NAME:MIDDLE_INITIAL:STUDENT_ID:SUPPLEMENTAL_ID:BIRTH_DATE:SITE_ID:INST_ID:DISTRICT_ID:FILE_NAME:LOADED_DATE:TSI2_MATH_READINESS:TSI2_MATH_DIAGNOSTIC:TSI2_ELAR_READINESS:TSI2_ELAR_DIAGNOSTIC:TSI2_ELAR_ESSAY'
-);
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(38282316158013641)
 ,p_name=>'TSI_DATA_REPORT'
@@ -17681,14 +17452,6 @@ wwv_flow_api.create_page_item(
 ,p_display_as=>'NATIVE_HIDDEN'
 ,p_attribute_01=>'Y'
 );
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(45922623590555339)
-,p_name=>'TSI_DATA_REPORT_1'
-,p_item_sequence=>10
-,p_item_plug_id=>wwv_flow_api.id(45922546613555338)
-,p_display_as=>'NATIVE_HIDDEN'
-,p_attribute_01=>'Y'
-);
 end;
 /
 prompt --application/pages/page_00850
@@ -17702,7 +17465,7 @@ wwv_flow_api.create_page(
 ,p_step_template=>wwv_flow_api.id(32389539971647231)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'TONYE_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20210526171901'
+,p_last_upd_yyyymmddhh24miss=>'20210526164304'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(83393988814188933)
@@ -17976,6 +17739,30 @@ wwv_flow_api.create_jet_chart_series(
 ,p_marker_shape=>'auto'
 ,p_assigned_to_y2=>'off'
 ,p_items_label_rendered=>false
+,p_items_label_display_as=>'PERCENT'
+,p_threshold_display=>'onIndicator'
+);
+wwv_flow_api.create_jet_chart_axis(
+ p_id=>wwv_flow_api.id(44550945322733126)
+,p_chart_id=>wwv_flow_api.id(44550480265733125)
+,p_axis=>'y'
+,p_is_rendered=>'on'
+,p_format_type=>'decimal'
+,p_format_scaling=>'auto'
+,p_scaling=>'linear'
+,p_baseline_scaling=>'zero'
+,p_position=>'auto'
+,p_major_tick_rendered=>'on'
+,p_minor_tick_rendered=>'off'
+,p_tick_label_rendered=>'on'
+,p_zoom_order_seconds=>false
+,p_zoom_order_minutes=>false
+,p_zoom_order_hours=>false
+,p_zoom_order_days=>false
+,p_zoom_order_weeks=>false
+,p_zoom_order_months=>false
+,p_zoom_order_quarters=>false
+,p_zoom_order_years=>false
 );
 wwv_flow_api.create_jet_chart_axis(
  p_id=>wwv_flow_api.id(44551591983733127)
@@ -17991,28 +17778,6 @@ wwv_flow_api.create_jet_chart_axis(
 ,p_tick_label_rendered=>'on'
 ,p_tick_label_rotation=>'auto'
 ,p_tick_label_position=>'outside'
-,p_zoom_order_seconds=>false
-,p_zoom_order_minutes=>false
-,p_zoom_order_hours=>false
-,p_zoom_order_days=>false
-,p_zoom_order_weeks=>false
-,p_zoom_order_months=>false
-,p_zoom_order_quarters=>false
-,p_zoom_order_years=>false
-);
-wwv_flow_api.create_jet_chart_axis(
- p_id=>wwv_flow_api.id(44550945322733126)
-,p_chart_id=>wwv_flow_api.id(44550480265733125)
-,p_axis=>'y'
-,p_is_rendered=>'on'
-,p_format_type=>'decimal'
-,p_format_scaling=>'auto'
-,p_scaling=>'linear'
-,p_baseline_scaling=>'zero'
-,p_position=>'auto'
-,p_major_tick_rendered=>'on'
-,p_minor_tick_rendered=>'off'
-,p_tick_label_rendered=>'on'
 ,p_zoom_order_seconds=>false
 ,p_zoom_order_minutes=>false
 ,p_zoom_order_hours=>false
@@ -18091,6 +17856,8 @@ wwv_flow_api.create_jet_chart_series(
 ,p_color=>'#4CD964'
 ,p_assigned_to_y2=>'off'
 ,p_items_label_rendered=>false
+,p_items_label_display_as=>'PERCENT'
+,p_threshold_display=>'onIndicator'
 );
 wwv_flow_api.create_jet_chart_axis(
  p_id=>wwv_flow_api.id(44553548449733129)
@@ -18729,9 +18496,23 @@ wwv_flow_api.create_page(
 ,p_step_title=>'Student List'
 ,p_warn_on_unsaved_changes=>'N'
 ,p_autocomplete_on_off=>'OFF'
+,p_javascript_code=>'var lSpinner$;'
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20210511141525'
+,p_last_upd_yyyymmddhh24miss=>'20210429160314'
+);
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(23597856455980617)
+,p_plug_name=>'Data Loading'
+,p_region_template_options=>'#DEFAULT#:t-Alert--horizontal:t-Alert--defaultIcons:t-Alert--info'
+,p_plug_template=>wwv_flow_api.id(32394861046647226)
+,p_plug_display_sequence=>10
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_display_point=>'BODY'
+,p_plug_source=>'The initial loading of the students may take approximately 1 minute to load.  If you do not access the student list for 60 minutes or more, the student data will be reloaded automatically.'
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_attribute_01=>'N'
+,p_attribute_02=>'HTML'
 );
 wwv_flow_api.create_report_region(
  p_id=>wwv_flow_api.id(39135437559019981)
@@ -18762,8 +18543,6 @@ wwv_flow_api.create_report_region(
 ,p_ajax_enabled=>'Y'
 ,p_ajax_items_to_submit=>'P2000_SEARCH'
 ,p_query_row_template=>wwv_flow_api.id(32446447746647176)
-,p_query_headings=>'return ''Last Name:First Name:Date Of Birth:State Unique Id:Local Id'''
-,p_query_headings_type=>'FUNCTION_BODY_RETURNING_COLON_DELIMITED_LIST'
 ,p_query_num_rows=>15
 ,p_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_query_show_nulls_as=>'-'
@@ -18774,6 +18553,33 @@ wwv_flow_api.create_report_region(
 ,p_prn_output=>'N'
 ,p_sort_null=>'L'
 ,p_plug_query_strip_html=>'N'
+,p_comment=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'',
+'',
+'Declare',
+'  l_db_link varchar2(100);',
+'  l_sql     varchar2(1000);',
+'  l_district_id varchar2(20);',
+'begin',
+'  l_district_id := :G_DISTRICT_ID;',
+'  ',
+'  select DB_LINK',
+'    into l_db_link',
+'    from V_DISTRICT_DB_LINK',
+'   where DISTRICT_ID = l_district_id',
+'     and TARGET_DB = ''ODS'';',
+'     ',
+'  l_sql := ''select "LastSurname", "FirstName", "BirthDate", "StudentUniqueId", "LocalCode" ',
+'        from edfi.v_StudentIds@''||l_db_link||'' ',
+'       where instr(lower("LastSurname"),lower(''''''||:P2000_SEARCH||'''''')) > 0',
+'	        or instr(lower("FirstName"),lower(''''''||:P2000_SEARCH||'''''')) > 0',
+'			or instr(lower("BirthDate"),lower(''''''||:P2000_SEARCH||'''''')) > 0',
+'			or instr(lower("StudentUniqueId"),lower(''''''||:P2000_SEARCH||'''''')) > 0',
+'			or instr(lower("LocalCode"),lower(''''''||:P2000_SEARCH||'''''')) > 0',
+'			or "StudentUniqueId" = nvl(''''''||:P2000_SEARCH||'''''',"StudentUniqueId")'';',
+'  apex_debug.message(''>>>>>>> ''||l_sql);',
+'  return l_sql;',
+'END;'))
 );
 wwv_flow_api.create_report_columns(
  p_id=>wwv_flow_api.id(41087177375341928)
@@ -18844,19 +18650,6 @@ wwv_flow_api.create_page_plug(
 ,p_attribute_01=>'N'
 ,p_attribute_02=>'HTML'
 );
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(41648740294321910)
-,p_plug_name=>'Data Loading'
-,p_region_template_options=>'#DEFAULT#:t-Alert--horizontal:t-Alert--defaultIcons:t-Alert--info'
-,p_plug_template=>wwv_flow_api.id(32394861046647226)
-,p_plug_display_sequence=>10
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_plug_display_point=>'BODY'
-,p_plug_source=>'The initial loading of the students may take approximately 1 minute to load.  If you do not access the student list for 60 minutes or more, the student data will need to be reloaded.'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
-);
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(39155756233840620)
 ,p_button_sequence=>10
@@ -18909,15 +18702,15 @@ wwv_flow_api.create_page_da_action(
 ,p_stop_execution_on_error=>'Y'
 );
 wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(41648910450321912)
+ p_id=>wwv_flow_api.id(23599183851980630)
 ,p_name=>'RELOAD THE CACHE'
 ,p_event_sequence=>20
 ,p_bind_type=>'bind'
 ,p_bind_event_type=>'ready'
 );
 wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(41649092010321913)
-,p_event_id=>wwv_flow_api.id(41648910450321912)
+ p_id=>wwv_flow_api.id(23599298070980631)
+,p_event_id=>wwv_flow_api.id(23599183851980630)
 ,p_event_result=>'TRUE'
 ,p_action_sequence=>10
 ,p_execute_on_page_init=>'N'
@@ -18925,8 +18718,8 @@ wwv_flow_api.create_page_da_action(
 ,p_attribute_01=>'lSpinner$ = apex.util.showSpinner( $( "#STULIST" ) );'
 );
 wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(41649279386321915)
-,p_event_id=>wwv_flow_api.id(41648910450321912)
+ p_id=>wwv_flow_api.id(23599396626980632)
+,p_event_id=>wwv_flow_api.id(23599183851980630)
 ,p_event_result=>'TRUE'
 ,p_action_sequence=>20
 ,p_execute_on_page_init=>'N'
@@ -18936,8 +18729,8 @@ wwv_flow_api.create_page_da_action(
 ,p_wait_for_result=>'Y'
 );
 wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(41649175938321914)
-,p_event_id=>wwv_flow_api.id(41648910450321912)
+ p_id=>wwv_flow_api.id(23599424086980633)
+,p_event_id=>wwv_flow_api.id(23599183851980630)
 ,p_event_result=>'TRUE'
 ,p_action_sequence=>30
 ,p_execute_on_page_init=>'N'
@@ -18945,23 +18738,14 @@ wwv_flow_api.create_page_da_action(
 ,p_attribute_01=>'lSpinner$.remove();'
 );
 wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(41649365765321916)
-,p_event_id=>wwv_flow_api.id(41648910450321912)
+ p_id=>wwv_flow_api.id(23599562374980634)
+,p_event_id=>wwv_flow_api.id(23599183851980630)
 ,p_event_result=>'TRUE'
 ,p_action_sequence=>40
 ,p_execute_on_page_init=>'N'
 ,p_action=>'NATIVE_REFRESH'
 ,p_affected_elements_type=>'REGION'
 ,p_affected_region_id=>wwv_flow_api.id(39135437559019981)
-);
-wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(41087696445341933)
-,p_process_sequence=>10
-,p_process_point=>'AFTER_HEADER'
-,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'FETCH STUDENT LIST TO CACHE TABLE'
-,p_process_sql_clob=>'PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_INSERT_STUDENT_LIST(P_ODS_NUMBER => :g_ODS_NUMBER);'
-,p_error_display_location=>'INLINE_IN_NOTIFICATION'
 );
 end;
 /
@@ -18975,7 +18759,7 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20210113160907'
+,p_last_upd_yyyymmddhh24miss=>'20210113160827'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(39157578081840638)
@@ -19526,6 +19310,7 @@ wwv_flow_api.create_page_da_action(
 ,p_action=>'NATIVE_REFRESH'
 ,p_affected_elements_type=>'REGION'
 ,p_affected_region_id=>wwv_flow_api.id(39715455128916523)
+,p_stop_execution_on_error=>'Y'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(40194471728588243)
@@ -19558,6 +19343,7 @@ wwv_flow_api.create_page_da_action(
 ,p_action=>'NATIVE_REFRESH'
 ,p_affected_elements_type=>'REGION'
 ,p_affected_region_id=>wwv_flow_api.id(39716201369916531)
+,p_stop_execution_on_error=>'Y'
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(39158611408840649)
@@ -20492,7 +20278,7 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20210415105834'
+,p_last_upd_yyyymmddhh24miss=>'20210415105339'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(40279016693533333)
@@ -20529,7 +20315,7 @@ wwv_flow_api.create_page_plug(
 '999999,10/15/2020,11/15/2020,03/05/2020,05/24/2020,Y,N<br>',
 '888888,10/15/2020,,03/05/2020,,Y,N</kbd><br>',
 '<br>',
-'NOTE: You may include only the data that you want to load, such as ASVAB, leaving other columns blank, BUT, you must include all the columns in your file.<br>',
+'NOTE: You may include only the data that you want to load, such as ASVAB, leaving other columns blank, BUT, you must include all the columns in your file<br>',
 '<mark>Warning!!</mark> This data will replace any manual updates that have been made using the "Update Student CCMR Data" feature of this application.'))
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
@@ -21110,6 +20896,7 @@ wwv_flow_api.create_page_button(
 ,p_button_image_alt=>'Cancel'
 ,p_button_position=>'REGION_TEMPLATE_PREVIOUS'
 ,p_button_redirect_url=>'f?p=&APP_ID.:2030:&SESSION.::&DEBUG.:::'
+,p_grid_new_grid=>false
 );
 wwv_flow_api.create_page_branch(
  p_id=>wwv_flow_api.id(40687297886077169)
@@ -21797,6 +21584,7 @@ wwv_flow_api.create_page_button(
 ' where collection_name = ''LOAD_CONTENT''',
 '   and c049 in (''FAILED'')'))
 ,p_button_condition_type=>'NOT_EXISTS'
+,p_grid_new_grid=>false
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(40708177595077200)
@@ -21822,6 +21610,7 @@ wwv_flow_api.create_page_button(
 ,p_button_image_alt=>'Cancel'
 ,p_button_position=>'REGION_TEMPLATE_PREVIOUS'
 ,p_button_redirect_url=>'f?p=&APP_ID.:2030:&SESSION.::&DEBUG.:::'
+,p_grid_new_grid=>false
 );
 wwv_flow_api.create_page_branch(
  p_id=>wwv_flow_api.id(40709374888077201)
@@ -22773,7 +22562,7 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20210113092647'
+,p_last_upd_yyyymmddhh24miss=>'20210113092032'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(40877213820748021)
@@ -22828,8 +22617,8 @@ wwv_flow_api.create_page_plug(
 '<li>MiniTerm',
 '<li>Year Round',
 '<li>Other</ul>',
-'<strong style="color:red">The ODS only allows ONE certificate per Student, School Year, and Term. Adding a cert to a school year and term that already has a cert will cause the cert to be replaced by the one being added.  You MAY use any unused term '
-||'to add the cert.  Verify unused terms from the Update Student Attributes Certifications list for the student.</strong>',
+'<strong style="color:red">The ODS only allows ONE LEVEL 1 or 2 certificate per Student, School Year, and Term. Adding a cert to a school year and term that already has a cert will cause the cert to be replaced by the one being added.  You MAY use any'
+||' unused term to add the cert.  Verify unused terms from the Update Student Attributes Certifications list for the student.</strong>',
 '</li>',
 '<li>ACHIEVEMENT_TITLE - The name of the certification the student received.</li>',
 '<li>CRITERIA - Describes the level of the Level 1/2 certificate. <br><b>Required for Level 1/2 certs only</b><br>Values(must match exactly): ',
@@ -24092,6 +23881,7 @@ wwv_flow_api.create_page_button(
 ' where collection_name = ''LOAD_CONTENT''',
 '   and c049 in (''FAILED'')'))
 ,p_button_condition_type=>'NOT_EXISTS'
+,p_grid_new_grid=>false
 );
 wwv_flow_api.create_page_button(
  p_id=>wwv_flow_api.id(40919016829748074)
