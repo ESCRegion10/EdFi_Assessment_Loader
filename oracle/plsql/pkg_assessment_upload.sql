@@ -155,7 +155,7 @@ create or replace package body pkg_assessment_upload as
                                        from edfi.v_StudentIds@' || v_db_link ||')
                             and file_name = ''' || v_file || '''';
 
-    elsif v_test_type in ('AP', 'ACT', 'TSI', 'SAT', 'TSI2') then      -- SAT tests do student mismatch by student first, last name and DOB
+    elsif v_test_type in ('AP', 'ACT', 'TSI', 'SAT') then      -- SAT tests do student mismatch by student first, last name and DOB
 
       s_sql_insert_data := 'insert into assessment_stu_id_mismatch
                             select distinct
@@ -173,6 +173,23 @@ create or replace package body pkg_assessment_upload as
                                        from edfi.v_StudentIds@' || v_db_link ||')
                             and file_name = ''' || v_file || '''';
 
+    elsif v_test_type = 'TSI2' then   -- TSI2 tests can do student mismatch by UID in Supplemental ID in file
+
+      s_sql_insert_data := 'insert into assessment_stu_id_mismatch
+                            select distinct
+                              null         -- no last name
+                             ,null         -- no first name
+                             ,null         -- no birth date
+                             ,loaded_date
+                             ,district_id
+                             , ''' || v_file || '''
+                             , ''' || v_test_type || '''
+                             ,student_id
+                            from edfidata.district_' || v_test_type ||'_data
+                            where supplemental_id not in (select "StudentUniqueId"
+                                                     from edfi.v_StudentIds@' || v_db_link ||')
+                            and file_name = ''' || v_file || '''';
+                            
     else
       raise e_unknown_test_type;
     end if;
@@ -409,11 +426,11 @@ create or replace package body pkg_assessment_upload as
       -- for TSI, column position (1,2,3,5,6,10,11,12,13)
       -- for AP, column position (2,3,4,14,59,60,61,65,66,67,71,72,73,77,78,79,83,84,85,89,90,91,95,96,97,101,102,103,107,108,109,113,114,115)
       -- for IB, column position (1,2,3,4,5,6,7)
-      -- for TSI2 column position (1-13)
+      -- for TSI2 column position (1-14)
       insert into edfidata.district_assessment_header
         select distinct
           column_position,
-          column_name,
+          regexp_replace(column_name,'^C\_','',1,1,'') column_name, -- patch to remove any "C_" that apex parser prepends to col name
           data_type,
           format_mask,
           sysdate,
@@ -474,10 +491,10 @@ create or replace package body pkg_assessment_upload as
            select column_position, upper(column_name) as column_name
            from edfidata.assessment_std_file_format
            where standard_type = v_test_type
-             minus
+           /*  minus
            select column_position, upper(column_name) as column_name
            from edfidata.assessment_std_file_format
-           where standard_type = 'TSI2'
+           where standard_type = 'TSI2' -- took out due to TSI2 changes AW 7/14/21 */
           );
 
       else   -- all other test types
@@ -746,26 +763,46 @@ create or replace package body pkg_assessment_upload as
       and file_name = v_file;
 
       insert into edfidata.district_tsi2_data
+      (line_number, 
+      test_start, 
+      last_name, 
+      first_name, 
+      middle_initial, 
+      student_id, 
+      supplemental_id,
+      birth_date, 
+      site_id, 
+      inst_id, 
+      tsi2_math_readiness, 
+      tsi2_math_diagnostic, 
+      tsi2_elar_readiness, 
+      tsi2_elar_diagnostic, 
+      tsi2_elar_essay, 
+      district_id, 
+      file_name, 
+      loaded_date 
+      )
       select
         line_number,
         to_date(col001,'MM/DD/YYYY'), -- Test Date -> TEST_START
         col002, -- Last Name -> LAST_NAME
         col003, -- First Name -> FIRST_NAME
         substr(col004,1,1),  -- Middle Initial -> MIDDLE_INITIAL
-        substr(col005,1,10), -- State Assigned Number -> STUDENT_ID
+        substr(col005,1,10), -- Local student ID -> STUDENT_ID
+        substr(col006,1,10), -- State Assigned Number -> SUPPLEMENTAL_ID
         case
-          when instr(col006, '-') > 0 then to_char(to_date(col006,'YYYY-MM-DD'),'MM/DD/YYYY') -- handles leading zeroes issue
-          when instr(col006, '/') > 0 and length(col006) <= 8 then to_char(to_date(col006,'MM/DD/YY'),'MM/DD/YYYY') -- no century and handles leading zeroes issue
-          when instr(col006, '/') > 0 then to_char(to_date(col006,'MM/DD/YYYY'),'MM/DD/YYYY') -- handles leading zeroes issue
-          else col006
+          when instr(col007, '-') > 0 then to_char(to_date(col007,'YYYY-MM-DD'),'MM/DD/YYYY') -- handles leading zeroes issue
+          when instr(col007, '/') > 0 and length(col007) <= 8 then to_char(to_date(col007,'MM/DD/YY'),'MM/DD/YYYY') -- no century and handles leading zeroes issue
+          when instr(col007, '/') > 0 then to_char(to_date(col007,'MM/DD/YYYY'),'MM/DD/YYYY') -- handles leading zeroes issue
+          else col007
         end,    -- Date of Birth -> BIRTH_DATE
-        col007, -- Test Site Code -> SITE_ID
-        col008, -- Test Site Location -> INST_ID
-        col009, -- TSIA2 Mathematics College and Career Readiness -> TSI2_MATH_READINESS
-        col010, -- TSIA2 Mathematics Diagnostic -> TSI2_MATH_DIAGNOSTIC
-        col011, -- TSIA2 English Language Arts and Reading College and Career Readiness -> TSI2_ELAR_READINESS
-        col012, -- TSIA2 English Language Arts and Reading Diagnostic -> TSI2_ELAR_DIAGNOSTIC
-        col013, -- TSIA2 WritePlacer -> TSI2_ELAR_ESSAY
+        col008, -- Test Site Code -> SITE_ID
+        col009, -- Test Site Location -> INST_ID
+        col010, -- TSIA2 Mathematics College and Career Readiness -> TSI2_MATH_READINESS
+        col011, -- TSIA2 Mathematics Diagnostic -> TSI2_MATH_DIAGNOSTIC
+        col012, -- TSIA2 English Language Arts and Reading College and Career Readiness -> TSI2_ELAR_READINESS
+        col013, -- TSIA2 English Language Arts and Reading Diagnostic -> TSI2_ELAR_DIAGNOSTIC
+        col014, -- TSIA2 WritePlacer -> TSI2_ELAR_ESSAY
         v_district_id,  -- district id
         v_file, -- input file (file name only)
         sysdate -- loaded date
@@ -1725,7 +1762,7 @@ create or replace package body pkg_assessment_upload as
        ,max(s.tsi2_elar_essay) as tsi2_elar_essay
       from edfidata.district_tsi2_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
       ' on file_name = ' || '''' || v_file || '''' ||
-      ' and coalesce(s.student_id, ''0'') = stu."StudentUniqueId"
+      ' and coalesce(s.supplemental_id, ''0'') = stu."StudentUniqueId"
       group by stu."StudentUniqueId",s.FIRST_NAME,s.LAST_NAME,s.BIRTH_DATE, test_start
         union
       select
@@ -1761,7 +1798,7 @@ create or replace package body pkg_assessment_upload as
         from (select stu."StudentUniqueId" as student_ids
               from edfidata.district_tsi2_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
             ' on file_name = ' || '''' || v_file || '''' ||
-            ' and coalesce(s.student_id, ''0'') = stu."StudentUniqueId"
+            ' and coalesce(s.supplemental_id, ''0'') = stu."StudentUniqueId"
                 union
               select stu."StudentUniqueId" as student_ids
               from edfidata.district_tsi2_data s join edfi.v_StudentIds@' || v_db_link || ' stu ' ||
@@ -1792,7 +1829,7 @@ create or replace package body pkg_assessment_upload as
 				  from edfidata.district_tsi2_data s
 				 where file_name != v_file
 					 and s.test_start = t_tsi2_data(i).test_start
-					 and (s.STUDENT_ID = t_tsi2_data(i).StudentUniqueId
+					 and (s.SUPPLEMENTAL_ID = t_tsi2_data(i).StudentUniqueId
 						 or (upper(s.first_name) = upper(t_tsi2_data(i).first_name)
 						 and upper(s.last_name) = upper(substr(t_tsi2_data(i).last_name,1,length(s.last_name)))
 						 and to_char(to_date(s.birth_date,'MM/DD/YYYY'),'MM/DD/YYYY') = to_char(to_date(t_tsi2_data(i).birth_date,'MM/DD/YYYY'),'MM/DD/YYYY')));
