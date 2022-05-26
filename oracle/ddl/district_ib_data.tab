@@ -1,0 +1,32 @@
+create table EDFIDATA.DISTRICT_IB_DATA
+(
+  line_number            INTEGER not null,
+  year                   INTEGER,
+  student_id             VARCHAR2(10),
+  district_id            VARCHAR2(6) not null,
+  school_session         VARCHAR2(30),
+  subject                VARCHAR2(50),
+  exam_grade             VARCHAR2(2),
+  predicted_grade        VARCHAR2(2),
+  loaded_date            DATE,
+  file_name              VARCHAR2(100) not null,
+  original_file_name     VARCHAR2(100),
+  status                 VARCHAR2(20),
+  error_message          VARCHAR2(2000),
+  school_year_to_load    VARCHAR2(4),
+  tsds_student_unique_id VARCHAR2(20)
+)
+;
+comment on column EDFIDATA.DISTRICT_IB_DATA.file_name
+  is 'The original file name with the school year to load added after the test type.';
+comment on column EDFIDATA.DISTRICT_IB_DATA.original_file_name
+  is 'The original file name as it was upload by the user. ';
+comment on column EDFIDATA.DISTRICT_IB_DATA.status
+  is 'PENDING, ERROR, LOADED';
+comment on column EDFIDATA.DISTRICT_IB_DATA.error_message
+  is 'Contains a list of '':'' delimited error messages about this row of data.';
+comment on column EDFIDATA.DISTRICT_IB_DATA.school_year_to_load
+  is 'Identifies the school year that the files is to be loaded to. e.g. 2022';
+alter table EDFIDATA.DISTRICT_IB_DATA
+  add constraint PK_DISTRICT_IB_DATA primary key (LINE_NUMBER, DISTRICT_ID, FILE_NAME);
+

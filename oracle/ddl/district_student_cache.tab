@@ -1,0 +1,17 @@
+create table EDFIDATA.DISTRICT_STUDENT_CACHE
+(
+  district_id       VARCHAR2(50) not null,
+  create_ts         TIMESTAMP(6) default systimestamp,
+  last_surname      VARCHAR2(100),
+  first_name        VARCHAR2(100),
+  birth_date        VARCHAR2(20),
+  student_unique_id VARCHAR2(20) not null,
+  local_code        VARCHAR2(20),
+  school_year       VARCHAR2(10) not null
+)
+;
+comment on column EDFIDATA.DISTRICT_STUDENT_CACHE.school_year
+  is 'the school year ods the student was loaded from';
+alter table EDFIDATA.DISTRICT_STUDENT_CACHE
+  add constraint DIST_STU_CACHE_PK primary key (DISTRICT_ID, SCHOOL_YEAR, STUDENT_UNIQUE_ID);
+

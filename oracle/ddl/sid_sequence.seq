@@ -1,0 +1,8 @@
+create sequence EDFIDATA.SID_SEQUENCE
+minvalue 1000
+maxvalue 9999999999999999999999999999
+start with 3029
+increment by 1
+cache 20
+order;
+

@@ -1,0 +1,13 @@
+create table EDFIDATA.DISTRICT_STAFF_CACHE
+(
+  session_id              VARCHAR2(50),
+  create_ts               TIMESTAMP(6) default systimestamp,
+  staff_usi               VARCHAR2(60),
+  staff_unique_id         VARCHAR2(32),
+  last_surname            VARCHAR2(75),
+  first_name              VARCHAR2(75),
+  electronic_mail_address VARCHAR2(128),
+  staff_classification    VARCHAR2(50)
+)
+;
+

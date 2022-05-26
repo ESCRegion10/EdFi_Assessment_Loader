@@ -1,0 +1,28 @@
+create table EDFIDATA.USER_CAMPUS
+(
+  user_campus_sid NUMBER not null,
+  user_sid        NUMBER not null,
+  campus_sid      NUMBER not null
+)
+;
+comment on table EDFIDATA.USER_CAMPUS
+  is 'Campus associated with a user for security prurposes';
+comment on column EDFIDATA.USER_CAMPUS.user_campus_sid
+  is 'Surrogate Key for the User Campus';
+comment on column EDFIDATA.USER_CAMPUS.user_sid
+  is 'User Surrogate Key';
+comment on column EDFIDATA.USER_CAMPUS.campus_sid
+  is 'Surrogate Key for the Campus Master';
+alter table EDFIDATA.USER_CAMPUS
+  add constraint PK_USER_CAMPUS primary key (USER_CAMPUS_SID);
+alter table EDFIDATA.USER_CAMPUS
+  add constraint AK_USER_CAMPUS_AK_USER_CAM unique (USER_SID, CAMPUS_SID);
+alter table EDFIDATA.USER_CAMPUS
+  add constraint FK_USER_CAM_REFERENCE_CAMPUS foreign key (CAMPUS_SID)
+  references R10INTDATA.CAMPUS_DIM (CAMPUS_SID)
+  novalidate;
+alter table EDFIDATA.USER_CAMPUS
+  add constraint FK_USER_CAM_REFERENCE_USER_ACC foreign key (USER_SID)
+  references EDFIDATA.USER_ACCOUNT (USER_SID)
+  novalidate;
+

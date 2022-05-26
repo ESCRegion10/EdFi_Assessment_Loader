@@ -1,0 +1,57 @@
+create table EDFIDATA.SECURITY_TRANSACTION_LOG
+(
+  security_transaction_sid NUMBER not null,
+  user_sid                 NUMBER,
+  user_id                  VARCHAR2(75),
+  transaction_date         DATE,
+  log_message              VARCHAR2(2000),
+  action_type              VARCHAR2(100),
+  action_result            VARCHAR2(100),
+  attempts                 NUMBER(1),
+  user_ip_address          VARCHAR2(100),
+  browser                  VARCHAR2(200)
+)
+;
+comment on table EDFIDATA.SECURITY_TRANSACTION_LOG
+  is 'A record of the security activies that have occurred.';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.security_transaction_sid
+  is 'Surrogate key for the logon transaction.';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.user_sid
+  is 'The Uer SID of the person Attempting the action';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.user_id
+  is 'The User ID of the person attempting to action.';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.transaction_date
+  is 'Date and time of the security transaction.';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.log_message
+  is 'Indicates the result of the users attempt to login to an application.
+Values: SUCCESSFUL LOGIN,
+             UNSUCCESSFUL LOGIN,
+             ACCOUNT LOCKED,
+             PASSWORD CHANGED,
+             USER ROLE ADDED,
+             APPLICATION LICENSE DELETED,
+             <ATTENDANCE> RISK FACTOR DELETED FOR CAMPUS <057938001>';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.action_type
+  is 'Indicates what type of action was taken by the user.
+Example: Login Attempt,
+               Password Reset,
+               First Time Login,
+               External Security Question,
+               Login Question, etc..';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.action_result
+  is 'Indicates the result of the users action.
+Example: Successful,
+               Failed
+               ';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.attempts
+  is 'Indicates the number times the user entered their password or security question before either successfully or unsuccessfully logging in.
+Example: 2';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.user_ip_address
+  is 'The users ip address that they connected to the application from.
+Example: 207.235.45.106 (ipv4)
+               2001:db8:85a3::8a2e:370:7334 (ipv6)';
+comment on column EDFIDATA.SECURITY_TRANSACTION_LOG.browser
+  is 'Identifies the name of the browser used by the user when they accessed the application.';
+alter table EDFIDATA.SECURITY_TRANSACTION_LOG
+  add constraint PK_SECURITY_TRANSACTION_LOG primary key (SECURITY_TRANSACTION_SID);
+

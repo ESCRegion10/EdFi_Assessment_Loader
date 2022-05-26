@@ -1,0 +1,10 @@
+create table EDFIDATA.ASSESSMENT_STD_FILE_FORMAT
+(
+  column_position INTEGER,
+  column_name     VARCHAR2(100),
+  standard_type   VARCHAR2(10),
+  created         DATE default sysdate
+)
+;
+create unique index EDFIDATA.UIX_ASSESSMENT_STD_FILE_FORMAT on EDFIDATA.ASSESSMENT_STD_FILE_FORMAT (COLUMN_POSITION, COLUMN_NAME, STANDARD_TYPE);
+

@@ -1,0 +1,16 @@
+create table EDFIDATA.DISTRICT_STUDENT_CERTS_CACHE
+(
+  session_id                   VARCHAR2(50) not null,
+  create_ts                    TIMESTAMP(6) not null,
+  student_unique_id            VARCHAR2(50) not null,
+  school_year                  VARCHAR2(4) not null,
+  term                         VARCHAR2(20) not null,
+  achievement_title            VARCHAR2(60) not null,
+  criteria                     VARCHAR2(10),
+  award_date                   DATE,
+  cert_type                    VARCHAR2(10),
+  academic_honor_category_type VARCHAR2(20),
+  achievement_category         VARCHAR2(20)
+)
+;
+

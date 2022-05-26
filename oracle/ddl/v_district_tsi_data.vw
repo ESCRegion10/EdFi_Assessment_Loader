@@ -1,0 +1,31 @@
+create or replace force view edfidata.v_district_tsi_data as
+select "LINE_NUMBER",
+			 "TEST_START",
+			 "LAST_NAME",
+			 "FIRST_NAME",
+			 "MIDDLE_INITIAL",
+			 "STUDENT_ID",
+			 "BIRTH_DATE",
+			 "SITE_ID",
+			 "INST_ID",
+			 "TSI_MATHEMATICS_PLACEMENT",
+			 "TSI_READING_PLACEMENT",
+			 "TSI_WRITING_PLACEMENT",
+			 "TSI_WRITEPLACER",
+			 "ABE_MATHEMATICS_DIAGNOSTICS",
+			 "ABE_WRITING_DIAGNOSTICS",
+			 "ABE_READING_DIAGNOSTICS",
+			 "DISTRICT_ID",
+			 "FILE_NAME",
+			 "LOADED_DATE",
+			 ORIGINAL_FILE_NAME,
+			STATUS,
+			ERROR_MESSAGE,
+			SCHOOL_YEAR_TO_LOAD,
+			TSDS_STUDENT_UNIQUE_ID,
+			TEST_START_STR,
+			 rowid as ROW_ID
+	from edfidata.district_tsi_data;
+grant select on EDFIDATA.V_DISTRICT_TSI_DATA to EDFIAPP;
+
+

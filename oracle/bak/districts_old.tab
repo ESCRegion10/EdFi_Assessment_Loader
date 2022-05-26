@@ -1,0 +1,12 @@
+create table EDFIDATA.DISTRICTS_OLD
+(
+  district_cdc       VARCHAR2(15) not null,
+  district_name      VARCHAR2(50) not null,
+  district_db_number VARCHAR2(4) not null,
+  active             VARCHAR2(3),
+  district_sid       NUMBER not null
+)
+;
+alter table EDFIDATA.DISTRICTS_OLD
+  add constraint DISTRICTS_OLD_PK primary key (DISTRICT_SID);
+

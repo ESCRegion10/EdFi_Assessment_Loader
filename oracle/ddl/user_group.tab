@@ -1,0 +1,23 @@
+create table EDFIDATA.USER_GROUP
+(
+  user_sid           NUMBER not null,
+  security_group_sid NUMBER not null
+)
+;
+comment on table EDFIDATA.USER_GROUP
+  is 'The assignement of a user to a security group';
+comment on column EDFIDATA.USER_GROUP.user_sid
+  is 'User Surrogate Key';
+comment on column EDFIDATA.USER_GROUP.security_group_sid
+  is 'Unique System Generated ID for the Table';
+alter table EDFIDATA.USER_GROUP
+  add constraint PK_USER_GROUP primary key (USER_SID, SECURITY_GROUP_SID);
+alter table EDFIDATA.USER_GROUP
+  add constraint FK_USER_GRP_REF_SECURITY_GRP foreign key (SECURITY_GROUP_SID)
+  references EDFIDATA.SECURITY_GROUP (SECURITY_GROUP_SID)
+  novalidate;
+alter table EDFIDATA.USER_GROUP
+  add constraint FK_USER_GRP_REF_USER_ACCT foreign key (USER_SID)
+  references EDFIDATA.USER_ACCOUNT (USER_SID)
+  novalidate;
+

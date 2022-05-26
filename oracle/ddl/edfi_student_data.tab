@@ -1,0 +1,22 @@
+create table EDFIDATA.EDFI_STUDENT_DATA
+(
+  district_id            VARCHAR2(15) not null,
+  district_ods_number    VARCHAR2(10),
+  student_unique_id      VARCHAR2(50) not null,
+  asvab_date             DATE,
+  military_date          DATE,
+  meningitis_date        DATE,
+  associates_degree_date DATE,
+  college_app_flag       VARCHAR2(3),
+  financial_app_flag     VARCHAR2(3),
+  source                 VARCHAR2(10),
+  create_date            DATE default SYSDATE,
+  last_update_date       DATE default SYSDATE
+)
+;
+comment on column EDFIDATA.EDFI_STUDENT_DATA.source
+  is 'admin, CSV';
+alter table EDFIDATA.EDFI_STUDENT_DATA
+  add constraint EDFI_STUDENT_DATA_PK primary key (DISTRICT_ID, STUDENT_UNIQUE_ID);
+grant select, insert, update, delete, references, alter, index, debug, read on EDFIDATA.EDFI_STUDENT_DATA to EDFIAPP;
+

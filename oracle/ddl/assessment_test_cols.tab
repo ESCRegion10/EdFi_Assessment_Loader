@@ -1,0 +1,9 @@
+create table EDFIDATA.ASSESSMENT_TEST_COLS
+(
+  test_type   VARCHAR2(20) not null,
+  column_nbr  INTEGER not null,
+  column_name VARCHAR2(50) not null
+)
+;
+create unique index EDFIDATA.UI1_ASSESSMENT_TEST_COLS on EDFIDATA.ASSESSMENT_TEST_COLS (TEST_TYPE, COLUMN_NBR, COLUMN_NAME);
+

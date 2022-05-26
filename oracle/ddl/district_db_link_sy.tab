@@ -1,0 +1,12 @@
+create table EDFIDATA.DISTRICT_DB_LINK_SY
+(
+  district_id VARCHAR2(6) not null,
+  db_link     VARCHAR2(100) not null,
+  created     DATE,
+  target_db   VARCHAR2(10) not null,
+  school_year VARCHAR2(4) not null
+)
+;
+alter table EDFIDATA.DISTRICT_DB_LINK_SY
+  add constraint DISTRICT_DB_LINK_PK primary key (DISTRICT_ID, SCHOOL_YEAR, TARGET_DB);
+

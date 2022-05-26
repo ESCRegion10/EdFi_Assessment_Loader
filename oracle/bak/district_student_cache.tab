@@ -1,0 +1,12 @@
+create table EDFIDATA.DISTRICT_STUDENT_CACHE
+(
+  session_id        VARCHAR2(50),
+  create_ts         TIMESTAMP(6) default systimestamp,
+  last_surname      VARCHAR2(100),
+  first_name        VARCHAR2(100),
+  birth_date        VARCHAR2(20),
+  student_unique_id VARCHAR2(20),
+  local_code        VARCHAR2(20)
+)
+;
+

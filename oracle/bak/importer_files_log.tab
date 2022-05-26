@@ -1,0 +1,13 @@
+create table EDFIDATA.IMPORTER_FILES_LOG
+(
+  "Id"         VARCHAR2(20),
+  "AgentId"    VARCHAR2(20),
+  "FileName"   VARCHAR2(400),
+  "Status"     VARCHAR2(20),
+  "Message"    VARCHAR2(4000),
+  "Rows"       VARCHAR2(20),
+  "CreateDate" VARCHAR2(40)
+)
+;
+create index EDFIDATA.IX_IMPORTER_FILES_LOG on EDFIDATA.IMPORTER_FILES_LOG (FileName);
+

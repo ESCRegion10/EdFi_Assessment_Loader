@@ -1,0 +1,23 @@
+create table EDFIDATA.SECURITY_GROUP_PERMISSION
+(
+  permission_sid     NUMBER not null,
+  security_group_sid NUMBER not null
+)
+;
+comment on table EDFIDATA.SECURITY_GROUP_PERMISSION
+  is 'Associates a security group with a specific user permission';
+comment on column EDFIDATA.SECURITY_GROUP_PERMISSION.permission_sid
+  is 'Unique ID for a permission';
+comment on column EDFIDATA.SECURITY_GROUP_PERMISSION.security_group_sid
+  is 'Unique System Generated ID for the Table';
+alter table EDFIDATA.SECURITY_GROUP_PERMISSION
+  add constraint PK_SECURITY_GROUP_PERMISSION primary key (PERMISSION_SID, SECURITY_GROUP_SID);
+alter table EDFIDATA.SECURITY_GROUP_PERMISSION
+  add constraint FK_SEC_GRP_PERM_REF_APPL foreign key (PERMISSION_SID)
+  references EDFIDATA.APPLICATION_PERMISSION (PERMISSION_SID)
+  novalidate;
+alter table EDFIDATA.SECURITY_GROUP_PERMISSION
+  add constraint FK_SEC_GRP_PERM_REF_SEC_GRP foreign key (SECURITY_GROUP_SID)
+  references EDFIDATA.SECURITY_GROUP (SECURITY_GROUP_SID)
+  novalidate;
+

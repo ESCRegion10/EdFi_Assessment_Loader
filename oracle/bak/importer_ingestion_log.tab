@@ -1,0 +1,12 @@
+create table EDFIDATA.IMPORTER_INGESTION_LOG
+(
+  "AgentId"        VARCHAR2(20),
+  "FileName"       VARCHAR2(400),
+  "Date"           VARCHAR2(40),
+  "RowNumber"      VARCHAR2(20),
+  "HttpStatusCode" VARCHAR2(20),
+  "OdsResponse"    VARCHAR2(4000)
+)
+;
+create index EDFIDATA.IX_IMPORTER_INGESTION_LOG on EDFIDATA.IMPORTER_INGESTION_LOG (FileName);
+

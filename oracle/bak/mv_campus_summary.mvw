@@ -1,0 +1,22 @@
+create materialized view EDFIDATA.MV_CAMPUS_SUMMARY
+refresh complete on demand
+as
+select "STATS_DATE_TIME",
+       "DATABASE_NUMBER",
+       "LEA",
+       "CAMPUS",
+       "TOTAL_STUDENT_COUNT",
+       "ENROLLED_STUDENT_COUNT",
+       "ENROLLED_SENIORS",
+       "ENROLLED_ECON",
+       "ENROLLED_SPED",
+       "LAST_STUDENT_SCHOOL_UPDATED",
+       "LAST_STUDENT_UPDATED",
+       "STUDENTS_WITH_CERTIFICATES",
+       "STUDENTS_WITH_DUAL_CR",
+       "STUDENTS_WITH_ON_RAMP_CR",
+       "LEA_CDN",
+       "CAMPUS_CDC"
+  from "CAMPUS_SUMMARY"@edfi.region10.org
+	where "STATS_DATE_TIME" > sysdate -7;
+

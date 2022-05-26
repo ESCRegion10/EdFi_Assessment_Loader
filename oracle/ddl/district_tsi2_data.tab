@@ -1,0 +1,42 @@
+create table EDFIDATA.DISTRICT_TSI2_DATA
+(
+  line_number          INTEGER not null,
+  test_start           DATE,
+  last_name            VARCHAR2(50),
+  first_name           VARCHAR2(30),
+  middle_initial       VARCHAR2(30),
+  student_id           VARCHAR2(10),
+  birth_date           VARCHAR2(10),
+  site_id              VARCHAR2(40),
+  inst_id              VARCHAR2(40),
+  tsi2_math_readiness  VARCHAR2(20),
+  tsi2_math_diagnostic VARCHAR2(20),
+  tsi2_elar_readiness  VARCHAR2(20),
+  tsi2_elar_diagnostic VARCHAR2(20),
+  tsi2_elar_essay      VARCHAR2(20),
+  district_id          VARCHAR2(6) not null,
+  file_name            VARCHAR2(100) not null,
+  loaded_date          DATE default sysdate not null,
+  supplemental_id      VARCHAR2(10),
+  original_file_name   VARCHAR2(100),
+  status               VARCHAR2(20),
+  error_message        VARCHAR2(2000),
+  school_year_to_load  VARCHAR2(4),
+  test_start_str       VARCHAR2(20)
+)
+;
+comment on column EDFIDATA.DISTRICT_TSI2_DATA.file_name
+  is 'The original file name with the school year to load added after the test type.';
+comment on column EDFIDATA.DISTRICT_TSI2_DATA.original_file_name
+  is 'The original file name as it was upload by the user. ';
+comment on column EDFIDATA.DISTRICT_TSI2_DATA.status
+  is 'PENDING, ERROR, LOADED';
+comment on column EDFIDATA.DISTRICT_TSI2_DATA.error_message
+  is 'Contains a list of '':'' delimited error messages about this row of data.';
+comment on column EDFIDATA.DISTRICT_TSI2_DATA.school_year_to_load
+  is 'Identifies the school year that the files is to be loaded to. e.g. 2022';
+comment on column EDFIDATA.DISTRICT_TSI2_DATA.test_start_str
+  is 'TEST start date as received from the file';
+alter table EDFIDATA.DISTRICT_TSI2_DATA
+  add constraint PK_DISTRICT_TSI2_DATA primary key (LINE_NUMBER, DISTRICT_ID, FILE_NAME);
+

@@ -1,0 +1,87 @@
+create table EDFIDATA.USER_ACCOUNT
+(
+  user_sid                 NUMBER not null,
+  district_sid             NUMBER not null,
+  staff_title_sid          NUMBER,
+  user_id                  VARCHAR2(75) not null,
+  password                 VARCHAR2(255) not null,
+  password_expiration_date DATE,
+  password_update_date     DATE,
+  user_first_name          VARCHAR2(50),
+  user_last_name           VARCHAR2(50),
+  email_address            VARCHAR2(75),
+  created_by               NUMBER,
+  create_date              TIMESTAMP(6),
+  updated_by               NUMBER,
+  update_date              TIMESTAMP(6),
+  account_locked           VARCHAR2(1),
+  active_account_flag      VARCHAR2(1),
+  last_login_date          DATE,
+  first_login_flag         VARCHAR2(1),
+  attempt_ctr              NUMBER,
+  user_source              VARCHAR2(30),
+  super_user               VARCHAR2(1) default 'N',
+  full_name                VARCHAR2(100)
+)
+;
+comment on table EDFIDATA.USER_ACCOUNT
+  is 'An Account of the user of the system';
+comment on column EDFIDATA.USER_ACCOUNT.user_sid
+  is 'User Surrogate Key';
+comment on column EDFIDATA.USER_ACCOUNT.district_sid
+  is 'Unique System Generated ID for the Table';
+comment on column EDFIDATA.USER_ACCOUNT.user_id
+  is 'A unique name or email address that identifies a user of one or more applications.
+example: jane.doe@anywhereISD.org';
+comment on column EDFIDATA.USER_ACCOUNT.password
+  is 'Users encrypted password';
+comment on column EDFIDATA.USER_ACCOUNT.password_expiration_date
+  is 'The date on which the users password will expire and need to be changed.';
+comment on column EDFIDATA.USER_ACCOUNT.password_update_date
+  is 'The date on which the user last changed their password.';
+comment on column EDFIDATA.USER_ACCOUNT.user_first_name
+  is 'First name of the user.';
+comment on column EDFIDATA.USER_ACCOUNT.user_last_name
+  is 'Surname of the user.';
+comment on column EDFIDATA.USER_ACCOUNT.email_address
+  is 'The email address of the user.';
+comment on column EDFIDATA.USER_ACCOUNT.created_by
+  is 'The SID of the user that created this user account.';
+comment on column EDFIDATA.USER_ACCOUNT.create_date
+  is 'The timestamp when the account was created.';
+comment on column EDFIDATA.USER_ACCOUNT.updated_by
+  is 'The SID of the user that updated this user account.';
+comment on column EDFIDATA.USER_ACCOUNT.update_date
+  is 'The timestamp when the account was updated.';
+comment on column EDFIDATA.USER_ACCOUNT.account_locked
+  is 'Indicates that the account is locked or not allowing or restricting access.
+Values: Y, N';
+comment on column EDFIDATA.USER_ACCOUNT.active_account_flag
+  is 'Indicates that the account is currently active for use or has been deactivated.
+Values: Y, N';
+comment on column EDFIDATA.USER_ACCOUNT.last_login_date
+  is 'The date and time that the user last successfully logged into a reveal application.';
+comment on column EDFIDATA.USER_ACCOUNT.first_login_flag
+  is 'A flag to indicate that the user has not logged in before and needs to complete additional security setup.
+Values: Y/N';
+comment on column EDFIDATA.USER_ACCOUNT.attempt_ctr
+  is 'Identifies the number failed attempts to log on by this user';
+comment on column EDFIDATA.USER_ACCOUNT.user_source
+  is 'Indicates the source of the user and if the users permissions are to be synchronized with the source system from which the user was imported. Example: TxEIS-SYNC, TxEIS-NOSYNC, REVEAL';
+comment on column EDFIDATA.USER_ACCOUNT.super_user
+  is 'Indicates that the user is authorized to access functions reserved for the highest level users. Values Y/N';
+comment on column EDFIDATA.USER_ACCOUNT.full_name
+  is 'The computed full name of the individual';
+alter table EDFIDATA.USER_ACCOUNT
+  add constraint PK_USER_ACCOUNT primary key (USER_SID);
+alter table EDFIDATA.USER_ACCOUNT
+  add constraint USER_AK unique (USER_ID);
+alter table EDFIDATA.USER_ACCOUNT
+  add constraint FK_USER_ACC_REFERENCE_STAFF_TI foreign key (STAFF_TITLE_SID)
+  references EDFIDATA.STAFF_TITLE (STAFF_TITLE_SID)
+  novalidate;
+alter table EDFIDATA.USER_ACCOUNT
+  add constraint FK_USER_ACC_REF_ORG_DIM foreign key (DISTRICT_SID)
+  references R10INTDATA.ORG_DIM (ORG_SID)
+  novalidate;
+

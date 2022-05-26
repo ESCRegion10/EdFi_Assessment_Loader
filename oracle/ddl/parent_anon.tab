@@ -1,0 +1,20 @@
+create table EDFIDATA.PARENT_ANON
+(
+  id          NUMBER,
+  first_name  VARCHAR2(100),
+  last_name   VARCHAR2(100),
+  address     VARCHAR2(100),
+  city        VARCHAR2(100),
+  state       VARCHAR2(2),
+  zip         VARCHAR2(10),
+  email       VARCHAR2(100),
+  unique_id   VARCHAR2(100),
+  middle_init VARCHAR2(1),
+  birth_date  DATE,
+  sex_type    NUMBER(1),
+  hispanic    VARCHAR2(1),
+  race_type   NUMBER(1),
+  phone       VARCHAR2(15)
+)
+;
+
