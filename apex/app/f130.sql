@@ -27,7 +27,7 @@ prompt APPLICATION 130 - CCMR Assessment File Data Loader
 -- Application Export:
 --   Application:     130
 --   Name:            CCMR Assessment File Data Loader
---   Date and Time:   15:27 Tuesday May 17, 2022
+--   Date and Time:   10:11 Tuesday July 19, 2022
 --   Exported By:     EDFI
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -116,7 +116,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'CCMR Assessment File Data Loader'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20220512111406'
+,p_last_upd_yyyymmddhh24miss=>'20220719101100'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'/i/')
 ,p_files_version=>8
 ,p_ui_type_name => null
@@ -12202,7 +12202,7 @@ wwv_flow_api.create_page(
 ,p_step_template=>wwv_flow_api.id(32389539971647231)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20220512111406'
+,p_last_upd_yyyymmddhh24miss=>'20220719101100'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(44909804395233628)
@@ -12913,7 +12913,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
-,p_pagination_type=>'SCROLL'
+,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_no_data_found_message=>'There are no errors to display'
 ,p_show_toolbar=>true
@@ -14598,7 +14598,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>false
-,p_pagination_type=>'SCROLL'
+,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_no_data_found_message=>'There are no errors to display'
 ,p_show_toolbar=>true
@@ -15694,7 +15694,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>false
-,p_pagination_type=>'SCROLL'
+,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_no_data_found_message=>'There are no error records for SAT'
 ,p_show_toolbar=>true
@@ -16572,7 +16572,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
-,p_pagination_type=>'SCROLL'
+,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_no_data_found_message=>'There are no errors to display'
 ,p_show_toolbar=>true
@@ -17480,7 +17480,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
-,p_pagination_type=>'SCROLL'
+,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_show_toolbar=>true
 ,p_toolbar_buttons=>'SEARCH_COLUMN:SEARCH_FIELD:ACTIONS_MENU:RESET'
@@ -18151,7 +18151,7 @@ wwv_flow_api.create_interactive_grid(
 ,p_lazy_loading=>false
 ,p_requires_filter=>false
 ,p_select_first_row=>true
-,p_pagination_type=>'SCROLL'
+,p_pagination_type=>'SET'
 ,p_show_total_row_count=>true
 ,p_no_data_found_message=>'There are no errors to display'
 ,p_show_toolbar=>true
@@ -21273,7 +21273,7 @@ wwv_flow_api.create_page_process(
 ,p_process_name=>'Process the uploaded assessment files'
 ,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'pkg_assessment_upload.prc_process_asmt_files(p_district_id => :g_district_id,',
-'                                               p_user_id => :apex_user,',
+'                                               p_user_id => :app_user,',
 '                                               p_test_type => :p100_assessment_type,',
 '                                               p_files_to_upload => :p100_file,',
 '                                               p_school_years => :p100_school_year);'))

@@ -1,4 +1,4 @@
-create or replace package edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
+create or replace package PKG_UPDATE_STUDENT_ATTRIBUTES is
 
   -- Author  : CHRIS.BULL
   -- Created : 8/20/2020 10:00:10 AM
@@ -205,6 +205,12 @@ procedure PROC_INSERT_STUDENT_LIST (
        P_STUDENT_UNIQUE_ID IN varchar2,
 			 P_ODS_NUMBER       in varchar2
   );
+-- PROCEDURE to pull the STUDENTS CERTS from the ods and load into district_student_certs_cache based on ods number.
+  procedure PROC_INSERT_STU_CERTS_CACHE2 (
+       P_STUDENT_UNIQUE_ID IN varchar2,
+			 P_ODS_NUMBER       in varchar2,
+			 P_SESSION_ID       in varchar2
+  );
 -- PROCEDURE to pull the staff from the ods and load into TMP_DISTRICT_STAFF based on ods number.
   procedure PROC_INSERT_STAFF_LIST (
 			 P_ODS_NUMBER       in varchar2
@@ -375,10 +381,7 @@ procedure PROC_EDFI_COURSE_DUAL_CR (
 	 			 
 end PKG_UPDATE_STUDENT_ATTRIBUTES;
 /
-grant execute on EDFIDATA.PKG_UPDATE_STUDENT_ATTRIBUTES to EDFIAPP;
-
-
-create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
+create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 
 	c_api_base varchar2(100);
   c_api_data varchar2(100);
@@ -388,7 +391,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		P_DISTRICT_ID            in varchar2  default null,
 		P_DB_NUMBER              in varchar2  default null
 		) as
-		
+
 		l_edfi_version              varchar2(5);
 		l_mass_send_flag            varchar2(3);
 		l_school_year               varchar2(4);
@@ -397,9 +400,9 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_api_dns                   varchar2(200);
 		l_api_base                  varchar2(200);
 		l_api_data                  varchar2(200);
-		
+
 		begin
-			select 
+			select
 			   d.EDFI_VERSION
 				 ,d.MASS_SEND_FLAG
 				 ,d.SCHOOL_YEAR
@@ -414,18 +417,18 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			where d.PRIMARY_SCHOOL_YEAR = 'Y'
 			   and (d.DISTRICT_DB_NUMBER = P_DB_NUMBER
 			   or d.DISTRICT_CDC = P_DISTRICT_ID);
-				 
+
 			if l_edfi_version = '2.5' then
 				c_api_base := replace(l_api_base,'#IP_DNS#',l_api_dns);
 				-- for 2.5 the db_number is part of the url
 				c_api_data := replace(l_api_data,'#DB_NBR#',l_db_number);
 			end if;
-			
+
 			if l_edfi_version = '3.5' then
 				-- FOR 3.5 The DNS, proxy name and the SCHOOL YEAR need to be replaced
 				c_api_base := replace(replace(l_api_base,'#IP_DNS#',l_api_dns),'#SCHOOL_YEAR#',l_school_year);
 				c_api_data := l_api_data;
-				
+
 				if l_mass_send_flag = 'Y' then
 					-- proxy name is not used for mass update so remove the place holder and the "/" on the end
 					c_api_base := replace(c_api_base,'#PROXY_NAME#/','');
@@ -434,15 +437,15 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					-- proxy name is required for nginx so replace name
 					c_api_base := replace(c_api_base,'#PROXY_NAME#',l_proxy_district_name);
 				end if;
-				
+
 			end if;
 				-- http://#IP_DNS#/#PROXY_NAME#/ods-#SCHOOL_YEAR#/
 		end PROC_SET_API_URL;
 --
 -- This function returns the oauth code for ed-fi 2.5
 --
-  function FN_GET_AUTH_CODE_25 
-		(p_client_id varchar2) 
+  function FN_GET_AUTH_CODE_25
+		(p_client_id varchar2)
 	return varchar2 is
     req utl_http.req;
 		res utl_http.resp;
@@ -452,12 +455,12 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_error varchar2(200);
 		e_http_error exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		BEGIN
 			--utl_http.set_wallet('file:${ORACLE_BASE}/admin/${ORACLE_SID}/wallet', null);
 			  --utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
 			req  := UTL_HTTP.begin_request(url, 'GET');
-			
+
 			res := utl_http.get_response(req);
 			-- process the response from the HTTP call
 			begin
@@ -486,8 +489,8 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 --
 -- THis function returns the oauth token for ed-fi 2.5
 --
-  function FN_GET_AUTH_TOKEN_25 
-		      (P_DB_NUMBER in varchar2) 
+  function FN_GET_AUTH_TOKEN_25
+		      (P_DB_NUMBER in varchar2)
   return varchar2 is
 		----------  ED_FI 2.5 oauth token
     req utl_http.req;
@@ -502,14 +505,14 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
     l_error varchar2(200);
 		e_http_error exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => P_DB_NUMBER);
 			url := c_api_base||'oauth/token';
-			
+
 			-- get the key and secret for the users DB
-			select 
+			select
 			   d.API_KEY
 				 ,d.API_SECRET
 			into l_client_id, l_client_secret
@@ -524,7 +527,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			utl_http.set_header(req, 'Content-Type', 'application/x-www-form-urlencoded');
 			utl_http.set_header(req, 'Content-Length', length(content));
 			utl_http.write_text(req, content);
-		 
+
 			res := utl_http.get_response(req);
 			-- process the response from the HTTP call
 			begin
@@ -539,7 +542,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				else
 				   return l_token;
 				end if;
-				
+
 			exception
 				when utl_http.end_of_body
 				then
@@ -547,10 +550,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					return 'ERROR';
 			end;
 		END FN_GET_AUTH_TOKEN_25;
-		
+
 -- function returns the auth token for 3.5
-  function FN_GET_AUTH_TOKEN_35 
-		      (P_DB_NUMBER in varchar2) 
+  function FN_GET_AUTH_TOKEN_35
+		      (P_DB_NUMBER in varchar2)
   return varchar2 is
 		----------  ED_FI 3.5 oauth token  !!! no need to get the code separately
     req utl_http.req;
@@ -564,14 +567,14 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
     l_error varchar2(200);
 		e_http_error exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => P_DB_NUMBER);
 			url := c_api_base||'oauth/token';
 			--dbms_output.put_line(url);
 			-- get the key and secret for the users DB
-			select 
+			select
 			   d.API_KEY
 				 ,d.API_SECRET
 			into l_client_id, l_client_secret
@@ -586,7 +589,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			utl_http.set_header(req, 'Content-Type', 'application/x-www-form-urlencoded');
 			utl_http.set_header(req, 'Content-Length', length(content));
 			utl_http.write_text(req, content);
-		 
+
 			res := utl_http.get_response(req);
 			-- process the response from the HTTP call
 			begin
@@ -601,7 +604,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				else
 				   return l_token;
 				end if;
-				
+
 			exception
 				when utl_http.end_of_body
 				then
@@ -609,16 +612,16 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					return 'ERROR';
 			end;
 		END FN_GET_AUTH_TOKEN_35;
-		
+
 -- THis procedure inserts a student characteristic for ed-fi 2.5
 -- you must pull the student record back and add to the JSON the new values
-  procedure PROC_PUT_STU_CHAR_25 
+  procedure PROC_PUT_STU_CHAR_25
 		      (p_student_unique_id      in varchar2,
 					 p_ASVAB_date             in date,
 					 p_Military_date          in date,
 					 p_Meningitis_date        in date,
 					 p_database_number        in varchar2,
-					 p_auth_token             in varchar2) 
+					 p_auth_token             in varchar2)
   is
     req                 utl_http.req;
 		res                 utl_http.resp;
@@ -631,12 +634,12 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_warning           varchar2(200);
 		e_http_error        exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => p_database_number);
 			url := c_api_base||c_api_data||'students';
-			
+
 			-- get the student record via the api and the student unique id
 			req  := UTL_HTTP.begin_request(url||'?studentUniqueId='||p_student_unique_id, 'GET');
 			utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
@@ -653,11 +656,11 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				select JSON_QUERY(l_json_doc, '$.characteristics')
 					into l_characteristics
 					from dual;
-				--DBMS_OUTPUT.put_line('charac : ' || l_characteristics);	
+				--DBMS_OUTPUT.put_line('charac : ' || l_characteristics);
 				-- prime l_new_characteristics
 				l_new_characteristics := l_characteristics;
-				
-				if p_ASVAB_date is not null then 
+
+				if p_ASVAB_date is not null then
 					-- characteristic was added to the student
 					if l_new_characteristics = '[]' then
 						l_new_characteristics := '[ { "descriptor": "ASVAB", "beginDate": "'||to_char(p_ASVAB_date,'YYYY-MM-DD')||'" } ]';
@@ -675,8 +678,8 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					-- the characteristic was removed from the student
 					l_new_characteristics := REGEXP_REPLACE(l_new_characteristics,',{"descriptor":"ASVAB".*?}','',1,1,'in');
 				end if;
-				
-				if p_Military_date is not null then 
+
+				if p_Military_date is not null then
 					if l_new_characteristics = '[]' then
 						l_new_characteristics := '[ { "descriptor": "Military Enlistment", "beginDate": "'||to_char(p_Military_date,'YYYY-MM-DD')||'" } ]';
 					else
@@ -691,8 +694,8 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					-- the characteristic was removed from the student
 					l_new_characteristics := REGEXP_REPLACE(l_new_characteristics,',{"descriptor":"Military Enlistment".*?}','',1,1,'in');
 				end if;
-				
-				if p_Meningitis_date is not null then 
+
+				if p_Meningitis_date is not null then
 					if l_new_characteristics = '[]' then
 						l_new_characteristics := '[ { "descriptor": "Meningitis Vaccine", "beginDate": "'||to_char(p_Meningitis_date,'YYYY-MM-DD')||'" } ]';
 					else
@@ -707,20 +710,20 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					-- the characteristic was removed from the student
 					l_new_characteristics := REGEXP_REPLACE(l_new_characteristics,',{"descriptor":"Meningitis Vaccine".*?}','',1,1,'in');
 				end if;
-				
+
 				-- add to jason doc
 				l_json_doc := REGEXP_REPLACE(l_json_doc, '"characteristics":.*?]', '"characteristics": '||l_new_characteristics,1,1,'in');
 			  DBMS_OUTPUT.put_line('After : ' || l_json_doc);
-			else 
+			else
 				-- bad response code so raise error
 				 select json_value(buffer, '$.error') into l_error from dual;
 				 select json_value(buffer, '$.message') into l_warning from dual;
 				 utl_http.end_response(res);
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
-			
+
       utl_http.end_response(res);
-      
+
 			-- Update the student data in the ODS
 			--utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
 			req  := UTL_HTTP.begin_request(url, 'POST');
@@ -728,10 +731,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			utl_http.set_header(req, 'Content-Type', 'application/json');
 			utl_http.set_header(req, 'Content-Length', length(l_json_doc));
 			utl_http.write_text(req, l_json_doc);
-		 
+
 			res := utl_http.get_response(req);
 			dbms_output.put_line(res.status_code);
-			
+
 			if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED) then
 				 utl_http.read_text(res, buffer,32767);
 				 dbms_output.put_line(buffer);
@@ -741,21 +744,21 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
 			utl_http.end_response(res);
-			
+
 		END PROC_PUT_STU_CHAR_25;
-		
+
 		-- This procedure returns the list of the students characteristics
-		function FN_CHECK_STU_IN_ODS 
+		function FN_CHECK_STU_IN_ODS
 		         (P_STUDENT_UNIQUE_ID      in varchar2,
 						  P_DISTRICT_ID            in varchar2)
 		return boolean
 		as
-	
+
 		l_db_link varchar2(100);
 		l_student_id   varchar2(20);
 		l_sql varchar2(2000);
     begin
- 
+
 			select DB_LINK
 				into l_db_link
 				 from DISTRICT_DB_LINK_SY L
@@ -763,14 +766,20 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			 where D.DISTRICT_CDC = l.DISTRICT_ID
 				 and L.TARGET_DB = 'ODS'
 				 and d.PRIMARY_SCHOOL_YEAR = 'Y'
-				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
+				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR
+				 and l.DISTRICT_ID = P_DISTRICT_ID;
 
-			l_sql :=  'SELECT "StudentUniqueId"
+			/*l_sql :=  'SELECT "StudentUniqueId"
 										FROM "edfi"."v_StudentIds"@'||l_db_link||' s
-										where s."StudentUniqueId" ='||''''||P_STUDENT_UNIQUE_ID||'''';
-			
+										where s."StudentUniqueId" ='||''''||P_STUDENT_UNIQUE_ID||'''';*/
+			l_sql :=  'SELECT s."StudentUniqueId"
+									FROM "edfi"."Student"@'||l_db_link||' s
+									join "edfi"."StudentSchoolAssociation"@'||l_db_link||' sa on sa."StudentUSI" = s."StudentUSI"
+									where s."StudentUniqueId" = '||''''||P_STUDENT_UNIQUE_ID||'''
+										and rownum = 1';
+										
 			execute immediate l_sql into l_student_id;
-       
+
 			commit;
       execute immediate 'alter session close database link ' || l_db_link;
 			return true;
@@ -779,26 +788,26 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
         commit;
         execute immediate 'alter session close database link ' || l_db_link;
 			  return false;
-		end FN_CHECK_STU_IN_ODS;		
+		end FN_CHECK_STU_IN_ODS;
 		-- This procedure returns the list of the students characteristics
-		procedure PROC_GET_STU_CHARACTERISTICS 
+		procedure PROC_GET_STU_CHARACTERISTICS
 		         (P_STUDENT_UNIQUE_ID      in varchar2,
 						  P_DISTRICT_ID            in varchar2,
 							p_ASVAB_date             out date,
 						  p_Military_date          out date,
 							p_Meningitis_date        out date)
 		is
-		
+
 		TYPE stu_chars_rt IS RECORD (
       CodeValue     VARCHAR2 (200),
       BeginDate     date
    );
- 
+
     l_record   stu_chars_rt;
 		l_db_link varchar2(100);
 		l_cursor   SYS_REFCURSOR;
     begin
- 
+
 			select DB_LINK
 				into l_db_link
 				 from DISTRICT_DB_LINK_SY L
@@ -824,28 +833,28 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					end case;
 					DBMS_OUTPUT.put_line (l_record.CodeValue||' '||l_record.BeginDate);
 			 END LOOP;
-		 
-			 CLOSE l_cursor;		
-			 
+
+			 CLOSE l_cursor;
+
 			commit;
       execute immediate 'alter session close database link ' || l_db_link;
-			
+
     exception
      when NO_DATA_FOUND then
         commit;
         execute immediate 'alter session close database link ' || l_db_link;
-			
+
 		end PROC_GET_STU_CHARACTERISTICS;
 --
 -- THis procedure inserts a student POST SECONDARY EVENT(Associates degree,college app,financial app) for ed-fi 2.5
 -- you must pull the student POST SECONDARY EVENT record back and add to the JSON the new values
-  procedure PROC_PUT_POST_SEC_EVENTS_25 
+  procedure PROC_PUT_POST_SEC_EVENTS_25
 		      (p_student_unique_id      in varchar2,
 					 p_associates_degree_date in date,
 					 p_college_app_flag       in varchar2,
 					 p_financial_app_flag     in varchar2,
 					 p_database_number        in varchar2,
-					 p_auth_token             in varchar2) 
+					 p_auth_token             in varchar2)
   is
     req                 utl_http.req;
 		res                 utl_http.resp;
@@ -865,12 +874,12 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_warning           varchar2(200);
 		e_http_error        exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => p_database_number);
 			url := c_api_base||c_api_data||'postSecondaryEvents';
-			
+
 			-- get the student record via the api and the student unique id
 			req  := UTL_HTTP.begin_request(url||'?studentUniqueId='||p_student_unique_id, 'GET');
 			utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
@@ -878,11 +887,11 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			res := utl_http.get_response(req);
 			--DBMS_OUTPUT.put_line('resp code : ' || res.status_code || ' msg: '||res.reason_phrase);
 			if res.status_code = utl_http.HTTP_OK then
-				
+
 				-- get the response from the rest call
 				utl_http.read_text(res, l_json_doc,32767);
 				--DBMS_OUTPUT.put_line('ORIGINAL : ' || l_json_doc);
-				
+
 				-- create template for new json entries
 				l_pse_template := '{ "studentReference": {
 																	"studentUniqueId": "'||p_student_unique_id||'",
@@ -894,7 +903,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 															"eventDate": "#EVENTDATE#",
 															"categoryType": "#CATEGORY#"
 													}';
-				
+
 				-- process the json into an array
 				if l_json_doc != '[]' then
 					for i in 0..1000
@@ -914,19 +923,19 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								or instr(l_events,'FAFSA Application')     > 0 then
 								pse_elements.extend;
 								pse_elements(i+1) := l_events;
-								case 
+								case
 									when instr(l_events,'College Degree Received') > 0 then l_college_degree_found := i+1;
 									when instr(l_events,'College Application')     > 0 then l_college_app_found := i+1;
 									when instr(l_events,'FAFSA Application')       > 0 then l_financial_app_found := i+1;
 								end case;
 							end if;
 							l_events := null;
-						end loop;	
+						end loop;
 				end if;
-				
+
 				-- add or remove the entered items from the page
 				if p_associates_degree_date is not null
-					and l_college_degree_found is null then 
+					and l_college_degree_found is null then
 					-- degree was added to the student
 					pse_elements.extend;
 					pse_elements(pse_elements.last) := l_pse_template;
@@ -937,7 +946,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					and l_college_degree_found > 0 then
 					-- the Degree was removed from the student so add resource id to delete collection
 					pse_deletes.extend;
-					select JSON_VALUE(pse_elements(l_college_degree_found),'$.id' ) 
+					select JSON_VALUE(pse_elements(l_college_degree_found),'$.id' )
 						into pse_deletes(pse_deletes.LAST)
 						from dual;
 					-- remove from the add list pse_elements
@@ -945,7 +954,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				elsif l_college_degree_found > 0 then
 					-- need to delete the old record as this will create a new one if the date is different
 					pse_deletes.extend;
-					select JSON_VALUE(pse_elements(l_college_degree_found),'$.id' ) 
+					select JSON_VALUE(pse_elements(l_college_degree_found),'$.id' )
 						into pse_deletes(pse_deletes.LAST)
 						from dual;
 					-- not an add and not to be deleted then update with new date
@@ -954,9 +963,9 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					pse_elements(l_college_degree_found) := replace(pse_elements(l_college_degree_found),'#EVENTDATE#',to_char(p_associates_degree_date,'YYYY-MM-DD'));
 					--DBMS_OUTPUT.put_line('updated College Degree Received : ' || pse_elements(l_college_degree_found));
 				end if;
-				
+
 				if p_college_app_flag = 'Y'
-					and l_college_app_found is null then 
+					and l_college_app_found is null then
 					-- degree was added to the student
 					pse_elements.extend;
 					pse_elements(pse_elements.last) := l_pse_template;
@@ -967,7 +976,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					and l_college_app_found > 0 then
 					-- the college app was removed from the student
 					pse_deletes.extend;
-					select JSON_VALUE(pse_elements(l_college_app_found),'$.id' ) 
+					select JSON_VALUE(pse_elements(l_college_app_found),'$.id' )
 						into pse_deletes(pse_deletes.LAST)
 						from dual;
 				-- remove from the add list pse_elements
@@ -977,9 +986,9 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					--DBMS_OUTPUT.put_line('college app already exists : ' || pse_elements(l_college_app_found));
 				  pse_elements.DELETE(l_college_app_found);
 				end if;
-				
+
 				if p_financial_app_flag = 'Y'
-					and l_financial_app_found is null then 
+					and l_financial_app_found is null then
 					-- degree was added to the student
 					pse_elements.extend;
 					pse_elements(pse_elements.last) := l_events;
@@ -991,7 +1000,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					and l_financial_app_found > 0 then
 					-- the college app was removed from the student
 					pse_deletes.extend;
-					select JSON_VALUE(pse_elements(l_financial_app_found),'$.id' ) 
+					select JSON_VALUE(pse_elements(l_financial_app_found),'$.id' )
 						into pse_deletes(pse_deletes.LAST)
 						from dual;
 					-- remove from the add list pse_elements
@@ -1001,17 +1010,17 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					--DBMS_OUTPUT.put_line('financial app already exists : ' || pse_elements(l_financial_app_found));
 				  pse_elements.DELETE(l_financial_app_found);
 				end if;
-			else 
+			else
 				-- bad response code so raise error
 				 select json_value(buffer, '$.error') into l_error from dual;
 				 select json_value(buffer, '$.message') into l_warning from dual;
 				 utl_http.end_response(res);
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
-			
+
       utl_http.end_response(res);
 			utl_http.end_request(req);
-			
+
       -- Add the post secondary events to the ODS
 			if pse_elements.COUNT > 0 then
 				for x in pse_elements.first..pse_elements.last
@@ -1020,7 +1029,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						if pse_elements.EXISTS(x) = false then
 							continue;
 						end if;
-						
+
 						--DBMS_OUTPUT.put_line('el to add : ' || pse_elements(x));
 						-- remove the resource id, this will cause an error if included
 						pse_elements(x) := REGEXP_REPLACE(pse_elements(x), '"id".*?,','',1,0,'i');
@@ -1030,10 +1039,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						utl_http.set_header(req, 'Content-Type', 'application/json');
 						utl_http.set_header(req, 'Content-Length', length(pse_elements(x)));
 						utl_http.write_text(req, pse_elements(x));
-					 
+
 						res := utl_http.get_response(req);
 						--dbms_output.put_line(res.status_code);
-						
+
 						if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED) then
 							 utl_http.read_text(res, buffer,32767);
 							 dbms_output.put_line(buffer);
@@ -1046,7 +1055,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						utl_http.end_response(res);
 						utl_http.end_request(req);
 					end loop;
-			end if;	
+			end if;
 			-- delete the post secondary events that were removed by the user
 			if pse_deletes.COUNT > 0 then
 				for x in pse_deletes.first..pse_deletes.last
@@ -1055,10 +1064,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						--utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
 						req  := UTL_HTTP.begin_request(url||'?id='||pse_deletes(x), 'DELETE');
 						utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
-					 
+
 						res := utl_http.get_response(req);
 						--dbms_output.put_line(res.status_code);
-						
+
 						if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED,utl_http.HTTP_NO_CONTENT) then
 							 utl_http.read_text(res, buffer,32767);
 							 dbms_output.put_line(buffer);
@@ -1073,10 +1082,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					end loop;
 			end if;
 		END PROC_PUT_POST_SEC_EVENTS_25;
-		
+
 		---------------------------------------------------------------------------------
 		-- This function returns post secondary events for a student
-		procedure PROC_GET_POST_SEC_EVENTS 
+		procedure PROC_GET_POST_SEC_EVENTS
 		         (P_STUDENT_UNIQUE_ID      in varchar2,
 						  P_DISTRICT_ID            in varchar2,
 							P_ODS_NUMBER             in varchar2,
@@ -1084,16 +1093,16 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					    p_college_app_flag       out varchar2,
 					    p_financial_app_flag     out varchar2)
 		is
-		
+
 		TYPE stu_chars_rt IS RECORD (
       CodeValue     VARCHAR2 (200),
       EventDate     date);
- 
+
     l_record   stu_chars_rt;
 		l_db_link varchar2(100);
 		l_cursor   SYS_REFCURSOR;
     begin
- 
+
 			select DB_LINK
 				into l_db_link
 				 from DISTRICT_DB_LINK_SY L
@@ -1109,7 +1118,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 										order by s."CodeValue"';
 			 LOOP
 					FETCH l_cursor INTO l_record;
-		 
+
 					EXIT WHEN l_cursor%NOTFOUND;
 		      case
 						when l_record.CodeValue = 'College Degree Received' then p_associates_degree_date := l_record.EventDate;
@@ -1118,21 +1127,21 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					end case;
 					DBMS_OUTPUT.put_line (l_record.CodeValue||' '||l_record.EventDate);
 			 END LOOP;
-		 
+
 			 CLOSE l_cursor;
 			commit;
-      execute immediate 'alter session close database link ' || l_db_link;							
+      execute immediate 'alter session close database link ' || l_db_link;
 
     exception
      when NO_DATA_FOUND then
         commit;
         execute immediate 'alter session close database link ' || l_db_link;
-			
+
 		end PROC_GET_POST_SEC_EVENTS;
 --
 -- THis procedure UPDATES student academic recordS FOR INDUSTRY CERTIFICATIONS for ed-fi 2.5
 -- you must pull the student academic record back and add to the JSON the new values
-  procedure PROC_PUT_STU_IND_CERTS_25 
+  procedure PROC_PUT_STU_IND_CERTS_25
 		      (p_student_unique_id      in varchar2,
 					 p_district_id            in varchar2,
 					 p_database_number        in varchar2,
@@ -1157,7 +1166,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_warning             varchar2(200);
 		e_http_error          exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		l_sar_template        varchar2(32767) := ' {
         "educationOrganizationReference": {
             "educationOrganizationId": #DISTRICT_ID#
@@ -1174,23 +1183,23 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
         "recognitions": [],
         "reportCards": []
     }';
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => p_database_number);
 			url := c_api_base||c_api_data||'studentAcademicRecords';
-			
+
 			-- get the student record via the api and the student unique id
 			req  := UTL_HTTP.begin_request(url||'?studentUniqueId='||p_student_unique_id||'&schoolYear='||p_school_year||'&termDescriptor='||APEX_UTIL.URL_ENCODE(p_term), 'GET');
 			utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
 		  -- submit request
 			res := utl_http.get_response(req);
-			
+
 			if res.status_code = utl_http.HTTP_OK then
 				-- get the response from the rest call
 				utl_http.read_text(res, l_json_doc,32767);
 				DBMS_OUTPUT.put_line('JSON before : ' || l_json_doc);
-				
+
 				if l_json_doc = '[]' then
 					-- stu academic rec was not found, use template to create a new one
 					l_json_doc := replace(l_sar_template,'#DISTRICT_ID#',to_number(p_district_id));
@@ -1202,11 +1211,11 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				select JSON_QUERY(l_json_doc, '$.academicHonors')
 					into l_academic_honors
 					from dual;
-				DBMS_OUTPUT.put_line('certs : ' || l_academic_honors);	
+				DBMS_OUTPUT.put_line('certs : ' || l_academic_honors);
 				-- prime l_new_characteristics
 				l_new_academic_honors := l_academic_honors;
-				
-				if p_transaction_type = 'ADD' then 
+
+				if p_transaction_type = 'ADD' then
 					-- cert was added to the student
 					DBMS_OUTPUT.put_line('add found : ' || p_achievement_title);
 					if l_new_academic_honors = '[]' then
@@ -1216,13 +1225,13 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					end if;
 					DBMS_OUTPUT.put_line('add inserted : ' || l_new_academic_honors);
 				end if;
-				
-				if p_transaction_type = 'UPDATE' then 
+
+				if p_transaction_type = 'UPDATE' then
 					-- they can only upate the title so replace the title of the first occurence of the old title
 					l_new_academic_honors := REGEXP_REPLACE(l_new_academic_honors,'"achievementTitle":".*?"','"achievementTitle":"'||p_achievement_title||'"',1,1,'in');
 				end if;
-				
-				if p_transaction_type = 'DELETE' then 
+
+				if p_transaction_type = 'DELETE' then
 					-- REMOVE THE ENTRY TO BE DELETED
 					l_title := instr(l_new_academic_honors,p_achievement_title,1,1);
 					l_end_position := instr(l_new_academic_honors,'}',l_title,1);
@@ -1231,7 +1240,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 							if substr(l_new_academic_honors,i,1) = '{' then
 								if substr(l_new_academic_honors,i-1,1) = ',' then
 									l_start_position := i-1;
-								elsif substr(l_new_academic_honors,i-1,1) = '[' 
+								elsif substr(l_new_academic_honors,i-1,1) = '['
 									and substr(l_new_academic_honors,l_end_position+1,1) = ',' then
 									l_end_position := l_end_position + 1;
 									l_start_position := i;
@@ -1240,32 +1249,32 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								end if;
 								exit;
 							end if;
-						end loop;	
+						end loop;
 					l_new_academic_honors :=  replace(l_new_academic_honors,substr(l_new_academic_honors,l_start_position,l_end_position-l_start_position+1),'');
 				  dbms_output.put_line('After Delete: '||l_new_academic_honors);
 				end if;
-				
+
 				-- add to jason doc
 				l_json_doc := REGEXP_REPLACE(l_json_doc, '"academicHonors":.*?]', '"academicHonors": '||l_new_academic_honors,1,1,'in');
 			  DBMS_OUTPUT.put_line('After : ' || l_json_doc);
-			else 
+			else
 				-- bad response code so raise error
 				 select json_value(buffer, '$.error') into l_error from dual;
 				 select json_value(buffer, '$.message') into l_warning from dual;
 				 utl_http.end_response(res);
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
-			
+
       utl_http.end_response(res);
 			utl_http.end_request(req);
-			
+
 			-- update the student academic record
 			-- remove the resource id ("id") from the response.
 			l_json_doc := REGEXP_REPLACE(l_json_doc, '"id":.*','',1,1,'i');
 			-- remove the [] as the post is for a single studentAcademicRecord
 	    l_json_doc := regexp_replace(l_json_doc,'^\[','',1,1,'i');
 			l_json_doc := regexp_replace(l_json_doc,'\]$','',1,1,'i');
-	    DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);  
+	    DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);
 			-- add/Update the student data in the ODS
 			--utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
 			req  := UTL_HTTP.begin_request(url, 'POST');
@@ -1276,7 +1285,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 
 			res := utl_http.get_response(req);
 			dbms_output.put_line(res.status_code);
-			
+
 			if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED) then
 				 utl_http.read_text(res, buffer,32767);
 				 dbms_output.put_line(buffer);
@@ -1291,7 +1300,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 --
 -- THis procedure UPDATES student academic recordS FOR Level 1 and 2 CERTIFICATIONS for ed-fi 2.5
 -- you must pull the student academic record back and add to the JSON the new values
-  procedure PROC_PUT_STU_LVL12_CERTS_25 
+  procedure PROC_PUT_STU_LVL12_CERTS_25
 		      (p_student_unique_id      in varchar2,
 					 p_district_id            in varchar2,
 					 p_database_number        in varchar2,
@@ -1318,7 +1327,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_warning             varchar2(200);
 		e_http_error          exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		l_sar_template        varchar2(32767) := ' {
         "educationOrganizationReference": {
             "educationOrganizationId": #DISTRICT_ID#
@@ -1335,53 +1344,53 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
         "recognitions": [],
         "reportCards": []
     }';
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => p_database_number);
 			url := c_api_base||c_api_data||'studentAcademicRecords';
-			
+
 			-- get the student record via the api and the student unique id
 			req  := UTL_HTTP.begin_request(url||'?studentUniqueId='||p_student_unique_id||'&schoolYear='||p_school_year||'&termDescriptor='||APEX_UTIL.URL_ENCODE(p_term), 'GET');
 			utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
 		  -- submit request
 			res := utl_http.get_response(req);
-			
+
 			if res.status_code = utl_http.HTTP_OK then
 				-- get the response from the rest call
 				utl_http.read_text(res, l_json_doc,32767);
 				DBMS_OUTPUT.put_line('JSON before : ' || l_json_doc);
-				
+
 				if l_json_doc = '[]' then
 					-- rec was not found, use template to create a new one
 					l_json_doc := replace(l_sar_template,'#DISTRICT_ID#',to_number(p_district_id));
 					l_json_doc := replace(l_json_doc,'#SCHOOL_YEAR#',p_school_year);
 					l_json_doc := replace(l_json_doc,'#STUDENT_UNIQUE_ID#',p_student_unique_id);
 				end if;
-				
+
 				-- PULL RECOGNITIONS from response
 				select JSON_QUERY(l_json_doc, '$.recognitions')
 					into l_recognitions
 					from dual;
-				DBMS_OUTPUT.put_line('certs : ' || l_recognitions);	
+				DBMS_OUTPUT.put_line('certs : ' || l_recognitions);
 				-- prime l_new_characteristics
 				l_new_recognitions := l_recognitions;
-				
-				if p_transaction_type = 'ADD' then 
+
+				if p_transaction_type = 'ADD' then
 					-- cert was added to the student
 					DBMS_OUTPUT.put_line('add found : ' || p_achievement_title);
 					l_new_recognitions := '[ { "recognitionType": "Certificate","criteria": "'||P_CRITERIA||'","achievementTitle": "'||p_achievement_title||'","recognitionAwardDate": "'||to_char(P_AWARD_DATE,'YYYY-MM-DD')||'" } ]';
 					DBMS_OUTPUT.put_line('add inserted : ' || l_new_recognitions);
 				end if;
-				
-				if p_transaction_type = 'UPDATE' then 
+
+				if p_transaction_type = 'UPDATE' then
 					-- replace the title of the first occurence of the old title
 					l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"achievementTitle":".*?"','"achievementTitle":"'||p_achievement_title||'"',1,1,'in');
 				  l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"recognitionAwardDate":".*?"','"recognitionAwardDate":"'||to_char(P_AWARD_DATE,'YYYY-MM-DD')||'"',1,1,'in');
 				  l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"criteria":".*?"','"criteria":"'||P_CRITERIA||'"',1,1,'in');
 				end if;
-				
-				if p_transaction_type = 'DELETE' then 
+
+				if p_transaction_type = 'DELETE' then
 					-- REMOVE THE ENTRY TO BE DELETED
 					l_title := instr(l_new_recognitions,p_achievement_title,1,1);
 					l_end_position := instr(l_new_recognitions,'}',l_title,1);
@@ -1390,7 +1399,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 							if substr(l_new_recognitions,i,1) = '{' then
 								if substr(l_new_recognitions,i-1,1) = ',' then
 									l_start_position := i-1;
-								elsif substr(l_new_recognitions,i-1,1) = '[' 
+								elsif substr(l_new_recognitions,i-1,1) = '['
 									and substr(l_new_recognitions,l_end_position+1,1) = ',' then
 									l_end_position := l_end_position + 1;
 									l_start_position := i;
@@ -1399,32 +1408,32 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								end if;
 								exit;
 							end if;
-						end loop;	
+						end loop;
 					l_new_recognitions :=  replace(l_new_recognitions,substr(l_new_recognitions,l_start_position,l_end_position-l_start_position+1),'');
 				  dbms_output.put_line('After Delete: '||l_new_recognitions);
 				end if;
-				
+
 				-- add to jason doc
 				l_json_doc := REGEXP_REPLACE(l_json_doc, '"recognitions":.*?]', '"recognitions": '||l_new_recognitions,1,1,'in');
 			  DBMS_OUTPUT.put_line('After : ' || l_json_doc);
-			else 
+			else
 				-- bad response code so raise error
 				 select json_value(buffer, '$.error') into l_error from dual;
 				 select json_value(buffer, '$.message') into l_warning from dual;
 				 utl_http.end_response(res);
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
-			
+
       utl_http.end_response(res);
 			utl_http.end_request(req);
-			
+
 			-- update the student academic record
 			-- remove the resource id ("id") from the response.
 			l_json_doc := REGEXP_REPLACE(l_json_doc, '"id":.*','',1,1,'i');
 			-- remove the [] as the post is for a single studentAcademicRecord
 	    l_json_doc := regexp_replace(l_json_doc,'^\[','',1,1,'i');
 			l_json_doc := regexp_replace(l_json_doc,'\]$','',1,1,'i');
-	    DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);  
+	    DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);
 			-- add/Update the student data in the ODS
 			--utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
 			req  := UTL_HTTP.begin_request(url, 'POST');
@@ -1435,7 +1444,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 
 			res := utl_http.get_response(req);
 			dbms_output.put_line(res.status_code);
-			
+
 			if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED) then
 				 utl_http.read_text(res, buffer,32767);
 				 dbms_output.put_line(buffer);
@@ -1447,13 +1456,13 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			utl_http.end_response(res);
 			utl_http.end_request(req);
 		END PROC_PUT_STU_LVL12_CERTS_25;
-		
+
 -- pipelined table function to return student list.
   FUNCTION FN_GET_STUDENT_LIST (
        P_SEARCH IN varchar2,
 			 P_DISTRICT_ID in varchar2
   ) return t_STU_LIST_tab PIPELINED as
-	
+
     l_record  t_STU_LIST_row;
 		l_db_link varchar2(100);
     l_sql     varchar2(1000);
@@ -1467,9 +1476,9 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 and L.TARGET_DB = 'ODS'
 				 and d.PRIMARY_SCHOOL_YEAR = 'Y'
 				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
-				 
-  OPEN l_cursor for 'select "LastSurname", "FirstName", "BirthDate", "StudentUniqueId", "LocalCode" 
-												from edfi.v_StudentIds@'||l_db_link||' 
+
+  OPEN l_cursor for 'select "LastSurname", "FirstName", "BirthDate", "StudentUniqueId", "LocalCode"
+												from edfi.v_StudentIds@'||l_db_link||'
 											 where instr(lower("LastSurname"),lower('''||P_SEARCH||''')) > 0
 													or instr(lower("FirstName"),lower('''||P_SEARCH||''')) > 0
 											or instr(lower("BirthDate"),lower('''||P_SEARCH||''')) > 0
@@ -1478,9 +1487,9 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 											or "StudentUniqueId" = nvl('''||P_SEARCH||''',"StudentUniqueId")';
 		 LOOP
 				FETCH l_cursor INTO l_record;
-		 
+
 				EXIT WHEN l_cursor%NOTFOUND;
-				
+
 				PIPE ROW(l_record);
 		 END loop;
 
@@ -1493,7 +1502,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			 P_DISTRICT_ID       in varchar2,
 			 P_STUDENT_UNIQUE_ID in varchar2
   ) return t_STU_ATTR_tab PIPELINED as
-	
+
     l_record  t_STU_ATTR_row;
 		l_db_link varchar2(100);
     l_sql     varchar2(1000);
@@ -1507,24 +1516,24 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 and L.TARGET_DB = 'ODS'
 				 and d.PRIMARY_SCHOOL_YEAR = 'Y'
 				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
-				 
+
 	l_sql := 'SELECT to_char(s."CodeValue") as "CodeValue", s."BeginDate"
 										FROM "edfi"."v_StudentCharacteristics"@'||l_db_link||' s
 										where s."StudentUniqueId" ='||''''||P_STUDENT_UNIQUE_ID||''''||'
 										  and s."CodeValue" in (''ASVAB'',''Military Enlistment'',''Meningitis Vaccine'')
 										order by s."CodeValue"';
-	DBMS_OUTPUT.PUT_LINE(l_sql);			 
+	DBMS_OUTPUT.PUT_LINE(l_sql);
   open l_cursor for l_sql;
 	LOOP
 		FETCH l_cursor INTO l_record;
-			 
+
 		EXIT WHEN l_cursor%NOTFOUND;
-					
+
 		PIPE ROW(l_record);
 	END loop;
 
-	CLOSE l_cursor;		
-  execute immediate 'alter session close database link ' || l_db_link;	
+	CLOSE l_cursor;
+  execute immediate 'alter session close database link ' || l_db_link;
 
   RETURN;
   end FN_GET_STU_ATTRS;
@@ -1533,7 +1542,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			 P_DISTRICT_ID       in varchar2,
 			 P_STUDENT_UNIQUE_ID in varchar2
   ) return t_STU_PS_EVENT_tab PIPELINED as
-	
+
     l_record  t_STU_PS_EVENT_row;
 		l_db_link varchar2(100);
     l_sql     varchar2(1000);
@@ -1547,22 +1556,22 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 and L.TARGET_DB = 'ODS'
 				 and d.PRIMARY_SCHOOL_YEAR = 'Y'
 				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
-				 
+
 	l_sql := 'SELECT to_char(s."CodeValue"), s."EventDate"
 										FROM "edfi"."v_StudentPostSecondaryEvent"@'||l_db_link||' s
 										where s."StudentUniqueId" ='||''''||P_STUDENT_UNIQUE_ID||''''||'
 										order by s."CodeValue"';
-	DBMS_OUTPUT.PUT_LINE(l_sql);			 
+	DBMS_OUTPUT.PUT_LINE(l_sql);
   open l_cursor for l_sql;
 	LOOP
 		FETCH l_cursor INTO l_record;
-			 
+
 		EXIT WHEN l_cursor%NOTFOUND;
-					
+
 		PIPE ROW(l_record);
 	END loop;
 
-	CLOSE l_cursor;			
+	CLOSE l_cursor;
   execute immediate 'alter session close database link ' || l_db_link;
   RETURN;
   end FN_GET_STU_PS_EVENTS;
@@ -1572,7 +1581,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
        P_STUDENT_UNIQUE_ID IN varchar2,
 			 P_DISTRICT_ID in varchar2
   ) return t_STU_INDUSTRY_CERT_tab PIPELINED as
-	
+
     l_record  t_STU_INDUSTRY_CERT_row;
 		l_db_link varchar2(100);
     l_sql     varchar2(1000);
@@ -1586,20 +1595,20 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 and L.TARGET_DB = 'ODS'
 				 and d.PRIMARY_SCHOOL_YEAR = 'Y'
 				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
-				 
+
 	l_sql := 'select "StudentUniqueId"
 												, "SchoolYear"
 												, "TermDescriptor"
 												, "AcademicHonorCategoryType"
 												, "AchievementCategory"
 												, "AchievementTitle"
-											from edfi.v_StudentIndustryCert@'||l_db_link||' 
+											from edfi.v_StudentIndustryCert@'||l_db_link||'
 										 where "StudentUniqueId" = '''||P_student_unique_id||'''';
 	DBMS_OUTPUT.PUT_LINE(l_sql);
   OPEN l_cursor for l_sql;
 		 LOOP
 				FETCH l_cursor INTO l_record;
-		    
+
 				EXIT WHEN l_cursor%NOTFOUND;
 				DBMS_OUTPUT.PUT_LINE('rowcount:'||l_cursor%ROWCOUNT);
 				DBMS_OUTPUT.PUT_LINE('StudentUniqueId: '||l_record."StudentUniqueId");
@@ -1609,8 +1618,8 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		 END loop;
 
 		 CLOSE l_cursor;
-  execute immediate 'alter session close database link ' || l_db_link;	
-		 
+  execute immediate 'alter session close database link ' || l_db_link;
+
   RETURN;
   end FN_GET_INDUSTRY_CERT_LIST;
 -- pipelined table function to return student list.
@@ -1618,7 +1627,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
        P_STUDENT_UNIQUE_ID IN varchar2,
 			 P_DISTRICT_ID       in varchar2
   ) return t_STU_LEVEL12_CERT_tab PIPELINED as
-	
+
     l_record  t_STU_LEVEL12_CERT_row;
 		l_db_link varchar2(100);
     l_sql     varchar2(1000);
@@ -1632,27 +1641,27 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 and L.TARGET_DB = 'ODS'
 				 and d.PRIMARY_SCHOOL_YEAR = 'Y'
 				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
-				 
+
 	l_sql := 'select "StudentUniqueId"
 												, "SchoolYear"
 												, "TermDescriptor"
 												, "RecognitionAwardDate"
 												, "AchievementTitle"
 												, "Criteria"
-											from edfi.v_StudentLevel12Cert@'||l_db_link||' 
+											from edfi.v_StudentLevel12Cert@'||l_db_link||'
 										 where "StudentUniqueId" = '''||P_student_unique_id||'''';
-	DBMS_OUTPUT.PUT_LINE(l_sql);			 
+	DBMS_OUTPUT.PUT_LINE(l_sql);
   open l_cursor for l_sql;
 		 LOOP
 				FETCH l_cursor INTO l_record;
-		 
+
 				EXIT WHEN l_cursor%NOTFOUND;
-				
+
 				PIPE ROW(l_record);
 		 END loop;
 
-		 CLOSE l_cursor;	
-  execute immediate 'alter session close database link ' || l_db_link;		
+		 CLOSE l_cursor;
+  execute immediate 'alter session close database link ' || l_db_link;
 
   RETURN;
   end FN_GET_LEVEL12_CERT_LIST;
@@ -1661,7 +1670,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
   FUNCTION FN_GET_COURSES_LIST (
 			 P_DISTRICT_ID       in varchar2
   ) return t_COURSE_CHAR_tab PIPELINED as
-	
+
     l_record  t_COURSE_CHAR_row;
 		l_db_link varchar2(100);
     l_sql     varchar2(1000);
@@ -1680,18 +1689,18 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 									,"AcademicSubjectDescriptor"
 									,"CourseLevelCharacteristic"
 							from "edfi"."v_Courses"@'||l_db_link;
-	DBMS_OUTPUT.PUT_LINE(l_sql);			 
+	DBMS_OUTPUT.PUT_LINE(l_sql);
   open l_cursor for l_sql;
 	LOOP
 		FETCH l_cursor INTO l_record;
-			 
+
 		EXIT WHEN l_cursor%NOTFOUND;
-					
+
 		PIPE ROW(l_record);
 	END loop;
 
-	CLOSE l_cursor;	
-  execute immediate 'alter session close database link ' || l_db_link;		
+	CLOSE l_cursor;
+  execute immediate 'alter session close database link ' || l_db_link;
 
   RETURN;
   end FN_GET_COURSES_LIST;
@@ -1718,7 +1727,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			l_found := 'N';
 		end;
 		-- if the cache is not loaded then load it.
-		if l_found = 'N' then 
+		if l_found = 'N' then
 			-- CLEAR THE TMP TABLE
 			/*delete from DISTRICT_STUDENT_CACHE
 				where session_id = nv('APP_SESSION');*/
@@ -1732,19 +1741,19 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 and d.PRIMARY_SCHOOL_YEAR = 'Y'
 				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
 			-- BUILD SQL STMT
-			l_sql := 'insert into DISTRICT_STUDENT_CACHE 
-											 SELECT 
+			l_sql := 'insert into DISTRICT_STUDENT_CACHE
+											 SELECT
 													'||nv('APP_SESSION')||',
 													systimestamp,
-													"LastSurname", 
-													"FirstName", 
-													"BirthDate", 
-													"StudentUniqueId", 
-													 "LocalCode" 
+													"LastSurname",
+													"FirstName",
+													"BirthDate",
+													"StudentUniqueId",
+													 "LocalCode"
 												from edfi.v_StudentIds@'||l_db_link;
 			--apex_debug.message(l_sql);
 			--DBMS_OUTPUT.PUT_LINE(l_sql);
-			-- RUN SQL			 
+			-- RUN SQL
 			execute immediate l_sql;
 			-- COMMIT THE INSERT AND COMMIT THE DB_LINK
 			commit;
@@ -1760,12 +1769,12 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 execute immediate 'alter session close database link ' || l_db_link;
 			 exception when others then
 				 -- do nothing as it is not open
-				 null; 
+				 null;
 			 end;
 			 -- re-raise the error
 			 raise;
   end PROC_INSERT_STUDENT_LIST;
--- PROCEDURE to pull the STUDENTS CERTS from the ods and load into district_student_certs_cache based on ods number.
+-- PROCEDURE to pull the STUDENTS CERTS from the ods and load into district_student_certs_cache based on ods number and passed in session_id.
   procedure PROC_INSERT_STU_CERTS_CACHE (
        P_STUDENT_UNIQUE_ID IN varchar2,
 			 P_ODS_NUMBER       in varchar2
@@ -1787,38 +1796,38 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
 		-- BUILD SQL STMT
 		l_sql := 'insert into district_student_certs_cache
-		            SELECT 
+		            SELECT
 										'||nv('APP_SESSION')||',
 										systimestamp,
-										"StudentUniqueId", 
-										"SchoolYear", 
-										"TermDescriptor", 
+										"StudentUniqueId",
+										"SchoolYear",
+										"TermDescriptor",
 										"AchievementTitle",
 										null as criteria,
 										null as award_date,
 										''INDUSTRY'' AS cert_type,
 										"AcademicHonorCategoryType",
 										"AchievementCategory"
-									from "edfi"."v_StudentIndustryCert"@'||l_db_link||' 
+									from "edfi"."v_StudentIndustryCert"@'||l_db_link||'
 									where "StudentUniqueId" = '''||P_student_unique_id||'''
 									union
-									SELECT 
+									SELECT
 										'||nv('APP_SESSION')||',
 										systimestamp,
-										"StudentUniqueId", 
-										"SchoolYear", 
-										"TermDescriptor", 
+										"StudentUniqueId",
+										"SchoolYear",
+										"TermDescriptor",
 										"AchievementTitle",
 										"Criteria" as criteria,
 										"RecognitionAwardDate" as award_date,
 										''LEVEL1_2'' AS cert_type,
 										null as "AcademicHonorCategoryType",
 										null as "AchievementCategory"
-									from "edfi"."v_StudentLevel12Cert"@'||l_db_link||' 
+									from "edfi"."v_StudentLevel12Cert"@'||l_db_link||'
 								 where "StudentUniqueId" = '''||P_student_unique_id||'''';
 		--apex_debug.message(l_sql);
 		DBMS_OUTPUT.PUT_LINE(l_sql);
-		-- RUN SQL			 
+		-- RUN SQL
 		execute immediate l_sql;
 		-- COMMIT THE INSERT AND COMMIT THE DB_LINK
 		commit;
@@ -1833,12 +1842,86 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 execute immediate 'alter session close database link ' || l_db_link;
 			 exception when others then
 				 -- do nothing as it is not open
-				 null; 
+				 null;
 			 end;
 			 -- re-raise the error
 			 raise;
   end PROC_INSERT_STU_CERTS_CACHE;
 	
+-- PROCEDURE to pull the STUDENTS CERTS from the ods and load into district_student_certs_cache based on ods number.
+  procedure PROC_INSERT_STU_CERTS_CACHE2 (
+       P_STUDENT_UNIQUE_ID IN varchar2,
+			 P_ODS_NUMBER       in varchar2,
+			 P_SESSION_ID       in varchar2
+  ) as
+		l_db_link varchar2(100);
+    l_sql     varchar2(4000);
+  begin
+		-- CLEAR THE TMP TABLE
+		--delete from district_student_certs_cache
+		--  where session_id = nv('APP_SESSION');
+		-- GET DB LINK
+		select DB_LINK
+				into l_db_link
+				from DISTRICT_DB_LINK_SY L
+				join DISTRICTS D on D.DISTRICT_CDC = L.DISTRICT_ID
+			 where D.DISTRICT_DB_NUMBER = P_ODS_NUMBER
+				 and L.TARGET_DB = 'ODS'
+				 and d.PRIMARY_SCHOOL_YEAR = 'Y'
+				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
+		-- BUILD SQL STMT
+		l_sql := 'insert into district_student_certs_cache
+		            SELECT
+										'||P_SESSION_ID||',
+										systimestamp,
+										"StudentUniqueId",
+										"SchoolYear",
+										"TermDescriptor",
+										"AchievementTitle",
+										null as criteria,
+										null as award_date,
+										''INDUSTRY'' AS cert_type,
+										"AcademicHonorCategoryType",
+										"AchievementCategory"
+									from "edfi"."v_StudentIndustryCert"@'||l_db_link||'
+									where "StudentUniqueId" = '''||P_student_unique_id||'''
+									union
+									SELECT
+										'||P_SESSION_ID||',
+										systimestamp,
+										"StudentUniqueId",
+										"SchoolYear",
+										"TermDescriptor",
+										"AchievementTitle",
+										"Criteria" as criteria,
+										"RecognitionAwardDate" as award_date,
+										''LEVEL1_2'' AS cert_type,
+										null as "AcademicHonorCategoryType",
+										null as "AchievementCategory"
+									from "edfi"."v_StudentLevel12Cert"@'||l_db_link||'
+								 where "StudentUniqueId" = '''||P_student_unique_id||'''';
+		--apex_debug.message(l_sql);
+		DBMS_OUTPUT.PUT_LINE(l_sql);
+		-- RUN SQL
+		execute immediate l_sql;
+		-- COMMIT THE INSERT AND COMMIT THE DB_LINK
+		commit;
+		-- CLOSE THE DB_LINK
+		execute immediate 'alter session close database link ' || l_db_link;
+	exception
+		when others then
+			begin
+			   -- COMMIT THE INSERT AND COMMIT THE DB_LINK
+				 commit;
+				 -- CLOSE THE DB_LINK
+				 execute immediate 'alter session close database link ' || l_db_link;
+			 exception when others then
+				 -- do nothing as it is not open
+				 null;
+			 end;
+			 -- re-raise the error
+			 raise;
+  end PROC_INSERT_STU_CERTS_CACHE2;
 -- PROCEDURE to pull the staff from the ods and load into TMP_DISTRICT_STAFF based on ods number.
   procedure PROC_INSERT_STAFF_LIST (
 			 P_ODS_NUMBER       in varchar2
@@ -1859,19 +1942,19 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 and d.PRIMARY_SCHOOL_YEAR = 'Y'
 				 and d.SCHOOL_YEAR = l.SCHOOL_YEAR;
 		-- BUILD SQL STMT
-		l_sql := 'insert into DISTRICT_STAFF_CACHE 
-		                 SELECT 
+		l_sql := 'insert into DISTRICT_STAFF_CACHE
+		                 SELECT
 										  '||nv('APP_SESSION')||',
 											systimestamp,
-		                  "StaffUSI", 
-											"StaffUniqueId", 
-											"LastSurname", 
-											"FirstName", 
-											"ElectronicMailAddress", 
+		                  "StaffUSI",
+											"StaffUniqueId",
+											"LastSurname",
+											"FirstName",
+											"ElectronicMailAddress",
 											"StaffClassification"
 											FROM "edfi"."v_Staff"@'||l_db_link;
 		--apex_debug.message(l_sql);
-		-- RUN SQL			 
+		-- RUN SQL
 		execute immediate l_sql;
 		-- COMMIT THE INSERT AND COMMIT THE DB_LINK
 		commit;
@@ -1886,7 +1969,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 execute immediate 'alter session close database link ' || l_db_link;
 			 exception when others then
 				 -- do nothing as it is not open
-				 null; 
+				 null;
 			 end;
 			 -- do not re-raise the error as there is no data to show.
 		when others then
@@ -1897,7 +1980,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 execute immediate 'alter session close database link ' || l_db_link;
 			 exception when others then
 				 -- do nothing as it is not open
-				 null; 
+				 null;
 			 end;
 			 -- re-raise the error
 			 raise;
@@ -1913,16 +1996,16 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		delete from district_student_cache
 		 where CREATE_TS < sysdate  - INTERVAL '30' MINUTE;
 		commit;
-	end; 
+	end;
 -- THis procedure inserts a student characteristic for ed-fi 3.5
 -- you must pull the student record back and add to the JSON the new values
-  procedure PROC_PUT_STU_CHAR_35 
+  procedure PROC_PUT_STU_CHAR_35
 		      (p_student_unique_id      in varchar2,
 					 p_ASVAB_date             in date,
 					 p_Military_date          in date,
 					 p_Meningitis_date        in date,
 					 p_database_number        in varchar2,
-					 p_auth_token             in varchar2) 
+					 p_auth_token             in varchar2)
   is
     req                 utl_http.req;
 		res                 utl_http.resp;
@@ -1935,12 +2018,12 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_warning           varchar2(200);
 		e_http_error        exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => p_database_number);
 			url := c_api_base||c_api_data||'studentEducationOrganizationAssociations';
-			
+
 			-- get the student record via the api and the student unique id
 			req  := UTL_HTTP.begin_request(url||'?studentUniqueId='||p_student_unique_id, 'GET');
 			utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
@@ -1957,11 +2040,11 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				select JSON_QUERY(l_json_doc, '$.studentCharacteristics')
 					into l_characteristics
 					from dual;
-				--DBMS_OUTPUT.put_line('charac : ' || l_characteristics);	
+				--DBMS_OUTPUT.put_line('charac : ' || l_characteristics);
 				-- prime l_new_characteristics
 				l_new_characteristics := l_characteristics;
 				apex_debug.message('>>>> asvab dt: '||p_ASVAB_date);
-				if p_ASVAB_date is not null then 
+				if p_ASVAB_date is not null then
 					-- characteristic was added to the student
 					if l_new_characteristics = '[]' then
 						apex_debug.message('>>>> no chars: '||p_ASVAB_date);
@@ -1988,8 +2071,8 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					-- the characteristic was removed from the student
 					l_new_characteristics := REGEXP_REPLACE(l_new_characteristics,'(,|){"studentCharacteristicDescriptor":"uri:\/\/ed-fi.org\/StudentCharacteristicDescriptor\#ASVAB".*?(}\]},|}\]}|\[\]},|\[\]})','',1,1,'in');
 				end if;
-				
-				if p_Military_date is not null then 
+
+				if p_Military_date is not null then
 					if l_new_characteristics = '[]' then
 						l_new_characteristics := '[{"studentCharacteristicDescriptor": "uri://ed-fi.org/StudentCharacteristicDescriptor#Military Enlistment","periods": [{"beginDate": "'||to_char(p_Military_date,'YYYY-MM-DD')||'"}]}]';
 					else
@@ -2010,8 +2093,8 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					-- the characteristic was removed from the student
 					l_new_characteristics := REGEXP_REPLACE(l_new_characteristics,'(,|){"studentCharacteristicDescriptor":"uri:\/\/ed-fi.org\/StudentCharacteristicDescriptor\#Military\ Enlistment".*?(}\]},|}\]}|\[\]},|\[\]})','',1,1,'in');
 		    end if;
-				
-				if p_Meningitis_date is not null then 
+
+				if p_Meningitis_date is not null then
 					if l_new_characteristics = '[]' then
 						l_new_characteristics := '[{"studentCharacteristicDescriptor": "uri://ed-fi.org/StudentCharacteristicDescriptor#Meningitis Vaccine","periods": [{"beginDate": "'||to_char(p_Meningitis_date,'YYYY-MM-DD')||'"}]}]';
 					else
@@ -2032,7 +2115,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					-- the characteristic was removed from the student
 					l_new_characteristics := REGEXP_REPLACE(l_new_characteristics,'(,|){"studentCharacteristicDescriptor":"uri:\/\/ed-fi.org\/StudentCharacteristicDescriptor\#Meningitis\ Vaccine".*?(}\]},|}\]}|\[\]},|\[\]})','',1,1,'in');
 				end if;
-				
+
 				-- sometimes when there are pre-existing characteristics a comma may be missing.  replace }{ with },{
 				l_new_characteristics := replace(l_new_characteristics,'}{','},{');
 				apex_debug.message('>>>> l_new_characteristics: '||l_new_characteristics);
@@ -2041,17 +2124,17 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				l_json_doc := REGEXP_REPLACE(l_json_doc, '"studentCharacteristics":.*?],.*"studentIdentificationCodes"', '"studentCharacteristics": '||l_new_characteristics||', "studentIdentificationCodes"',1,1,'in');
 			  apex_debug.message('>>>> l_json_doc: '||l_json_doc);
 				--DBMS_OUTPUT.put_line('After studentCharacteristics replace: ' || l_json_doc);
-				
-			else 
+
+			else
 				-- bad response code so raise error
 				 select json_value(buffer, '$.error') into l_error from dual;
 				 select json_value(buffer, '$.message') into l_warning from dual;
 				 utl_http.end_response(res);
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
-			
+
       utl_http.end_response(res);
-      
+
 			-- Update the student data in the ODS
 			-- remove the [] as the post is for a single Record
 	    l_json_doc := regexp_replace(l_json_doc,'^\[','',1,1,'i');
@@ -2063,10 +2146,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			utl_http.set_header(req, 'Content-Type', 'application/json');
 			utl_http.set_header(req, 'Content-Length', length(l_json_doc));
 			utl_http.write_text(req, l_json_doc);
-		 
+
 			res := utl_http.get_response(req);
 			--dbms_output.put_line(res.status_code);
-			
+
 			if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED) then
 				 utl_http.read_text(res, buffer,32767);
 				 dbms_output.put_line(buffer);
@@ -2076,18 +2159,18 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
 			utl_http.end_response(res);
-			
+
 		END PROC_PUT_STU_CHAR_35;
 --
 -- THis procedure inserts a student POST SECONDARY EVENT(Associates degree,college app,financial app) for ed-fi 3.5
 -- you must pull the student POST SECONDARY EVENT record back and add to the JSON the new values
-  procedure PROC_PUT_POST_SEC_EVENTS_35 
+  procedure PROC_PUT_POST_SEC_EVENTS_35
 		      (p_student_unique_id      in varchar2,
 					 p_associates_degree_date in date,
 					 p_college_app_flag       in varchar2,
 					 p_financial_app_flag     in varchar2,
 					 p_database_number        in varchar2,
-					 p_auth_token             in varchar2) 
+					 p_auth_token             in varchar2)
   is
     req                 utl_http.req;
 		res                 utl_http.resp;
@@ -2107,12 +2190,12 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_warning           varchar2(200);
 		e_http_error        exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => p_database_number);
 			url := c_api_base||c_api_data||'postSecondaryEvents';
-			
+
 			-- get the student record via the api and the student unique id
 			req  := UTL_HTTP.begin_request(url||'?studentUniqueId='||p_student_unique_id, 'GET');
 			utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
@@ -2120,11 +2203,11 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			res := utl_http.get_response(req);
 			--DBMS_OUTPUT.put_line('resp code : ' || res.status_code || ' msg: '||res.reason_phrase);
 			if res.status_code = utl_http.HTTP_OK then
-				
+
 				-- get the response from the rest call
 				utl_http.read_text(res, l_json_doc,32767);
 				--DBMS_OUTPUT.put_line('ORIGINAL : ' || l_json_doc);
-				
+
 				-- create template for new json entries
 				l_pse_template := '{ "studentReference": {
 																	"studentUniqueId": "'||p_student_unique_id||'"
@@ -2132,7 +2215,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 															"eventDate": "#EVENTDATE#",
 															"postSecondaryEventCategoryDescriptor": "uri://ed-fi.org/PostSecondaryEventCategoryDescriptor##CATEGORY#"
 													}';
-				
+
 				-- process the json into an array
 				if l_json_doc != '[]' then
 					for i in 0..1000
@@ -2152,19 +2235,19 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								or instr(l_events,'FAFSA Application')     > 0 then
 								pse_elements.extend;
 								pse_elements(i+1) := l_events;
-								case 
+								case
 									when instr(l_events,'College Degree Received') > 0 then l_college_degree_found := i+1;
 									when instr(l_events,'College Application')     > 0 then l_college_app_found := i+1;
 									when instr(l_events,'FAFSA Application')       > 0 then l_financial_app_found := i+1;
 								end case;
 							end if;
 							l_events := null;
-						end loop;	
+						end loop;
 				end if;
-				
+
 				-- add or remove the entered items from the page
 				if p_associates_degree_date is not null
-					and l_college_degree_found is null then 
+					and l_college_degree_found is null then
 					-- degree was added to the student
 					pse_elements.extend;
 					pse_elements(pse_elements.last) := l_pse_template;
@@ -2175,7 +2258,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					and l_college_degree_found > 0 then
 					-- the Degree was removed from the student so add resource id to delete collection
 					pse_deletes.extend;
-					select JSON_VALUE(pse_elements(l_college_degree_found),'$.id' ) 
+					select JSON_VALUE(pse_elements(l_college_degree_found),'$.id' )
 						into pse_deletes(pse_deletes.LAST)
 						from dual;
 					-- remove from the add list pse_elements
@@ -2185,7 +2268,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						-- the date is NOT the same and the entered date
 						-- need to delete the old record as this will create a new one if the date is different
 						pse_deletes.extend;
-						select JSON_VALUE(pse_elements(l_college_degree_found),'$.id' ) 
+						select JSON_VALUE(pse_elements(l_college_degree_found),'$.id' )
 							into pse_deletes(pse_deletes.LAST)
 							from dual;
 						-- not an add and not to be deleted then replace it with new date
@@ -2199,9 +2282,9 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						pse_elements.DELETE(l_college_degree_found);
 					end if;
 				end if;
-				
+
 				if p_college_app_flag = 'Y'
-					and l_college_app_found is null then 
+					and l_college_app_found is null then
 					-- degree was added to the student
 					pse_elements.extend;
 					pse_elements(pse_elements.last) := l_pse_template;
@@ -2212,7 +2295,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					and l_college_app_found > 0 then
 					-- the college app was removed from the student
 					pse_deletes.extend;
-					select JSON_VALUE(pse_elements(l_college_app_found),'$.id' ) 
+					select JSON_VALUE(pse_elements(l_college_app_found),'$.id' )
 						into pse_deletes(pse_deletes.LAST)
 						from dual;
 				-- remove from the add list pse_elements
@@ -2222,9 +2305,9 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					DBMS_OUTPUT.put_line('college app already exists : ' || pse_elements(l_college_app_found));
 				  pse_elements.DELETE(l_college_app_found);
 				end if;
-				
+
 				if p_financial_app_flag = 'Y'
-					and l_financial_app_found is null then 
+					and l_financial_app_found is null then
 					-- degree was added to the student
 					pse_elements.extend;
 					pse_elements(pse_elements.last) := l_events;
@@ -2236,7 +2319,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					and l_financial_app_found > 0 then
 					-- the college app was removed from the student
 					pse_deletes.extend;
-					select JSON_VALUE(pse_elements(l_financial_app_found),'$.id' ) 
+					select JSON_VALUE(pse_elements(l_financial_app_found),'$.id' )
 						into pse_deletes(pse_deletes.LAST)
 						from dual;
 					-- remove from the add list pse_elements
@@ -2246,17 +2329,17 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					DBMS_OUTPUT.put_line('financial app already exists : ' || pse_elements(l_financial_app_found));
 				  pse_elements.DELETE(l_financial_app_found);
 				end if;
-			else 
+			else
 				-- bad response code so raise error
 				 select json_value(buffer, '$.error') into l_error from dual;
 				 select json_value(buffer, '$.message') into l_warning from dual;
 				 utl_http.end_response(res);
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
-			
+
       utl_http.end_response(res);
 			utl_http.end_request(req);
-			
+
 			-- delete the post secondary events that were removed by the user
 			if pse_deletes.COUNT > 0 then
 				for x in pse_deletes.first..pse_deletes.last
@@ -2265,10 +2348,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						--utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
 						req  := UTL_HTTP.begin_request(url||'?id='||pse_deletes(x), 'DELETE');
 						utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
-					 
+
 						res := utl_http.get_response(req);
 						dbms_output.put_line(res.status_code);
-						
+
 						if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED,utl_http.HTTP_NO_CONTENT) then
 							 utl_http.read_text(res, buffer,32767);
 							 dbms_output.put_line(buffer);
@@ -2282,7 +2365,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						utl_http.end_request(req);
 					end loop;
 			end if;
-			
+
       -- Add the post secondary events to the ODS
 			if pse_elements.COUNT > 0 then
 				for x in pse_elements.first..pse_elements.last
@@ -2291,7 +2374,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						if pse_elements.EXISTS(x) = false then
 							continue;
 						end if;
-						
+
 						DBMS_OUTPUT.put_line('el to add : ' || pse_elements(x));
 						-- remove the resource id, this will cause an error if included
 						pse_elements(x) := REGEXP_REPLACE(pse_elements(x), '"id".*?,','',1,0,'i');
@@ -2301,10 +2384,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						utl_http.set_header(req, 'Content-Type', 'application/json');
 						utl_http.set_header(req, 'Content-Length', length(pse_elements(x)));
 						utl_http.write_text(req, pse_elements(x));
-					 
+
 						res := utl_http.get_response(req);
 						dbms_output.put_line(res.status_code);
-						
+
 						if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED) then
 							 utl_http.read_text(res, buffer,32767);
 							 dbms_output.put_line(buffer);
@@ -2317,13 +2400,13 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						utl_http.end_response(res);
 						utl_http.end_request(req);
 					end loop;
-			end if;	
-			
+			end if;
+
 		END PROC_PUT_POST_SEC_EVENTS_35;
 --
 -- THis procedure UPDATES student academic recordS FOR INDUSTRY CERTIFICATIONS for ed-fi 3.5
 -- you must pull the student academic record back and add to the JSON the new values
-  procedure PROC_PUT_STU_IND_CERTS_35 
+  procedure PROC_PUT_STU_IND_CERTS_35
 		      (p_student_unique_id      in varchar2,
 					 p_district_id            in varchar2,
 					 p_database_number        in varchar2,
@@ -2348,7 +2431,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_warning             varchar2(200);
 		e_http_error          exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		l_sar_template        varchar2(32767) := ' {
         "educationOrganizationReference": {
             "educationOrganizationId": #DISTRICT_ID#
@@ -2365,23 +2448,23 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
         "recognitions": [],
         "reportCards": []
     }';
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => p_database_number);
 			url := c_api_base||c_api_data||'studentAcademicRecords';
-			
+
 			-- get the student record via the api and the student unique id
 			req  := UTL_HTTP.begin_request(url||'?studentUniqueId='||p_student_unique_id||'&schoolYear='||p_school_year||'&termDescriptor=uri://ed-fi.org/TermDescriptor%23'||APEX_UTIL.URL_ENCODE(p_term), 'GET');
 			utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
 		  -- submit request
 			res := utl_http.get_response(req);
-			
+
 			if res.status_code = utl_http.HTTP_OK then
 				-- get the response from the rest call
 				utl_http.read_text(res, l_json_doc,32767);
 				DBMS_OUTPUT.put_line('JSON before : ' || l_json_doc);
-				
+
 				if l_json_doc = '[]' then
 					-- stu academic rec was not found, use template to create a new one
 					l_json_doc := replace(l_sar_template,'#DISTRICT_ID#',to_number(p_district_id));
@@ -2393,11 +2476,11 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				select JSON_QUERY(l_json_doc, '$.academicHonors')
 					into l_academic_honors
 					from dual;
-				DBMS_OUTPUT.put_line('certs : ' || l_academic_honors);	
+				DBMS_OUTPUT.put_line('certs : ' || l_academic_honors);
 				-- prime l_new_characteristics
 				l_new_academic_honors := l_academic_honors;
-				
-				if p_transaction_type = 'ADD' then 
+
+				if p_transaction_type = 'ADD' then
 					-- cert was added to the student
 					DBMS_OUTPUT.put_line('add found : ' || p_achievement_title);
 					if l_new_academic_honors = '[]' then
@@ -2407,14 +2490,14 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					end if;
 					DBMS_OUTPUT.put_line('add inserted : ' || l_new_academic_honors);
 				end if;
-				
-				if p_transaction_type = 'UPDATE' then 
+
+				if p_transaction_type = 'UPDATE' then
 					-- they can only upate the title so replace the title of the first occurence of the old title
 					l_new_academic_honors := REGEXP_REPLACE(l_new_academic_honors,'"achievementTitle":"'||p_old_achievement_title||'"','"achievementTitle":"'||p_achievement_title||'"',1,1,'in');
           l_new_academic_honors := REGEXP_REPLACE(l_new_academic_honors,'"honorDescription":"'||p_old_achievement_title||'"','"honorDescription":"'||p_achievement_title||'"',1,1,'in');
 				end if;
-				
-				if p_transaction_type = 'DELETE' then 
+
+				if p_transaction_type = 'DELETE' then
 					-- REMOVE THE ENTRY TO BE DELETED
 					l_title := instr(l_new_academic_honors,p_achievement_title,1,1);
 					l_end_position := instr(l_new_academic_honors,'}',l_title,1);
@@ -2423,7 +2506,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 							if substr(l_new_academic_honors,i,1) = '{' then
 								if substr(l_new_academic_honors,i-1,1) = ',' then
 									l_start_position := i-1;
-								elsif substr(l_new_academic_honors,i-1,1) = '[' 
+								elsif substr(l_new_academic_honors,i-1,1) = '['
 									and substr(l_new_academic_honors,l_end_position+1,1) = ',' then
 									l_end_position := l_end_position + 1;
 									l_start_position := i;
@@ -2432,32 +2515,32 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								end if;
 								exit;
 							end if;
-						end loop;	
+						end loop;
 					l_new_academic_honors :=  replace(l_new_academic_honors,substr(l_new_academic_honors,l_start_position,l_end_position-l_start_position+1),'');
 				  dbms_output.put_line('After Delete: '||l_new_academic_honors);
 				end if;
-				
+
 				-- add to jason doc
 				l_json_doc := REGEXP_REPLACE(l_json_doc, '"academicHonors":.*?]', '"academicHonors": '||l_new_academic_honors,1,1,'in');
 			  DBMS_OUTPUT.put_line('After : ' || l_json_doc);
-			else 
+			else
 				-- bad response code so raise error
 				 select json_value(buffer, '$.error') into l_error from dual;
 				 select json_value(buffer, '$.message') into l_warning from dual;
 				 utl_http.end_response(res);
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
-			
+
       utl_http.end_response(res);
 			utl_http.end_request(req);
-			
+
 			-- update the student academic record
 			-- remove the resource id ("id") from the response.
 			l_json_doc := REGEXP_REPLACE(l_json_doc, '"id":.*','',1,1,'i');
 			-- remove the [] as the post is for a single studentAcademicRecord
 	    l_json_doc := regexp_replace(l_json_doc,'^\[','',1,1,'i');
 			l_json_doc := regexp_replace(l_json_doc,'\]$','',1,1,'i');
-	    DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);  
+	    DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);
 			-- add/Update the student data in the ODS
 			--utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
 			req  := UTL_HTTP.begin_request(url, 'POST');
@@ -2468,7 +2551,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 
 			res := utl_http.get_response(req);
 			dbms_output.put_line(res.status_code);
-			
+
 			if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED) then
 				 utl_http.read_text(res, buffer,32767);
 				 dbms_output.put_line(buffer);
@@ -2483,7 +2566,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 --
 -- THis procedure UPDATES student academic recordS FOR Level 1 and 2 CERTIFICATIONS for ed-fi 3.5
 -- you must pull the student academic record back and add to the JSON the new values
-  procedure PROC_PUT_STU_LVL12_CERTS_35 
+  procedure PROC_PUT_STU_LVL12_CERTS_35
 		      (p_student_unique_id      in varchar2,
 					 p_district_id            in varchar2,
 					 p_database_number        in varchar2,
@@ -2510,7 +2593,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_warning             varchar2(200);
 		e_http_error          exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		l_sar_template        varchar2(32767) := ' {
         "educationOrganizationReference": {
             "educationOrganizationId": #DISTRICT_ID#
@@ -2527,39 +2610,39 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
         "recognitions": [],
         "reportCards": []
     }';
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => p_database_number);
 			url := c_api_base||c_api_data||'studentAcademicRecords';
-			
+
 			-- get the student record via the api and the student unique id
 			req  := UTL_HTTP.begin_request(url||'?studentUniqueId='||p_student_unique_id||'&schoolYear='||p_school_year||'&termDescriptor=uri://ed-fi.org/TermDescriptor%23'||APEX_UTIL.URL_ENCODE(p_term), 'GET');
 			utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
 		  -- submit request
 			res := utl_http.get_response(req);
-			
+
 			if res.status_code = utl_http.HTTP_OK then
 				-- get the response from the rest call
 				utl_http.read_text(res, l_json_doc,32767);
 				DBMS_OUTPUT.put_line('JSON before : ' || l_json_doc);
-				
+
 				if l_json_doc = '[]' then
 					-- stu academic rec was not found, use template to create a new one
 					l_json_doc := replace(l_sar_template,'#DISTRICT_ID#',to_number(p_district_id));
 					l_json_doc := replace(l_json_doc,'#SCHOOL_YEAR#',p_school_year);
 					l_json_doc := replace(l_json_doc,'#STUDENT_UNIQUE_ID#',p_student_unique_id);
 				end if;
-				
+
 				-- PULL RECOGNITIONS from response
 				select JSON_QUERY(l_json_doc, '$.recognitions')
 					into l_recognitions
 					from dual;
-				DBMS_OUTPUT.put_line('certs : ' || l_recognitions);	
+				DBMS_OUTPUT.put_line('certs : ' || l_recognitions);
 				-- prime l_new_characteristics
 				l_new_recognitions := l_recognitions;
-				
-				if p_transaction_type = 'ADD' then 
+
+				if p_transaction_type = 'ADD' then
 					-- cert was added to the student
 					-- you can't have more than one cert per term on an ADD just replace what was there
 					l_new_recognitions := '[ { "recognitionTypeDescriptor": "uri://ed-fi.org/RecognitionTypeDescriptor#Certificate","criteria": "'||P_CRITERIA||'","achievementTitle": "'||p_achievement_title||'","recognitionAwardDate": "'||to_char(P_AWARD_DATE,'YYYY-MM-DD')||'" } ]';
@@ -2571,15 +2654,15 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					end if;*/
 					DBMS_OUTPUT.put_line('add inserted : ' || l_new_recognitions);
 				end if;
-				
-				if p_transaction_type = 'UPDATE' then 
+
+				if p_transaction_type = 'UPDATE' then
 					-- replace the title of the first occurence of the old title
 					l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"achievementTitle":".*?"','"achievementTitle":"'||p_achievement_title||'"',1,1,'in');
 				  l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"recognitionAwardDate":".*?"','"recognitionAwardDate":"'||to_char(P_AWARD_DATE,'YYYY-MM-DD')||'"',1,1,'in');
 				  l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"criteria":".*?"','"criteria":"'||P_CRITERIA||'"',1,1,'in');
 				end if;
-				
-				if p_transaction_type = 'DELETE' then 
+
+				if p_transaction_type = 'DELETE' then
 					-- REMOVE THE ENTRY TO BE DELETED
 					l_title := instr(l_new_recognitions,p_achievement_title,1,1);
 					l_end_position := instr(l_new_recognitions,'}',l_title,1);
@@ -2588,7 +2671,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 							if substr(l_new_recognitions,i,1) = '{' then
 								if substr(l_new_recognitions,i-1,1) = ',' then
 									l_start_position := i-1;
-								elsif substr(l_new_recognitions,i-1,1) = '[' 
+								elsif substr(l_new_recognitions,i-1,1) = '['
 									and substr(l_new_recognitions,l_end_position+1,1) = ',' then
 									l_end_position := l_end_position + 1;
 									l_start_position := i;
@@ -2597,32 +2680,32 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								end if;
 								exit;
 							end if;
-						end loop;	
+						end loop;
 					l_new_recognitions :=  replace(l_new_recognitions,substr(l_new_recognitions,l_start_position,l_end_position-l_start_position+1),'');
 				  dbms_output.put_line('After Delete: '||l_new_recognitions);
 				end if;
-				
+
 				-- add to jason doc
 				l_json_doc := REGEXP_REPLACE(l_json_doc, '"recognitions":.*?]', '"recognitions": '||l_new_recognitions,1,1,'in');
 			  DBMS_OUTPUT.put_line('After : ' || l_json_doc);
-			else 
+			else
 				-- bad response code so raise error
 				 select json_value(buffer, '$.error') into l_error from dual;
 				 select json_value(buffer, '$.message') into l_warning from dual;
 				 utl_http.end_response(res);
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
-			
+
       utl_http.end_response(res);
 			utl_http.end_request(req);
-			
+
 			-- update the student academic record
 			-- remove the resource id ("id") from the response.
 			l_json_doc := REGEXP_REPLACE(l_json_doc, '"id":.*','',1,1,'i');
 			-- remove the [] as the post is for a single studentAcademicRecord
 	    l_json_doc := regexp_replace(l_json_doc,'^\[','',1,1,'i');
 			l_json_doc := regexp_replace(l_json_doc,'\]$','',1,1,'i');
-	    DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);  
+	    DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);
 			-- add/Update the student data in the ODS
 			--utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
 			req  := UTL_HTTP.begin_request(url, 'POST');
@@ -2633,7 +2716,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 
 			res := utl_http.get_response(req);
 			dbms_output.put_line(res.status_code);
-			
+
 			if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED) then
 				 utl_http.read_text(res, buffer,32767);
 				 dbms_output.put_line(buffer);
@@ -2645,11 +2728,11 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			utl_http.end_response(res);
 			utl_http.end_request(req);
 		END PROC_PUT_STU_LVL12_CERTS_35;
-		
+
 --
 -- THis procedure UPDATES COURSES TO ADD OR REMOVE THE DUAL CREDITS COURSE LEVEL CHARACTERISTIC for ed-fi 3.5
 -- you must pull the COURSE record back and add to the JSON the new values
-  procedure PROC_PUT_CRS_DUAL_CR_35 
+  procedure PROC_PUT_CRS_DUAL_CR_35
 		      (p_course_code            in varchar2,
 					 p_database_number        in varchar2,
 					 p_auth_token             in varchar2,
@@ -2670,40 +2753,40 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_warning             varchar2(200);
 		e_http_error          exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-		
+
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => p_database_number);
 			url := c_api_base||c_api_data||'courses';
-			
+
 			-- get the COURSE via the api and the COURSE CODE
 			req  := UTL_HTTP.begin_request(url||'?courseCode='||APEX_UTIL.URL_ENCODE(p_course_code), 'GET');
 			utl_http.set_header(req, 'Authorization', 'Bearer '||p_auth_token);
 		  -- submit request
 			res := utl_http.get_response(req);
-			
+
 			if res.status_code = utl_http.HTTP_OK then
 				-- get the response from the rest call
 				utl_http.read_text(res, l_json_doc,32767);
 				DBMS_OUTPUT.put_line('JSON before : ' || l_json_doc);
-				
+
 				if l_json_doc = '[]' then
 					-- course rec was not found
 					utl_http.end_response(res);
 					utl_http.end_request(req);
 				  raise_application_error(-20009,'Course was not found');
 				end if;
-				
+
 				-- PULL level characteristics from response
 				select JSON_QUERY(l_json_doc, '$.levelCharacteristics')
 					into l_characteristics
 					from dual;
-				DBMS_OUTPUT.put_line('chars : ' || l_characteristics);	
+				DBMS_OUTPUT.put_line('chars : ' || l_characteristics);
 				-- prime l_new_characteristics
 				l_new_characteristics := l_characteristics;
-				
-				if p_transaction_type = 'ADD' 
-					 and instr(l_json_doc,'Dual Credit',1) = 0 then 
+
+				if p_transaction_type = 'ADD'
+					 and instr(l_json_doc,'Dual Credit',1) = 0 then
 					-- DUAL CRs was added to the COURSE
 					DBMS_OUTPUT.put_line('add found : ' || p_course_code);
 					if l_new_characteristics = '[]' then
@@ -2712,14 +2795,14 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 						l_new_characteristics := replace(l_new_characteristics,']',',{ "courseLevelCharacteristicDescriptor": "uri://ed-fi.org/CourseLevelCharacteristicDescriptor#Dual Credit" } ]');
 					end if;
 					DBMS_OUTPUT.put_line('add inserted : ' || l_new_characteristics);
-				elsif p_transaction_type = 'ADD' 
+				elsif p_transaction_type = 'ADD'
 					 and instr(l_json_doc,'Dual Credit',1) > 0 then
 					 -- ADD was requested but it already exist so do nothing
 					 l_skip_processing := true;
 				end if;
-				
-				if p_transaction_type = 'DELETE' 
-					 and instr(l_json_doc,'Dual Credit',1) > 0 then 
+
+				if p_transaction_type = 'DELETE'
+					 and instr(l_json_doc,'Dual Credit',1) > 0 then
 					-- REMOVE THE ENTRY TO BE DELETED
 					l_title := instr(l_new_characteristics,'Dual Credit',1,1);
 					l_end_position := instr(l_new_characteristics,'}',l_title,1);
@@ -2728,7 +2811,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 							if substr(l_new_characteristics,i,1) = '{' then
 								if substr(l_new_characteristics,i-1,1) = ',' then
 									l_start_position := i-1;
-								elsif substr(l_new_characteristics,i-1,1) = '[' 
+								elsif substr(l_new_characteristics,i-1,1) = '['
 									and substr(l_new_characteristics,l_end_position+1,1) = ',' then
 									l_end_position := l_end_position + 1;
 									l_start_position := i;
@@ -2737,37 +2820,37 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								end if;
 								exit;
 							end if;
-						end loop;	
+						end loop;
 					l_new_characteristics :=  replace(l_new_characteristics,substr(l_new_characteristics,l_start_position,l_end_position-l_start_position+1),'');
 				  dbms_output.put_line('After Delete: '||l_new_characteristics);
-				elsif p_transaction_type = 'DELETE' 
+				elsif p_transaction_type = 'DELETE'
 					 and instr(l_json_doc,'Dual Credit',1) = 0 then
 					 -- delete was requested but it is not found so do nothing
 					 l_skip_processing := true;
 				end if;
-				
+
 				-- add to jason doc
 				l_json_doc := REGEXP_REPLACE(l_json_doc, '"levelCharacteristics":.*?]', '"levelCharacteristics": '||l_new_characteristics,1,1,'in');
 			  DBMS_OUTPUT.put_line('After : ' || l_json_doc);
-			else 
+			else
 				-- bad response code so raise error
 				 select json_value(buffer, '$.error') into l_error from dual;
 				 select json_value(buffer, '$.message') into l_warning from dual;
 				 utl_http.end_response(res);
 				 raise_application_error(-20009,'http status: '||res.status_code||': '||l_error||' '||l_warning);
 			end if;
-			
+
       utl_http.end_response(res);
 			utl_http.end_request(req);
-			
-			if not l_skip_processing then 
+
+			if not l_skip_processing then
 				-- update the COURSE record
 				-- remove the resource id ("id") from the response.
 				l_json_doc := REGEXP_REPLACE(l_json_doc, '"id":.*','',1,1,'i');
 				-- remove the [] as the post is for a single COURSE
 				l_json_doc := regexp_replace(l_json_doc,'^\[','',1,1,'i');
 				l_json_doc := regexp_replace(l_json_doc,'\]$','',1,1,'i');
-				DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);  
+				DBMS_OUTPUT.put_line('before submit : ' || l_json_doc);
 				-- add/Update the COURSE data in the ODS
 				--utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
 				req  := UTL_HTTP.begin_request(url, 'POST');
@@ -2778,7 +2861,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 
 				res := utl_http.get_response(req);
 				dbms_output.put_line(res.status_code);
-				
+
 				if res.status_code not in (utl_http.HTTP_OK,utl_http.HTTP_CREATED) then
 					 utl_http.read_text(res, buffer,32767);
 					 dbms_output.put_line(buffer);
@@ -2804,17 +2887,17 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
       P_COLLEGE_APP_FLAG       in varchar2                        default null,
       P_FINANCIAL_APP_FLAG     in varchar2                        default null,
       P_SOURCE                 in varchar2                        default null
-   ) is 
+   ) is
    l_found char;
    begin
-		 
+
       -- CHECK TO SEE IF A RECORD ALREADY EXISTS
 			select 'Y'
 			  into l_found
 			  from edfi_student_data
 			 where district_id = P_DISTRICT_ID
 			   and student_unique_id = P_STUDENT_UNIQUE_ID;
-			
+
 			if 	  P_ASVAB_DATE is null
         and P_MILITARY_DATE is null
         and P_MENINGITIS_DATE is null
@@ -2852,7 +2935,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
          COLLEGE_APP_FLAG,
          FINANCIAL_APP_FLAG,
          source
-      ) values ( 
+      ) values (
          P_DISTRICT_ID,
          P_DISTRICT_ODS_NUMBER,
          P_STUDENT_UNIQUE_ID,
@@ -2864,7 +2947,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
          P_FINANCIAL_APP_FLAG,
          P_SOURCE
       );
- 
+
    end PROC_EDFI_STUDENT_DATA;
 --------------------------------------------------------------
 -- create procedure for table EDFI_STUDENT_CERTS
@@ -2879,7 +2962,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
       P_CRITERIA            in varchar2                        default null,
       P_AWARD_DATE          in date                            default null,
       P_CERT_TYPE           in varchar2                        default null
-   ) is 
+   ) is
    l_found char;
    begin
 		 apex_debug.message('>>>>>>>>>>>>>>>>>');
@@ -2903,10 +2986,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
             CRITERIA              = P_CRITERIA,
             AWARD_DATE            = P_AWARD_DATE,
             CERT_TYPE             = P_CERT_TYPE
-         where DISTRICT_ID = P_DISTRICT_ID 
-				   and STUDENT_UNIQUE_ID = P_STUDENT_UNIQUE_ID 
-					 and SCHOOL_YEAR = P_SCHOOL_YEAR 
-					 and TERM = P_TERM 
+         where DISTRICT_ID = P_DISTRICT_ID
+				   and STUDENT_UNIQUE_ID = P_STUDENT_UNIQUE_ID
+					 and SCHOOL_YEAR = P_SCHOOL_YEAR
+					 and TERM = P_TERM
 					 and ACHIEVEMENT_TITLE = P_OLD_ACHIEVEMENT_TITLE;
    exception
 		 when no_data_found then
@@ -2921,7 +3004,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
          CRITERIA,
          AWARD_DATE,
          CERT_TYPE
-      ) values ( 
+      ) values (
          P_DISTRICT_ID,
          P_DISTRICT_ODS_NUMBER,
          P_STUDENT_UNIQUE_ID,
@@ -2932,7 +3015,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
          P_AWARD_DATE,
          P_CERT_TYPE
       );
- 
+
    end PROC_EDFI_STUDENT_CERTS;
 --------------------------------------------------------------
 -- delete procedure for table EDFI_STUDENT_CERTS
@@ -2942,16 +3025,16 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 		 ,p_school_year       in varchar2
 		 ,p_term              in varchar2
 		 ,p_achievement_title in varchar2) is
-	 
+
 	 begin
-	 
+
 		 delete from edfi_student_certs
 			where district_id = p_district_id
 				and student_unique_id = p_student_unique_id
 				and school_year = p_school_year
 				and term = p_term
 				and achievement_title = p_achievement_title;
-	 
+
 	 end PROC_DEL_EDFI_STUDENT_CERTS;
 --------------------------------------------------------------
 -- create procedure for table EDFI_COURSE_DUAL_CR
@@ -2959,8 +3042,8 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
       P_DISTRICT_ID         in varchar2,
       P_DISTRICT_ODS_NUMBER in varchar2                        default null,
       P_COURSE_CODE         in varchar2
-   ) is 
- 
+   ) is
+
    l_found char;
    begin
       -- CHECK TO SEE IF A RECORD ALREADY EXISTS
@@ -2977,32 +3060,32 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
          DISTRICT_ODS_NUMBER,
          COURSE_CODE,
          CREATE_DATE
-      ) values ( 
+      ) values (
          P_DISTRICT_ID,
          P_DISTRICT_ODS_NUMBER,
          P_COURSE_CODE,
          sysdate
       );
- 
+
    end PROC_EDFI_COURSE_DUAL_CR;
 --------------------------------------------------------------
 -- delete procedure for table EDFI_COURSE_DUAL_CR
    procedure PROC_DEL_EDFI_COURSE_DUAL_CR (
       P_DISTRICT_ID in varchar2,
 			P_COURSE_CODE in varchar2
-   ) is 
- 
+   ) is
+
    begin
- 
-      delete from EDFI_COURSE_DUAL_CR 
+
+      delete from EDFI_COURSE_DUAL_CR
       where DISTRICT_ID = P_DISTRICT_ID and COURSE_CODE = P_COURSE_CODE;
- 
+
    end PROC_DEL_EDFI_COURSE_DUAL_CR;
 --------------------------------------------------------------
 -- Refresh the ODS's with the data in oracle if it is not the same
 --------------------------------------------------------------
-   procedure PROC_REFRESH_ODS_UPDATES 
-			is 
+   procedure PROC_REFRESH_ODS_UPDATES
+			is
    l_update_stu_attrs     boolean := false;
 	 l_update_stu_ps_events boolean := false;
 	 l_rows_found           boolean := true;
@@ -3010,19 +3093,23 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 	 l_ASVAB_dt             date;
    l_military_enlist_date date;
    l_meningitis_date      date;
-	 l_college_app_flag     char;  
+	 l_college_app_flag     char;
    l_fafsa_app_flag       char;
    l_college_degree_dt    date;
 	 l_found                char;
 	 l_current_stu_id       varchar2(50);
+	 l_session              varchar2(50);
    begin
-		  -- apex session to cache the ods data
-			apex_session.create_session (
+		  -- SET session to timestamp to cache the ods data
+			/*apex_session.create_session (
 					p_app_id   => 130,
 					p_page_id  => 2000,
 					p_username => 'EDFI' );
-			DBMS_OUTPUT.put_line('SESSION= '||nv('APP_SESSION'));
-      -- loop thru active districts 
+			DBMS_OUTPUT.put_line('SESSION= '||nv('APP_SESSION'));*/
+			l_session := to_char(systimestamp,'YYYYMMDDHHMISSFF3');
+			DBMS_OUTPUT.put_line('SESSION= '||l_session);
+			
+      -- loop thru active districts
 			for district in (select district_cdc,
 															 district_name,
 															 district_db_number,
@@ -3031,7 +3118,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 															 edfi_version,
 															 districts.school_year,
 															 db.DB_LINK
-													from districts 
+													from districts
 													left join district_db_link_sy db on db.DISTRICT_ID = districts.DISTRICT_CDC
 																												and db.TARGET_DB = 'ODS'
 				                                                and districts.SCHOOL_YEAR = db.SCHOOL_YEAR
@@ -3078,7 +3165,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 																		 p_ASVAB_date        => l_ASVAB_dt,
 																		 p_Military_date     => l_military_enlist_date,
 																		 p_Meningitis_date   => l_meningitis_date);
-									
+
 								if l_ASVAB_dt is not null
 									or l_military_enlist_date is not null
 									or l_meningitis_date  is not null then
@@ -3092,14 +3179,14 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 									or stu_attr.MENINGITIS_DATE is not null) then
 									l_update_stu_attrs := true;
 								end if;
-									
+
 								if l_rows_found
 									and (l_ASVAB_dt != stu_attr.ASVAB_DATE
 									or l_military_enlist_date != stu_attr.MILITARY_DATE
 									or l_meningitis_date != stu_attr.MENINGITIS_DATE) then
 									l_update_stu_attrs := true;
 								end if;
-								
+
 								if l_update_stu_attrs then
 									-- update the stu_attrs
 									if district.EDFI_VERSION = '2.5' then
@@ -3119,19 +3206,19 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 									end if;
 								  l_update_stu_attrs := false;
 								end if;
-								
+
 							----------------------------------------------------------
 							-- process post secondary events
 							----------------------------------------------------------
 							l_rows_found := false;
-							
+
 							PROC_GET_POST_SEC_EVENTS(P_STUDENT_UNIQUE_ID      => stu_attr.STUDENT_UNIQUE_ID,
 															P_DISTRICT_ID            => stu_attr.DISTRICT_ID,
 															P_ODS_NUMBER             => district.DISTRICT_DB_NUMBER,
 															p_associates_degree_date => l_college_degree_dt,
 															p_college_app_flag       => l_college_app_flag,
 															p_financial_app_flag     => l_fafsa_app_flag);
-									
+
 							if l_college_app_flag        = 'Y'
 									or l_fafsa_app_flag      = 'Y'
 									or l_college_degree_dt   is not null then
@@ -3144,14 +3231,14 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								or stu_attr.ASSOCIATES_DEGREE_DATE is not null) then
 								l_update_stu_ps_events := true;
 							end if;
-									
+
 							if l_rows_found
 								and (l_college_app_flag != stu_attr.COLLEGE_APP_FLAG
 								or nvl(l_college_degree_dt,to_date('99991231','YYYYMMDD')) != nvl(stu_attr.ASSOCIATES_DEGREE_DATE,to_date('99991231','YYYYMMDD'))
 								or l_fafsa_app_flag != stu_attr.FINANCIAL_APP_FLAG) then
 								l_update_stu_ps_events := true;
 							end if;
-								
+
 							if l_update_stu_ps_events then
 								-- update the stu_attrs
 								if district.EDFI_VERSION = '2.5' then
@@ -3171,7 +3258,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								end if;
 								l_update_stu_ps_events := false;
 							end if;
-								
+
 						end loop stu_attr;
 						----------------------------
             -- industry and level 1 2 certifications
@@ -3188,23 +3275,27 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 																						, award_date
 																						, cert_type
 																						from edfi_student_certs
-																						where district_id = district.DISTRICT_CDC)
+																						where district_id = district.DISTRICT_CDC
+																						order by student_unique_id
+																						)
 							loop
 								-- make sure student is in ODS, if not continue to next rec in loop
 								 continue when not PKG_UPDATE_STUDENT_ATTRIBUTES.FN_CHECK_STU_IN_ODS(p_student_unique_id => stu_industry_certs.STUDENT_UNIQUE_ID,
-                                                              P_DISTRICT_ID => stu_industry_certs.DISTRICT_ID); 
+                                                              P_DISTRICT_ID => stu_industry_certs.DISTRICT_ID);
+								dbms_output.put_line('district id: '||stu_industry_certs.DISTRICT_ID);
 								-- check for stu change
 								if l_current_stu_id != stu_industry_certs.STUDENT_UNIQUE_ID then
 									-- load the certs cache which contains both industry and level 1 2 certs
-									PROC_INSERT_STU_CERTS_CACHE(P_STUDENT_UNIQUE_ID => stu_industry_certs.STUDENT_UNIQUE_ID
-																								, P_ODS_NUMBER => stu_industry_certs.district_ods_number);
+									PROC_INSERT_STU_CERTS_CACHE2(P_STUDENT_UNIQUE_ID => stu_industry_certs.STUDENT_UNIQUE_ID
+																								, P_ODS_NUMBER => stu_industry_certs.district_ods_number
+																								,P_SESSION_ID => l_session);
 									l_current_stu_id := stu_industry_certs.STUDENT_UNIQUE_ID;
-								end if; 
+								end if;
 								begin
-									select 'Y' 
+									select 'Y'
 									into l_found
 									from v_district_stu_certs_cache
-									where session_id = nv('APP_SESSION')
+									where session_id = l_session
 									  and student_unique_id           = stu_industry_certs.STUDENT_UNIQUE_ID
 										and school_year                 = stu_industry_certs.SCHOOL_YEAR
 										and Term                        = stu_industry_certs.TERM
@@ -3228,7 +3319,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 																																			p_achievement_title     => stu_industry_certs.ACHIEVEMENT_TITLE,
 																																			p_old_achievement_title => null,
 																																			p_transaction_type      => 'ADD');
-											else 
+											else
 												PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_PUT_STU_IND_CERTS_35(p_student_unique_id     => stu_industry_certs.STUDENT_UNIQUE_ID,
 																																			p_district_id           => stu_industry_certs.DISTRICT_ID,
 																																			p_database_number       => stu_industry_certs.DISTRICT_ODS_NUMBER,
@@ -3252,7 +3343,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 																																		P_CRITERIA              => stu_industry_certs.CRITERIA,
                                                                     P_AWARD_DATE            => stu_industry_certs.AWARD_DATE,
 																																		p_transaction_type      => 'ADD');
-										else 
+										else
 											PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_PUT_STU_LVL12_CERTS_35(p_student_unique_id     => stu_industry_certs.STUDENT_UNIQUE_ID,
 																																		p_district_id           => stu_industry_certs.DISTRICT_ID,
 																																		p_database_number       => stu_industry_certs.DISTRICT_ODS_NUMBER,
@@ -3268,97 +3359,12 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								end if;
 							end;
 							end loop stu_industry_certs;
-						----------------------------
-            -- Level I/II certifications
-						----------------------------
-						/*for stu_level12_certs in (select district_id
-																						, district_ods_number
-																						, student_unique_id
-																						, school_year
-																						, term
-																						, achievement_title
-																						, criteria
-																						, award_date
-																						from edfi_student_certs
-																						where district_id = district.DISTRICT_CDC
-																						  and cert_type = 'LEVEL1_2')
-							loop
-								begin
-									select 'Y' 
-									into l_found
-									from table(PKG_UPDATE_STUDENT_ATTRIBUTES.FN_GET_LEVEL12_CERT_LIST(P_DISTRICT_ID => stu_level12_certs.DISTRICT_ID,
-																																										p_student_unique_id => stu_level12_certs.STUDENT_UNIQUE_ID))
-									where "SchoolYear"                 = stu_level12_certs.SCHOOL_YEAR
-										and "TermDescriptor"             = stu_level12_certs.TERM
-										and "AchievementTitle"           = stu_level12_certs.ACHIEVEMENT_TITLE
-										and "RecognitionAwardDate"       = stu_level12_certs.AWARD_DATE
-										and "Criteria"                   = stu_level12_certs.CRITERIA;
-									-- found a match so do nothing
-								exception
-								  when no_data_found then
-										-- it is missing so add it back
-										if district.EDFI_VERSION = 2.5 then
-											PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_PUT_STU_LVL12_CERTS_25(p_student_unique_id     => stu_level12_certs.STUDENT_UNIQUE_ID,
-																																		p_district_id           => stu_level12_certs.DISTRICT_ID,
-																																		p_database_number       => stu_level12_certs.DISTRICT_ODS_NUMBER,
-																																		p_auth_token            => l_token,
-																																		p_school_year           => stu_level12_certs.SCHOOL_YEAR,
-																																		p_term                  => stu_level12_certs.TERM,
-																																		p_achievement_title     => stu_level12_certs.ACHIEVEMENT_TITLE,
-																																		p_old_achievement_title => null,
-																																		P_CRITERIA              => stu_level12_certs.CRITERIA,
-                                                                    P_AWARD_DATE            => stu_level12_certs.AWARD_DATE,
-																																		p_transaction_type      => 'ADD');
-										else 
-											PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_PUT_STU_LVL12_CERTS_35(p_student_unique_id     => stu_level12_certs.STUDENT_UNIQUE_ID,
-																																		p_district_id           => stu_level12_certs.DISTRICT_ID,
-																																		p_database_number       => stu_level12_certs.DISTRICT_ODS_NUMBER,
-																																		p_auth_token            => l_token,
-																																		p_school_year           => stu_level12_certs.SCHOOL_YEAR,
-																																		p_term                  => stu_level12_certs.TERM,
-																																		p_achievement_title     => stu_level12_certs.ACHIEVEMENT_TITLE,
-																																		p_old_achievement_title => null,
-																																		P_CRITERIA              => stu_level12_certs.CRITERIA,
-                                                                    P_AWARD_DATE            => stu_level12_certs.AWARD_DATE,
-																																		p_transaction_type      => 'ADD');
-										end if;
-								end;
-							end loop;*/
-						----------------------------
-            -- course dual credits
-						----------------------------
-						/*for course_dual_cr in (select district_id, 
-																					district_ods_number, 
-																					course_code
-																		from edfi_course_dual_cr
-																		where district_id = district.DISTRICT_CDC)
-							loop
-								begin
-									select 'Y' 
-									into l_found
-									from table(PKG_UPDATE_STUDENT_ATTRIBUTES.FN_GET_COURSES_LIST(P_DISTRICT_ID => course_dual_cr.DISTRICT_ID))
-									where "CourseCode"                 = course_dual_cr.COURSE_CODE
-										and "CourseLevelCharacteristic"  = 'Dual Credit';
-									-- found a match so do nothing
-								exception
-								  when no_data_found then
-										-- it is missing so add it back
-										if district.EDFI_VERSION = '3.5' then
-											PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_PUT_CRS_DUAL_CR_35(p_course_code      => course_dual_cr.COURSE_CODE,
-                                                                 p_database_number  => course_dual_cr.DISTRICT_ODS_NUMBER,
-                                                                 p_auth_token       => l_token,
-                                                                 p_transaction_type => 'ADD');
-										else 
-											-- haven't done a 2.5 course update proc
-											null;
-										end if;
-								end;
-							end loop;*/
-							
-						
+
         end loop districts;
-        -- close the apex session
-				apex_session.delete_session (p_session_id => v('APP_SESSION') );
+				
+        -- CLEAR THE serts cache TABLE
+			  delete from district_student_certs_cache
+				  where session_id = l_session;
 				
    end PROC_REFRESH_ODS_UPDATES;
 -- function to validate student id exists.
@@ -3376,15 +3382,15 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				from DISTRICT_DB_LINK
 			 where DISTRICT_ID = P_DISTRICT_ID
 				 and TARGET_DB = 'ODS';
-				 
-		OPEN l_cursor for 'select "StudentUniqueId" 
-													from edfi.v_StudentIds@'||l_db_link||' 
+
+		OPEN l_cursor for 'select "StudentUniqueId"
+													from edfi.v_StudentIds@'||l_db_link||'
 												 where "StudentUniqueId" = '''||P_STUDENT_UNIQUE_ID||'''';
 			 LOOP
 					FETCH l_cursor INTO l_stu_id;
-			 
+
 					EXIT WHEN l_cursor%NOTFOUND;
-					
+
 					l_found := true;
 			 END loop;
 
@@ -3406,13 +3412,13 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
     begin
 			if APEX_COLLECTION.collection_exists(p_collection_name => 'LOAD_CONTENT') then
         for r in (select seq_id,
-											 c001 as STUDENT_UNIQUE_ID, 
-											 c002 as ASVAB_DATE, 
+											 c001 as STUDENT_UNIQUE_ID,
+											 c002 as ASVAB_DATE,
 											 c003 as MILITARY_DATE,
-											 c004 as MENINGITIS_DATE, 
-											 c005 as ASSOCIATES_DEGREE_DATE, 
+											 c004 as MENINGITIS_DATE,
+											 c005 as ASSOCIATES_DEGREE_DATE,
 											 c006 as COLLEGE_APP_FLAG,
-											 c007 as FINANCIAL_APP_FLAG, 
+											 c007 as FINANCIAL_APP_FLAG,
 										   c048 as ERROR_MESSAGE
 									from apex_collections
 								 where collection_name = 'LOAD_CONTENT'
@@ -3466,16 +3472,16 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								l_error_message := l_error_message||' | Military Enlistment Date Invalid Format is MM/DD/YYYY';
 						end;
 						-- validate the College Application Flag
-						if r.COLLEGE_APP_FLAG not in ('Y','N','y','n') 
+						if r.COLLEGE_APP_FLAG not in ('Y','N','y','n')
 							 and R.COLLEGE_APP_FLAG is not null then
 							l_error_message := l_error_message||' | College Application Flag must be either "Y" or "N"';
 						end if;
 						-- validate the Financial Application Flag
-						if r.FINANCIAL_APP_FLAG not in ('Y','N','y','n') 
+						if r.FINANCIAL_APP_FLAG not in ('Y','N','y','n')
 							 and R.FINANCIAL_APP_FLAG is not null then
 							l_error_message := l_error_message||' | Financial Application Flag must be either "Y" or "N"';
 						end if;
-						
+
 						-- update the collection member with the error message.
 						if l_error_message is not null then
 							APEX_COLLECTION.UPDATE_MEMBER_ATTRIBUTE (
@@ -3511,11 +3517,11 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
     begin
 			if APEX_COLLECTION.collection_exists(p_collection_name => 'LOAD_CONTENT') then
         for r in (select seq_id,
-											 c001 as STUDENT_UNIQUE_ID, 
-											 c002 as ASVAB_DATE, 
+											 c001 as STUDENT_UNIQUE_ID,
+											 c002 as ASVAB_DATE,
 											 c003 as MILITARY_DATE,
-											 c004 as MENINGITIS_DATE, 
-											 c005 as ASSOCIATES_DEGREE_DATE, 
+											 c004 as MENINGITIS_DATE,
+											 c005 as ASSOCIATES_DEGREE_DATE,
 											 c006 as COLLEGE_APP_FLAG,
 											 c007 as FINANCIAL_APP_FLAG,
 											 c048 as ERROR_MESSAGE
@@ -3541,7 +3547,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								from edfi_student_data
 							 where district_id = P_DISTRICT_ID
 								 and student_unique_id = r.STUDENT_UNIQUE_ID;
-							
+
 							if (l_asvab_date is null and r.ASVAB_DATE is not null)
 								or (l_asvab_date is not null and r.ASVAB_DATE is not null
 								and l_asvab_date != to_date(r.ASVAB_DATE,'MM/DD/YYYY')) then
@@ -3589,7 +3595,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 										SOURCE                   = 'CsvUpload',
 										LAST_UPDATE_DATE         = sysdate
 								 where DISTRICT_ID = P_DISTRICT_ID and STUDENT_UNIQUE_ID = r.STUDENT_UNIQUE_ID;
-							
+
 						exception
 						 when no_data_found then
 							-- NO RECORD SO INSERT
@@ -3604,7 +3610,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 								 COLLEGE_APP_FLAG,
 								 FINANCIAL_APP_FLAG,
 								 source
-							) values ( 
+							) values (
 								 P_DISTRICT_ID,
 								 P_DISTRICT_ODS_NUMBER,
 								 r.STUDENT_UNIQUE_ID,
@@ -3620,7 +3626,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				  end loop;
 				P_INSERT_COUNT := APEX_COLLECTION.collection_member_count(p_collection_name => 'LOAD_CONTENT');
       end if;
-    end PROC_LOAD_STU_ATTR_IMPORT;	
+    end PROC_LOAD_STU_ATTR_IMPORT;
 --------------------------------------------------------------
 -- validation for stu certifications file import
 --------------------------------------------------------------
@@ -3636,13 +3642,13 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
     begin
 			if APEX_COLLECTION.collection_exists(p_collection_name => 'LOAD_CONTENT') then
         for r in (select seq_id,
-											 c001 as STUDENT_UNIQUE_ID, 
-											 c002 as SCHOOL_YEAR, 
+											 c001 as STUDENT_UNIQUE_ID,
+											 c002 as SCHOOL_YEAR,
 											 c003 as TERM,
-											 c004 as ACHIEVEMENT_TITLE, 
-											 c005 as CRITERIA, 
+											 c004 as ACHIEVEMENT_TITLE,
+											 c005 as CRITERIA,
 											 c006 as AWARD_DATE,
-											 c007 as CERT_TYPE, 
+											 c007 as CERT_TYPE,
 										   c048 as ERROR_MESSAGE
 									from apex_collections
 								 where collection_name = 'LOAD_CONTENT'
@@ -3695,12 +3701,12 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 							l_error_message := l_error_message||' | ACHIEVEMENT_TITLE is required';
 						end if;
 						-- validate the CRITERIA
-						if r.CRITERIA not in ('CERT1','CERT2') 
+						if r.CRITERIA not in ('CERT1','CERT2')
 							 and R.CRITERIA is not null then
 							l_error_message := l_error_message||' | CRITERIA is invalid, must be "CERT1" or "CERT2"';
 						end if;
 						-- validate the CERT_TYPE
-						if r.CERT_TYPE not in ('INDUSTRY','LEVEL1_2') 
+						if r.CERT_TYPE not in ('INDUSTRY','LEVEL1_2')
 							 and R.CERT_TYPE is not null then
 							l_error_message := l_error_message||' | CERT_TYPE is invalid, must be "INDUSTRY" or "LEVEL1_2"';
 						end if;
@@ -3739,13 +3745,13 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
     begin
 			if APEX_COLLECTION.collection_exists(p_collection_name => 'LOAD_CONTENT') then
         for r in (select seq_id,
-											 c001 as STUDENT_UNIQUE_ID, 
-											 c002 as SCHOOL_YEAR, 
+											 c001 as STUDENT_UNIQUE_ID,
+											 c002 as SCHOOL_YEAR,
 											 c003 as TERM,
-											 c004 as ACHIEVEMENT_TITLE, 
-											 c005 as CRITERIA, 
+											 c004 as ACHIEVEMENT_TITLE,
+											 c005 as CRITERIA,
 											 c006 as AWARD_DATE,
-											 c007 as CERT_TYPE, 
+											 c007 as CERT_TYPE,
 											 c048 as ERROR_MESSAGE
 									from apex_collections
 								 where collection_name = 'LOAD_CONTENT'
@@ -3779,7 +3785,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 P_ASSOCIATES_DEGREE_DATE                     in varchar2,
 				 P_COLLEGE_APP_FLAG                           in varchar2,
 				 P_FINANCIAL_APP_FLAG                         in varchar2
-					 
+
 		)
     is
 			l_asvab_date              date;
@@ -3797,7 +3803,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			from districts
 			where districts.DISTRICT_CDC = P_DISTRICT_ID
 			  and districts.PRIMARY_SCHOOL_YEAR = 'Y';
-			
+
 			-- CHECK TO SEE IF A RECORD ALREADY EXISTS
 			begin
 				select asvab_date,
@@ -3815,7 +3821,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					from edfi_student_data
 				 where district_id = P_DISTRICT_ID
 					 and student_unique_id = P_STUDENT_UNIQUE_ID;
-							
+
 				if (l_asvab_date is null and P_ASVAB_DATE is not null)
 					or (l_asvab_date is not null and P_ASVAB_DATE is not null
 					and l_asvab_date != to_date(P_ASVAB_DATE,'MM/DD/YYYY')) then
@@ -3863,7 +3869,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 							SOURCE                   = 'Talend',
 							LAST_UPDATE_DATE         = sysdate
 					 where DISTRICT_ID = P_DISTRICT_ID and STUDENT_UNIQUE_ID = P_STUDENT_UNIQUE_ID;
-							
+
 			exception
 			 when no_data_found then
 				-- NO EXISTING RECORD SO INSERT
@@ -3878,7 +3884,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 					 COLLEGE_APP_FLAG,
 					 FINANCIAL_APP_FLAG,
 					 source
-				) values ( 
+				) values (
 					 P_DISTRICT_ID,
 					 l_district_ods_number,
 					 P_STUDENT_UNIQUE_ID,
@@ -3893,7 +3899,7 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
 			end;
     end PROC_INSERT_STU_ATTR_IMPORT;
 	 --------------------------------------------------------------
-   -- Refresh mvs from sql server for the admin dashboard 
+   -- Refresh mvs from sql server for the admin dashboard
    --------------------------------------------------------------
    procedure REFRESH_MV_EDFI_STATS  is
    begin
@@ -3907,10 +3913,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
           execute immediate
           'alter table MV_ASSESSMENT_BY_TITLE drop CONSTRAINT '||x.constraint_name;
         end loop;
-				
+
      -- REFESH THE MV
 		 DBMS_MVIEW.refresh('MV_ASSESSMENT_BY_TITLE', method => 'C', atomic_refresh=>false);
-		 
+
 		 -- REFRESH MV_ASSESSMENT_SUMMARY
 		 -- REMOVE ANY NULL CONSTRAINTS
      for x in (select constraint_name
@@ -3921,10 +3927,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
           execute immediate
           'alter table MV_ASSESSMENT_SUMMARY drop CONSTRAINT '||x.constraint_name;
         end loop;
-				
+
      -- REFESH THE MV
 		 DBMS_MVIEW.refresh('MV_ASSESSMENT_SUMMARY', method => 'C', atomic_refresh=>false);
-		 
+
 		 -- REFRESH MV_CAMPUS_SUMMARY
 		 -- REMOVE ANY NULL CONSTRAINTS
      for x in (select constraint_name
@@ -3935,13 +3941,10 @@ create or replace package body edfidata.PKG_UPDATE_STUDENT_ATTRIBUTES is
           execute immediate
           'alter table MV_CAMPUS_SUMMARY drop CONSTRAINT '||x.constraint_name;
         end loop;
-				
+
      -- REFESH THE MV
 		 DBMS_MVIEW.refresh('MV_CAMPUS_SUMMARY', method => 'C', atomic_refresh=>false);
-		 
-   end REFRESH_MV_EDFI_STATS;		 
+
+   end REFRESH_MV_EDFI_STATS;
 end PKG_UPDATE_STUDENT_ATTRIBUTES;
 /
-grant execute on EDFIDATA.PKG_UPDATE_STUDENT_ATTRIBUTES to EDFIAPP;
-
-

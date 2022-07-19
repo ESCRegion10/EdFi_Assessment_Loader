@@ -1168,7 +1168,7 @@ create or replace package body pkg_assessment_upload as
 					null, -- ERROR MESSAGE
 					v_school_year, -- SCHOOL YEAR TO LOAD
 					null,  -- student TSDS unique id
-					col010 -- lastest_sat_date_str
+					col044 -- lastest_sat_date_str
 				from
 					apex_application_temp_files f,
 					table
@@ -1961,7 +1961,7 @@ create or replace package body pkg_assessment_upload as
   is
   l_error_msg   varchar2(2000);
 	l_student_id  varchar2(20);
-	l_birth_date  date;
+	l_birth_date  varchar2(20);
 	l_test_date   date;
 	begin
 		-- loop through the rows
@@ -1981,7 +1981,7 @@ create or replace package body pkg_assessment_upload as
 				if rec.LAST_NAME is null then
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Student Last Name is missing';
 				end if;
-
+        
 				if rec.BIRTH_DATE is null then
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Student Birth Date is missing';
 				else
@@ -1994,14 +1994,14 @@ create or replace package body pkg_assessment_upload as
 					  l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Student Birth Date Format is incorrect - MM/DD/YYYY or YYYY-MM-DD';
 					end if;
 				end if;
-
+        
 				if rec.LATEST_ASSESSMENT_DATE is null then
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Latest Assessment Date is missing';
 				else
 					if is_date(rec.LATEST_ASSESSMENT_DATE_STR,'MM/DD/YYYY') then
-						l_test_date := to_char(to_date(rec.LATEST_ASSESSMENT_DATE_STR,'MM/DD/YYYY'),'MM/DD/YYYY');
+						l_test_date := to_date(rec.LATEST_ASSESSMENT_DATE_STR,'MM/DD/YYYY');
 					elsif is_date(rec.LATEST_ASSESSMENT_DATE_STR,'YYYY-MM-DD')  then
-						l_test_date := to_char(to_date(rec.LATEST_ASSESSMENT_DATE_STR,'YYYY-MM-DD'),'MM/DD/YYYY');
+						l_test_date := to_date(rec.LATEST_ASSESSMENT_DATE_STR,'YYYY-MM-DD');
 					else
 						l_test_date := null;
 					  l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Latest Assessment Date Format is incorrect - MM/DD/YYYY or YYYY-MM-DD';
@@ -2029,7 +2029,7 @@ create or replace package body pkg_assessment_upload as
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Latest SAT Math must be between 200 and 800';
 				end if;
 
-				if is_date(rec.BIRTH_DATE,'MM/DD/YYYY') then -- sql will crash if birth date invalid
+				if is_date(l_birth_date,'MM/DD/YYYY') then -- sql will crash if birth date invalid
 					-- check for student id, if found then add the id to the record else report an error.
 					begin
 						select c.STUDENT_UNIQUE_ID
@@ -2038,7 +2038,7 @@ create or replace package body pkg_assessment_upload as
 						 where district_ID = p_district_id
 							 and school_year = p_school_year
 							 and replace(trim(upper(c.FIRST_NAME) || upper(c.LAST_SURNAME) || to_char(to_date(c.BIRTH_DATE,'MM/DD/YYYY'),'MM/DD/YYYY')),' ', '')
-									 = replace(trim(upper(rec.FIRST_NAME) || upper(rec.LAST_NAME) || to_char(to_date(rec.BIRTH_DATE,'MM/DD/YYYY'),'MM/DD/YYYY')),' ', '');
+									 = replace(trim(upper(rec.FIRST_NAME) || upper(rec.LAST_NAME) || l_birth_date),' ', '');
 					exception
 						when no_data_found then
 								 l_student_id := null;
@@ -2050,12 +2050,15 @@ create or replace package body pkg_assessment_upload as
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Student Unique Id could not be found';
 				end if;
 			-- update the record with the error msg, status, and student unique id.
+			APEX_DEBUG.message('>>>>>>>>>>>>>>>>>>>>update for stu id: '||l_student_id);
+			APEX_DEBUG.message('>>>>>>>>>>>>>>>>>>>>update error msg: '||l_error_msg);
 			update district_sat_data
 			   set status = case when l_error_msg is not null then 'ERROR' else status end,
 				     error_message = l_error_msg,
 						 tsds_student_unique_id = l_student_id,
 						 birth_date = l_birth_date,
-						 latest_assessment_date = l_test_date;
+						 latest_assessment_date = l_test_date
+				where rowid = rec.ROWID;
 			end loop;
 
 	end prc_validate_sat_data;
@@ -2161,7 +2164,8 @@ create or replace package body pkg_assessment_upload as
 			   set status = case when l_error_msg is not null then 'ERROR' else status end,
 				     error_message = l_error_msg,
 						 tsds_student_unique_id = l_student_id,
-						 birth_date = l_birth_date;
+						 birth_date = l_birth_date
+				where rowid = rec.ROWID;
 			end loop;
 
 	end prc_validate_tsi_data;
@@ -2461,7 +2465,6 @@ ADD RANGE CHECK ON SCORE
 				end if;
 
 				if rec.ADMIN_YEAR_02 is not null
-					 and pkg_assessment_upload.is_number(p_str => rec.ADMIN_YEAR_02)
 					 and rec.exam_score_02  between 1 and 5 then
 						null;  -- score is present and in range so it is good
 				else
@@ -2492,7 +2495,6 @@ ADD RANGE CHECK ON SCORE
 				end if;
 
 				if rec.ADMIN_YEAR_03 is not null
-					 and pkg_assessment_upload.is_number(p_str => rec.ADMIN_YEAR_03)
 					 and rec.exam_score_03  between 1 and 5 then
 						null;  -- score is present and in range so it is good
 				else
@@ -2523,7 +2525,6 @@ ADD RANGE CHECK ON SCORE
 				end if;
 
 				if rec.ADMIN_YEAR_04 is not null
-					 and pkg_assessment_upload.is_number(p_str => rec.ADMIN_YEAR_04)
 					 and rec.exam_score_04  between 1 and 5 then
 						null;  -- score is present and in range so it is good
 				else
@@ -2554,7 +2555,6 @@ ADD RANGE CHECK ON SCORE
 				end if;
 
 				if rec.ADMIN_YEAR_05 is not null
-					 and pkg_assessment_upload.is_number(p_str => rec.ADMIN_YEAR_05)
 					 and rec.exam_score_05  between 1 and 5 then
 						null;  -- score is present and in range so it is good
 				else
@@ -2585,7 +2585,6 @@ ADD RANGE CHECK ON SCORE
 				end if;
 
 				if rec.ADMIN_YEAR_06 is not null
-					 and pkg_assessment_upload.is_number(p_str => rec.ADMIN_YEAR_06)
 					 and rec.exam_score_06  between 1 and 5 then
 						null;  -- score is present and in range so it is good
 				else
@@ -2616,7 +2615,6 @@ ADD RANGE CHECK ON SCORE
 				end if;
 
 				if rec.ADMIN_YEAR_07 is not null
-					 and pkg_assessment_upload.is_number(p_str => rec.ADMIN_YEAR_07)
 					 and rec.exam_score_07  between 1 and 5 then
 						null;  -- score is present and in range so it is good
 				else
@@ -2647,7 +2645,6 @@ ADD RANGE CHECK ON SCORE
 				end if;
 
 				if rec.ADMIN_YEAR_08 is not null
-					 and pkg_assessment_upload.is_number(p_str => rec.ADMIN_YEAR_08)
 					 and rec.exam_score_08  between 1 and 5 then
 						null;  -- score is present and in range so it is good
 				else
@@ -2678,7 +2675,6 @@ ADD RANGE CHECK ON SCORE
 				end if;
 
 				if rec.ADMIN_YEAR_09 is not null
-					 and pkg_assessment_upload.is_number(p_str => rec.ADMIN_YEAR_09)
 					 and rec.exam_score_09  between 1 and 5 then
 						null;  -- score is present and in range so it is good
 				else
@@ -2709,7 +2705,6 @@ ADD RANGE CHECK ON SCORE
 				end if;
 
 				if rec.ADMIN_YEAR_10 is not null
-					 and pkg_assessment_upload.is_number(p_str => rec.ADMIN_YEAR_10)
 					 and rec.exam_score_10  between 1 and 5 then
 						null;  -- score is present and in range so it is good
 				else
@@ -5290,7 +5285,7 @@ ADD RANGE CHECK ON SCORE
 													systimestamp,
 													"LastSurname",
 													"FirstName",
-													"BirthDate",
+													to_char("BirthDate",''MM/DD/YYYY'') as "BirthDate",
 													"StudentUniqueId",
 													"LocalCode",
 													'''||rec.school_year||'''
