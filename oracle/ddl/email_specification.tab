@@ -1,0 +1,42 @@
+create table EDFIDATA.EMAIL_SPECIFICATION
+(
+  email_sid        NUMBER not null,
+  email_type_sid   NUMBER not null,
+  email_subject    VARCHAR2(75),
+  email_body       VARCHAR2(2000),
+  application_link VARCHAR2(200),
+  salutation       VARCHAR2(1000)
+)
+;
+comment on table EDFIDATA.EMAIL_SPECIFICATION
+  is 'The definition of email used to send info to users of the system';
+comment on column EDFIDATA.EMAIL_SPECIFICATION.email_sid
+  is 'Surrogate Key for the Email Specification.';
+comment on column EDFIDATA.EMAIL_SPECIFICATION.email_type_sid
+  is 'Surrogate Key for the Email Type';
+comment on column EDFIDATA.EMAIL_SPECIFICATION.email_subject
+  is 'Email Subject Line.
+Example: Password Reset Request ';
+comment on column EDFIDATA.EMAIL_SPECIFICATION.email_body
+  is 'The Main Body of the Email.
+Eample:
+Logon within 72 hours otherwise your account will need to unlocked by the District Administrator.
+Use the link below to reset your account.
+';
+comment on column EDFIDATA.EMAIL_SPECIFICATION.application_link
+  is 'The HTML link to the appliction login.';
+comment on column EDFIDATA.EMAIL_SPECIFICATION.salutation
+  is 'The closing of the email.
+Example:
+Sincerely,
+The SchoolViz Support Team
+';
+alter table EDFIDATA.EMAIL_SPECIFICATION
+  add constraint PK_EMAIL_SPECIFICATION primary key (EMAIL_SID);
+alter table EDFIDATA.EMAIL_SPECIFICATION
+  add constraint AK_EMAIL_SPEC_AK_EMAIL_SP unique (EMAIL_TYPE_SID);
+alter table EDFIDATA.EMAIL_SPECIFICATION
+  add constraint FK_EMAIL_SP_REFERENCE_EMAIL_TY foreign key (EMAIL_TYPE_SID)
+  references EDFIDATA.EMAIL_TYPE (EMAIL_TYPE_SID)
+  novalidate;
+

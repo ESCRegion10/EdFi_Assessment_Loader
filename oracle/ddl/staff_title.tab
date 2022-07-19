@@ -1,0 +1,11 @@
+create table EDFIDATA.STAFF_TITLE
+(
+  staff_title_sid  NUMBER not null,
+  staff_title_name VARCHAR2(75) not null
+)
+;
+comment on table EDFIDATA.STAFF_TITLE
+  is 'Describes the work performed by a staff member';
+alter table EDFIDATA.STAFF_TITLE
+  add constraint PK_STAFF_TITLE primary key (STAFF_TITLE_SID);
+

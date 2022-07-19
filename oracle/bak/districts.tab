@@ -1,0 +1,51 @@
+create table EDFIDATA.DISTRICTS
+(
+  district_cdc                VARCHAR2(15) not null,
+  district_name               VARCHAR2(50) not null,
+  district_db_number          VARCHAR2(10) not null,
+  active                      VARCHAR2(3),
+  district_sid                NUMBER not null,
+  api_key                     VARCHAR2(50),
+  api_secret                  VARCHAR2(100),
+  edfi_version                VARCHAR2(5),
+  mass_send_flag              VARCHAR2(3),
+  asvab_flag                  VARCHAR2(3),
+  military_enlistment_flag    VARCHAR2(3),
+  meningitis_vaccination_flag VARCHAR2(3),
+  associates_degree_flag      VARCHAR2(3),
+  college_app_flag            VARCHAR2(3),
+  financial_app_flag          VARCHAR2(3),
+  level_1_2_cert_flag         VARCHAR2(3),
+  industry_cert_flag          VARCHAR2(3),
+  dual_cr_course_flag         VARCHAR2(3),
+  school_year                 VARCHAR2(4),
+  proxy_district_name         VARCHAR2(50)
+)
+;
+comment on column EDFIDATA.DISTRICTS.mass_send_flag
+  is 'IF = Y THEN USE BASE DNS(ODS3.REGION10.ORG) ELSE USE CHANGE DATA (ODS3PROXY.REGION10.ORG)';
+comment on column EDFIDATA.DISTRICTS.asvab_flag
+  is 'Y/N indicates that district is allowed to side load';
+comment on column EDFIDATA.DISTRICTS.military_enlistment_flag
+  is 'Y/N indicates that district is allowed to side load';
+comment on column EDFIDATA.DISTRICTS.meningitis_vaccination_flag
+  is 'Y/N indicates that district is allowed to side load';
+comment on column EDFIDATA.DISTRICTS.associates_degree_flag
+  is 'Y/N indicates that district is allowed to side load';
+comment on column EDFIDATA.DISTRICTS.college_app_flag
+  is 'Y/N indicates that district is allowed to side load';
+comment on column EDFIDATA.DISTRICTS.financial_app_flag
+  is 'Y/N indicates that district is allowed to side load';
+comment on column EDFIDATA.DISTRICTS.level_1_2_cert_flag
+  is 'Y/N indicates that district is allowed to side load';
+comment on column EDFIDATA.DISTRICTS.industry_cert_flag
+  is 'Y/N indicates that district is allowed to side load';
+comment on column EDFIDATA.DISTRICTS.dual_cr_course_flag
+  is 'Y/N indicates that district is allowed to side load';
+comment on column EDFIDATA.DISTRICTS.school_year
+  is 'Indicate the school year e.g. 2021 that the districts is currently processing';
+comment on column EDFIDATA.DISTRICTS.proxy_district_name
+  is 'The name of the district to be inserted into the url for calls to the proxy server';
+alter table EDFIDATA.DISTRICTS
+  add constraint DISTRICTS_PK primary key (DISTRICT_SID);
+

@@ -1,0 +1,29 @@
+create table EDFIDATA.APPLICATION_PERMISSION
+(
+  permission_sid         NUMBER not null,
+  permission_name        VARCHAR2(50) not null,
+  permission_description VARCHAR2(200),
+  active_flag            VARCHAR2(3) not null,
+  updated_by             NUMBER,
+  last_update_date       DATE
+)
+;
+comment on table EDFIDATA.APPLICATION_PERMISSION
+  is 'defines the permission for a particular application';
+comment on column EDFIDATA.APPLICATION_PERMISSION.permission_sid
+  is 'Unique ID for a permission';
+comment on column EDFIDATA.APPLICATION_PERMISSION.permission_name
+  is 'The name of the persmission';
+comment on column EDFIDATA.APPLICATION_PERMISSION.permission_description
+  is 'A description of the permission';
+comment on column EDFIDATA.APPLICATION_PERMISSION.active_flag
+  is 'Indicates if the permission is active for selection';
+comment on column EDFIDATA.APPLICATION_PERMISSION.updated_by
+  is 'the user that last updated the permission';
+comment on column EDFIDATA.APPLICATION_PERMISSION.last_update_date
+  is 'Date of the last update';
+alter table EDFIDATA.APPLICATION_PERMISSION
+  add constraint PK_APPLICATION_PERMISSION primary key (PERMISSION_SID);
+alter table EDFIDATA.APPLICATION_PERMISSION
+  add constraint AK_APPLICATION_PERMIS_APPLICAT unique (PERMISSION_NAME);
+

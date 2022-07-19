@@ -1,0 +1,10 @@
+create table EDFIDATA.ASSESSMENT_CONFIG
+(
+  parameter_name        VARCHAR2(100),
+  parameter_value       INTEGER,
+  parameter_district_id VARCHAR2(6),
+  parameter_comments    VARCHAR2(500)
+)
+;
+create unique index EDFIDATA.UX_PARAM_NAME on EDFIDATA.ASSESSMENT_CONFIG (PARAMETER_NAME, PARAMETER_DISTRICT_ID);
+

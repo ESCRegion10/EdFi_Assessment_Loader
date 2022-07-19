@@ -1,0 +1,39 @@
+create table EDFIDATA.SYSTEM_CONFIG
+(
+  system_config_sid             NUMBER not null,
+  password_expire_days          NUMBER(3) default 180,
+  password_max_attempts         NUMBER(1),
+  password_minimum_length       NUMBER(2),
+  login_message                 VARCHAR2(2000),
+  login_message_start_date_time DATE,
+  login_message_end_date_time   DATE,
+  notification_email_address    VARCHAR2(100),
+  last_update                   DATE,
+  updated_by                    NUMBER
+)
+;
+comment on table EDFIDATA.SYSTEM_CONFIG
+  is 'A single row containing configuration parameters and login page message';
+comment on column EDFIDATA.SYSTEM_CONFIG.system_config_sid
+  is 'Unique System Generated ID for the Table';
+comment on column EDFIDATA.SYSTEM_CONFIG.password_expire_days
+  is 'The number of days before since the last password change before a user must change their password.';
+comment on column EDFIDATA.SYSTEM_CONFIG.password_max_attempts
+  is 'The maximum number of times a user will be allowed to try to log on before their account is locked.';
+comment on column EDFIDATA.SYSTEM_CONFIG.password_minimum_length
+  is 'Specifies the minimum length for the users password.';
+comment on column EDFIDATA.SYSTEM_CONFIG.login_message
+  is 'A message displayed on the login page for all users.';
+comment on column EDFIDATA.SYSTEM_CONFIG.login_message_start_date_time
+  is 'The start date and time of the login message.';
+comment on column EDFIDATA.SYSTEM_CONFIG.login_message_end_date_time
+  is 'The end date and time of the login message.';
+comment on column EDFIDATA.SYSTEM_CONFIG.notification_email_address
+  is 'The email address where new user notifications are to be sent';
+comment on column EDFIDATA.SYSTEM_CONFIG.last_update
+  is 'date last updated';
+comment on column EDFIDATA.SYSTEM_CONFIG.updated_by
+  is 'User that last updated this record';
+alter table EDFIDATA.SYSTEM_CONFIG
+  add constraint PK_SYSTEM_CONFIG primary key (SYSTEM_CONFIG_SID);
+

@@ -1,0 +1,16 @@
+create table EDFIDATA.ASSESSMENT_STATUS_LOG
+(
+  log_id         NUMBER generated always as identity,
+  created        TIMESTAMP(6) WITH LOCAL TIME ZONE not null,
+  created_by     VARCHAR2(100) not null,
+  statuscode     INTEGER not null,
+  callstack      VARCHAR2(4000),
+  errorstack     VARCHAR2(4000),
+  backtrace      VARCHAR2(4000),
+  status_message VARCHAR2(4000) not null,
+  status_type    VARCHAR2(10),
+  user_id        VARCHAR2(100)
+)
+;
+create unique index EDFIDATA.UIX_ASSESSMENT_STATUS_LOG on EDFIDATA.ASSESSMENT_STATUS_LOG (CREATED, CREATED_BY);
+

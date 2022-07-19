@@ -1,0 +1,9 @@
+create table EDFIDATA.REST_DISTRICT
+(
+  district_cdc       VARCHAR2(15) not null,
+  district_name      VARCHAR2(50) not null,
+  district_db_number VARCHAR2(4) not null,
+  active             VARCHAR2(3)
+)
+;
+

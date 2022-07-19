@@ -1,0 +1,10 @@
+create table EDFIDATA.EDFI_AP_IB_TEST
+(
+  assessment_type VARCHAR2(10) not null,
+  assessment_code VARCHAR2(50) not null,
+  assessment_name VARCHAR2(50)
+)
+;
+alter table EDFIDATA.EDFI_AP_IB_TEST
+  add constraint EDFI_AP_IB_TEST_PK primary key (ASSESSMENT_TYPE, ASSESSMENT_CODE);
+

@@ -1,0 +1,29 @@
+create table EDFIDATA.SECURITY_GROUP
+(
+  security_group_sid         NUMBER not null,
+  security_group_name        VARCHAR2(50) not null,
+  security_group_description VARCHAR2(100),
+  active_flag                VARCHAR2(3),
+  updated_by                 NUMBER,
+  last_updated_date          DATE
+)
+;
+comment on table EDFIDATA.SECURITY_GROUP
+  is 'A collection system permissions.';
+comment on column EDFIDATA.SECURITY_GROUP.security_group_sid
+  is 'Surrogate key';
+comment on column EDFIDATA.SECURITY_GROUP.security_group_name
+  is 'The name of the group.  example: ID Manager, FRS, Site facilitator';
+comment on column EDFIDATA.SECURITY_GROUP.security_group_description
+  is 'Description of the security group. Example: Provides basic access to ID Manger';
+comment on column EDFIDATA.SECURITY_GROUP.active_flag
+  is 'Indicates if the security group is active or allowed to be used.';
+comment on column EDFIDATA.SECURITY_GROUP.updated_by
+  is 'user that last updated the record';
+comment on column EDFIDATA.SECURITY_GROUP.last_updated_date
+  is 'date last updated.';
+alter table EDFIDATA.SECURITY_GROUP
+  add constraint PK_SECURITY_GROUP primary key (SECURITY_GROUP_SID);
+alter table EDFIDATA.SECURITY_GROUP
+  add constraint AK_SECURITY_GROUP_AK_SECURITY unique (SECURITY_GROUP_NAME);
+

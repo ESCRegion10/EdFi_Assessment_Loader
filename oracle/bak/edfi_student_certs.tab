@@ -1,0 +1,23 @@
+create table EDFIDATA.EDFI_STUDENT_CERTS
+(
+  district_id         VARCHAR2(15) not null,
+  district_ods_number VARCHAR2(10),
+  student_unique_id   VARCHAR2(50) not null,
+  school_year         VARCHAR2(4) not null,
+  term                VARCHAR2(20) not null,
+  achievement_title   VARCHAR2(60) not null,
+  criteria            VARCHAR2(10),
+  award_date          DATE,
+  cert_type           VARCHAR2(10)
+)
+;
+comment on column EDFIDATA.EDFI_STUDENT_CERTS.criteria
+  is 'LEVEL I/II CERTS ONLY';
+comment on column EDFIDATA.EDFI_STUDENT_CERTS.award_date
+  is 'LEVEL I/II CERTS ONLY';
+comment on column EDFIDATA.EDFI_STUDENT_CERTS.cert_type
+  is 'INDUSTRY OR LEVEL1_2';
+alter table EDFIDATA.EDFI_STUDENT_CERTS
+  add constraint EDFI_STUDENT_CERTS_PK primary key (DISTRICT_ID, STUDENT_UNIQUE_ID, SCHOOL_YEAR, TERM, ACHIEVEMENT_TITLE);
+grant select, insert, update, delete, references, alter, index, debug, read on EDFIDATA.EDFI_STUDENT_CERTS to EDFIAPP;
+

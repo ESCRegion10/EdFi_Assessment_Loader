@@ -1,0 +1,18 @@
+create materialized view EDFIDATA.MV_ASSESSMENT_SUMMARY
+refresh complete on demand
+as
+select "STATS_DATE_TIME",
+			 "DATABASE_NUMBER",
+			 "CAMPUS",
+			 "DISTINCT_STUDENTS",
+			 "ACT",
+			 "TSI",
+			 "SAT",
+			 "AP",
+			 "DIFFERENT_AP_SUBJECTS",
+			 "IB",
+			 "DIFFERENT_IB_SUBJECTS",
+			 "CAMPUS_CDC"
+	from assessment_summary@edfi.region10.org
+	where "STATS_DATE_TIME" > sysdate -7;
+

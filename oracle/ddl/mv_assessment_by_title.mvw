@@ -1,0 +1,14 @@
+create materialized view EDFIDATA.MV_ASSESSMENT_BY_TITLE
+refresh complete on demand
+as
+select "STATS_DATE_TIME",
+			 "DATABASE_NUMBER",
+			 "CAMPUS",
+			 "ASSESSMENT_TITLE",
+			 "ADMINISTRATION_DATE",
+			 "DISTINCT_STUDENTS",
+			 "LEA",
+			 "CAMPUS_CDC"
+	from assessment_by_title@edfi.region10.org
+	where "STATS_DATE_TIME" > sysdate -7;
+

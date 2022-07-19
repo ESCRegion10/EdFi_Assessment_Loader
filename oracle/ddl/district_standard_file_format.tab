@@ -1,0 +1,9 @@
+create table EDFIDATA.DISTRICT_STANDARD_FILE_FORMAT
+(
+  column_position INTEGER,
+  column_name     VARCHAR2(50),
+  standard_type   VARCHAR2(10),
+  created         DATE default sysdate
+)
+;
+

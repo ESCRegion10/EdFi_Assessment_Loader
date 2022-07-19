@@ -1,0 +1,9 @@
+create table EDFIDATA.ASSESSMENT_FILE_FORMAT
+(
+  assessment_type   VARCHAR2(10) not null,
+  assessment_header VARCHAR2(4000) not null,
+  assessment_year   VARCHAR2(4) not null,
+  create_date       DATE default sysdate
+)
+;
+

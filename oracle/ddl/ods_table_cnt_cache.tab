@@ -1,0 +1,10 @@
+create table EDFIDATA.ODS_TABLE_CNT_CACHE
+(
+  session_id  VARCHAR2(50) not null,
+  create_ts   TIMESTAMP(6),
+  schema_name VARCHAR2(20),
+  table_name  VARCHAR2(100),
+  row_count   NUMBER
+)
+;
+

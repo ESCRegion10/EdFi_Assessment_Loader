@@ -1,0 +1,41 @@
+create table EDFIDATA.DISTRICT_ACT_DATA
+(
+  other_id                   VARCHAR2(10),
+  line_number                NUMBER not null,
+  last_name                  VARCHAR2(50) not null,
+  first_name                 VARCHAR2(30) not null,
+  mid_init                   VARCHAR2(1),
+  gender                     VARCHAR2(1),
+  birth_date                 VARCHAR2(10) not null,
+  act_scale_scores_composite VARCHAR2(2),
+  act_scale_scores_english   VARCHAR2(2),
+  act_scale_scores_math      VARCHAR2(2),
+  act_scale_scores_reading   VARCHAR2(2),
+  act_scale_scores_science   VARCHAR2(2),
+  test_date_month_and_year   VARCHAR2(10),
+  grade_level                VARCHAR2(2),
+  loaded_date                DATE default sysdate,
+  district_id                VARCHAR2(6) not null,
+  file_name                  VARCHAR2(100) not null,
+  original_file_name         VARCHAR2(100),
+  status                     VARCHAR2(20),
+  error_message              VARCHAR2(2000),
+  school_year_to_load        VARCHAR2(4),
+  tsds_student_unique_id     VARCHAR2(20)
+)
+;
+comment on column EDFIDATA.DISTRICT_ACT_DATA.file_name
+  is 'The original file name with the school year to load added after the test type.';
+comment on column EDFIDATA.DISTRICT_ACT_DATA.original_file_name
+  is 'The original file name as it was upload by the user. ';
+comment on column EDFIDATA.DISTRICT_ACT_DATA.status
+  is 'PENDING, ERROR, LOADED';
+comment on column EDFIDATA.DISTRICT_ACT_DATA.error_message
+  is 'Contains a list of '':'' delimited error messages about this row of data.';
+comment on column EDFIDATA.DISTRICT_ACT_DATA.school_year_to_load
+  is 'Identifies the school year that the files is to be loaded to. e.g. 2022';
+comment on column EDFIDATA.DISTRICT_ACT_DATA.tsds_student_unique_id
+  is 'TSDS Id';
+alter table EDFIDATA.DISTRICT_ACT_DATA
+  add constraint PK_DISTRICT_ACT_DATA primary key (LINE_NUMBER, DISTRICT_ID, FILE_NAME);
+

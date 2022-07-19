@@ -1,0 +1,19 @@
+create table EDFIDATA.EMAIL_TYPE
+(
+  email_type_sid NUMBER not null,
+  email_type     VARCHAR2(25)
+)
+;
+comment on table EDFIDATA.EMAIL_TYPE
+  is 'Types of email for user communication';
+comment on column EDFIDATA.EMAIL_TYPE.email_type_sid
+  is 'Surrogate Key for the Email Type';
+comment on column EDFIDATA.EMAIL_TYPE.email_type
+  is 'Indicates the kind of email.
+Example: New User,
+                Password Reset,
+                Welcome to Reveal,
+                System Maintenance';
+alter table EDFIDATA.EMAIL_TYPE
+  add constraint PK_EMAIL_TYPE primary key (EMAIL_TYPE_SID);
+

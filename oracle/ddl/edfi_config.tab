@@ -1,0 +1,12 @@
+create table EDFIDATA.EDFI_CONFIG
+(
+  edfi_version    VARCHAR2(5) not null,
+  mass_send_dns   VARCHAR2(100),
+  change_data_dns VARCHAR2(100),
+  api_base        VARCHAR2(200),
+  api_data        VARCHAR2(200)
+)
+;
+alter table EDFIDATA.EDFI_CONFIG
+  add constraint EDFI_CONFIG_PK primary key (EDFI_VERSION);
+
