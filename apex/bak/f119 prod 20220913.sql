@@ -27,7 +27,7 @@ prompt APPLICATION 119 - EDFI Management
 -- Application Export:
 --   Application:     119
 --   Name:            EDFI Management
---   Date and Time:   09:43 Wednesday September 28, 2022
+--   Date and Time:   10:55 Tuesday September 13, 2022
 --   Exported By:     EDFI
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -41,7 +41,7 @@ prompt APPLICATION 119 - EDFI Management
 --     Computations:             7
 --     Validations:              7
 --     Processes:               15
---     Regions:                 27
+--     Regions:                 26
 --     Buttons:                 11
 --     Dynamic Actions:          6
 --   Shared Components:
@@ -119,7 +119,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'EDFI Management'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20220928094233'
+,p_last_upd_yyyymmddhh24miss=>'20220909112654'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>3
 ,p_ui_type_name => null
@@ -12509,7 +12509,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(19202259225891723)
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20220928094233'
+,p_last_upd_yyyymmddhh24miss=>'20220301152755'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(19213444417899925)
@@ -12594,7 +12594,7 @@ wwv_flow_api.create_region_column(
 ,p_enable_control_break=>true
 ,p_enable_hide=>true
 ,p_enable_pivot=>false
-,p_is_primary_key=>false
+,p_is_primary_key=>true
 ,p_duplicate_value=>true
 ,p_include_in_export=>true
 );
@@ -12722,7 +12722,7 @@ wwv_flow_api.create_region_column(
 ,p_use_as_row_header=>false
 ,p_enable_sort_group=>true
 ,p_enable_control_break=>true
-,p_is_primary_key=>true
+,p_is_primary_key=>false
 ,p_duplicate_value=>true
 ,p_include_in_export=>false
 );
@@ -13466,7 +13466,7 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20220916091940'
+,p_last_upd_yyyymmddhh24miss=>'20220310151610'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(39156799324840630)
@@ -13490,11 +13490,11 @@ wwv_flow_api.create_page_plug(
 ,p_plug_display_point=>'BODY'
 ,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
 '<b>Enter the following urls into SKYWARD:</b> <br>',
-'Auth: https://ods3proxy.region10.org/&P3_PROXY_DISTRICT_NAME./ods-2023<br>',
-'API URL: https://ods3proxy.region10.org/&P3_PROXY_DISTRICT_NAME./ods-2023/data/v3<br><br>',
+'Auth: https://ods3proxy.region10.org/&P3_PROXY_DISTRICT_NAME./ods-2022<br>',
+'API URL: https://ods3proxy.region10.org/&P3_PROXY_DISTRICT_NAME./ods-2022/data/v3<br><br>',
 'Use the following API urls for directly accessing the ODS:<br>',
-'Auth: https://ods3.region10.org/ods-2023/oauth/token<br>',
-'API URL: https://ods3.region10.org/ods-2023/data/v3/ed-fi<br>',
+'Auth: https://ods3.region10.org/ods-2022/oauth/token<br>',
+'API URL: https://ods3.region10.org/ods-2022/data/v3/ed-fi<br>',
 '<br>',
 ''))
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -15721,7 +15721,7 @@ wwv_flow_api.create_page(
 '}'))
 ,p_page_template_options=>'#DEFAULT#'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20220912150725'
+,p_last_upd_yyyymmddhh24miss=>'20220909112532'
 );
 wwv_flow_api.create_report_region(
  p_id=>wwv_flow_api.id(49650450425022832)
@@ -15730,7 +15730,7 @@ wwv_flow_api.create_report_region(
 ,p_display_sequence=>10
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
-,p_component_template_options=>'#DEFAULT#:t-Report--stretch:t-Report--altRowsDefault:t-Report--rowHighlight:t-Report--hideNoPagination'
+,p_component_template_options=>'#DEFAULT#:t-Report--altRowsDefault:t-Report--rowHighlight'
 ,p_grid_column_span=>5
 ,p_display_point=>'BODY'
 ,p_source_type=>'NATIVE_SQL_REPORT'
@@ -15794,80 +15794,6 @@ wwv_flow_api.create_report_columns(
 ,p_derived_column=>'N'
 ,p_include_in_export=>'Y'
 );
-wwv_flow_api.create_report_region(
- p_id=>wwv_flow_api.id(49650864969022836)
-,p_name=>'Automated Jobs Status as of Last Run'
-,p_template=>wwv_flow_api.id(19121036037891602)
-,p_display_sequence=>20
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
-,p_component_template_options=>'#DEFAULT#:t-Report--stretch:t-Report--altRowsDefault:t-Report--rowHighlight:t-Report--hideNoPagination'
-,p_new_grid_row=>false
-,p_grid_column_span=>5
-,p_display_point=>'BODY'
-,p_source_type=>'NATIVE_SQL_REPORT'
-,p_query_type=>'SQL'
-,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'SELECT job_name, status, actual_start_date, to_char(run_duration,''HH:MI:SS'') as run_duration',
-'FROM dba_scheduler_job_run_details a',
-'where OWNER = ''EDFIDATA''',
-'  and actual_start_date = (select max(b.actual_start_date) from dba_scheduler_job_run_details b',
-'	                          where b.JOB_NAME = a.job_name)',
-'order by a.actual_start_date desc'))
-,p_ajax_enabled=>'Y'
-,p_query_row_template=>wwv_flow_api.id(19143754702891624)
-,p_query_num_rows=>15
-,p_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_query_show_nulls_as=>'-'
-,p_query_num_rows_type=>'NEXT_PREVIOUS_LINKS'
-,p_pagination_display_position=>'BOTTOM_RIGHT'
-,p_csv_output=>'N'
-,p_prn_output=>'N'
-,p_sort_null=>'L'
-,p_plug_query_strip_html=>'N'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(49650942727022837)
-,p_query_column_id=>1
-,p_column_alias=>'JOB_NAME'
-,p_column_display_sequence=>1
-,p_column_heading=>'Job Name'
-,p_use_as_row_header=>'N'
-,p_derived_column=>'N'
-,p_include_in_export=>'Y'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(49651045121022838)
-,p_query_column_id=>2
-,p_column_alias=>'STATUS'
-,p_column_display_sequence=>2
-,p_column_heading=>'Status'
-,p_use_as_row_header=>'N'
-,p_column_hit_highlight=>'FAILED'
-,p_derived_column=>'N'
-,p_include_in_export=>'Y'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(49651160792022839)
-,p_query_column_id=>3
-,p_column_alias=>'ACTUAL_START_DATE'
-,p_column_display_sequence=>3
-,p_column_heading=>'Actual Start Date'
-,p_use_as_row_header=>'N'
-,p_column_format=>'DD-MON-YYYY HH:MIPM'
-,p_derived_column=>'N'
-,p_include_in_export=>'Y'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(49651220784022840)
-,p_query_column_id=>4
-,p_column_alias=>'RUN_DURATION'
-,p_column_display_sequence=>4
-,p_column_heading=>'Run Duration'
-,p_use_as_row_header=>'N'
-,p_derived_column=>'N'
-,p_include_in_export=>'Y'
-);
 end;
 /
 prompt --application/pages/page_09999
@@ -15898,7 +15824,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_page_is_public_y_n=>'Y'
 ,p_last_updated_by=>'EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20220922113048'
+,p_last_upd_yyyymmddhh24miss=>'20210120093349'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(19203713656891735)
@@ -16023,7 +15949,9 @@ wwv_flow_api.create_page_item(
 ,p_item_plug_id=>wwv_flow_api.id(19203713656891735)
 ,p_prompt=>'Remember username'
 ,p_display_as=>'NATIVE_CHECKBOX'
-,p_lov=>'STATIC:Remember username ;Y'
+,p_named_lov=>'LOGIN_REMEMBER_USERNAME'
+,p_lov=>'.'||wwv_flow_api.id(19204876305891739)||'.'
+,p_label_alignment=>'RIGHT'
 ,p_field_template=>wwv_flow_api.id(19175759383891653)
 ,p_item_template_options=>'#DEFAULT#'
 ,p_is_persistent=>'N'

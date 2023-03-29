@@ -259,7 +259,13 @@ procedure prc_process_asmt_resend (p_district_id          varchar2);
 -- private procedures (do not uncomment any procedures or functions below this line)
 --==================================================================================
 -- procedure prc_process_sat_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
--- procedure prc_process_tsi_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
+procedure prc_validate_tsi_data(p_file_name_school_year varchar2
+																 ,p_school_year           varchar2
+																 ,p_district_id           varchar2);
+ procedure prc_process_tsi_data_output(v_file             varchar2
+																			 ,n_rows_with_stu_id out number
+																			 ,v_output_directory varchar2
+																			 ,v_user_id          varchar2);
 -- procedure prc_process_ap_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
 -- procedure prc_process_act_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
 -- procedure prc_process_ib_data_output (v_db_link, v_file, n_rows_with_stu_id, v_output_directory, v_user_id);
@@ -1059,7 +1065,7 @@ create or replace package body pkg_assessment_upload as
     n_minimal_ap_used number := 0;     -- flag for district using minimal fields for AP
     e_unknown_test_type exception;
   begin
-
+    APEX_DEBUG.message('>>>>> Proc Upload Test Data');
 		--********  SAT  ********
 		if v_test_type = 'SAT' then
 
@@ -1595,6 +1601,8 @@ create or replace package body pkg_assessment_upload as
 		--***********************
 		--********  ACT  ********
 		--***********************
+		APEX_DEBUG.message('>>>>> Proc Upload Test Data: ACT');
+		
 			delete edfidata.district_temp_act_data
 			where district_id = v_district_id
 			and file_name = v_file_name_school_year;
@@ -1631,21 +1639,21 @@ create or replace package body pkg_assessment_upload as
 			into c_act_row_clob
 			from edfidata.district_temp_act_data
 			where file_name = v_file_name_school_year
-			and rownum = 1;
-
+			and line_number = 1;
+      APEX_DEBUG.message('>>>>> Proc Upload Test Data: ACT temp clob: '||c_act_row_clob);
 			n_clob_length := dbms_lob.getlength(c_act_row_clob);
-
+      APEX_DEBUG.message('>>>>> Proc Upload Test Data: ACT temp clob length: '||n_clob_length);
 			select parameter_value
 			into n_act_csv_rec_len
 			from assessment_config
 			where parameter_name = 'act_csv_rec_len';
-
+      APEX_DEBUG.message('>>>>> Proc Upload Test Data: ACT temp csv rec len: '||n_act_csv_rec_len);
 			if gn_debug_on = 1 then       -- is global debug variable set?
 				prc_log_status('prc_upload_test_data(): ACT file header length for first column is ' || n_clob_length, 'DEBUG-01', v_user_id);
 			end if;
 
 			if n_clob_length > n_act_csv_rec_len then   -- ACT fixed-width file
-
+         APEX_DEBUG.message('>>>>> Proc Upload Test Data: ACT fixed width');
 				-- parse CLOB column to get field data
 				idx1 := 1;
 				for tmptbl in (select data_record, line_number, loaded_date, district_id, file_name
@@ -1683,7 +1691,7 @@ create or replace package body pkg_assessment_upload as
 			elsif n_clob_length between 6 and 8 then   -- new (as of school year 2021) ACT CSV format, first column header is 8 chars ("ACT ID")
 																								 -- could also be 6 chars if no double qoutes are used in first column header (ACT ID)
 																								 -- ACT CSV created by Assessment Loader is 10 chars ("Other Id")
-
+      APEX_DEBUG.message('>>>>> Proc Upload Test Data: ACT CSV');
 				insert into edfidata.district_act_data
 				select
 					replace(col001,'"',''),                -- other_id
@@ -1740,7 +1748,7 @@ create or replace package body pkg_assessment_upload as
 						)
 					) p
 				where f.name = v_fullpath_file;   -- fullpath file name here!
-
+        APEX_DEBUG.message('>>>>> Proc Upload Test Data: ACT CSV insert rows: '||sql%rowcount);
 /*			else   -- ACT CSV file
 
 				insert into edfidata.district_act_data
@@ -2074,7 +2082,7 @@ create or replace package body pkg_assessment_upload as
   is
   l_error_msg   varchar2(2000);
 	l_student_id  varchar2(20);
-	l_birth_date  date;
+	l_birth_date  varchar2(20);
 	begin
 		-- loop through the rows
 		for rec in (select d.*,d.rowid
@@ -2096,8 +2104,9 @@ create or replace package body pkg_assessment_upload as
 				if rec.BIRTH_DATE is null then
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Student Birth Date is missing';
 				else
+					DBMS_OUTPUT.put_line('DOB= '||rec.BIRTH_DATE);
 					if is_date(rec.BIRTH_DATE,'MM/DD/YYYY') then
-						l_birth_date := to_char(to_date(rec.BIRTH_DATE,'MM/DD/YYYY'),'MM/DD/YYYY');
+						l_birth_date := rec.BIRTH_DATE; --to_char(to_date(rec.BIRTH_DATE,'MM/DD/YYYY'),'MM/DD/YYYY');
 					elsif is_date(rec.BIRTH_DATE,'YYYY-MM-DD')  then
 						l_birth_date := to_char(to_date(rec.BIRTH_DATE,'YYYY-MM-DD'),'MM/DD/YYYY');
 					else
@@ -2117,25 +2126,25 @@ create or replace package body pkg_assessment_upload as
 
 				if rec.TSI_MATHEMATICS_PLACEMENT is not null
 					and (not is_number(rec.TSI_MATHEMATICS_PLACEMENT)
-					or to_number(rec.TSI_MATHEMATICS_PLACEMENT) < 391) then
+					or to_number(rec.TSI_MATHEMATICS_PLACEMENT) > 390) then
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Mathematics Placement score > 390';
 				end if;
 
 				if rec.TSI_READING_PLACEMENT is not null
 					and (not is_number(rec.TSI_READING_PLACEMENT)
-					or to_number(rec.TSI_READING_PLACEMENT) < 391) then
+					or to_number(rec.TSI_READING_PLACEMENT) > 390) then
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Reading Placement score > 390';
 				end if;
 
 				if rec.TSI_WRITEPLACER is not null
 					and (not is_number(rec.TSI_WRITEPLACER)
-					or to_number(rec.TSI_WRITEPLACER) < 9) then
+					or to_number(rec.TSI_WRITEPLACER) > 8) then
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'WritePlacer score > 8';
 				end if;
 
 				if rec.TSI_WRITING_PLACEMENT is not null
 					and (not is_number(rec.TSI_WRITING_PLACEMENT)
-					or to_number(rec.TSI_WRITING_PLACEMENT) < 391) then
+					or to_number(rec.TSI_WRITING_PLACEMENT) > 390) then
 					l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Writing Placement score > 390';
 				end if;
 
@@ -2153,6 +2162,9 @@ create or replace package body pkg_assessment_upload as
 						when no_data_found then
 								 l_student_id := null;
 								 l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Student Unique Id could not be found';
+					  when too_many_rows then
+								 l_student_id := null;
+								 l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Multiple Students found, Verify Student Unique Id is correct';
 					end;
 				else
 					-- birth date is not valid so stu id will not be found.
@@ -2255,6 +2267,7 @@ create or replace package body pkg_assessment_upload as
 				if is_date(rec.BIRTH_DATE,'MM/DD/YYYY') then -- sql will crash if birth date invalid
 				-- check for student id, if found then add the id to the record else report an error.
 					begin
+						apex_debug.message('>>>>>> rec.stu_id: '||rec.STUDENT_ID||' rec.supplemental_id: '||rec.supplemental_id||' '||rec.FIRST_NAME||rec.LAST_NAME||rec.BIRTH_DATE);
 						select c.STUDENT_UNIQUE_ID
 							into l_student_id
 							from district_student_cache c
@@ -2269,6 +2282,9 @@ create or replace package body pkg_assessment_upload as
 						when no_data_found then
 								 l_student_id := null;
 								 l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Student Unique Id could not be found';
+					  when too_many_rows then
+								 l_student_id := null;
+								 l_error_msg := l_error_msg || case when l_error_msg is not null then '; ' else '' end || 'Multiple Students found, Verify Student Unique Id is correct';
 					end;
 				else
 					-- birth date is not valid so stu id will not be found.
@@ -2300,6 +2316,7 @@ create or replace package body pkg_assessment_upload as
   l_error_msg   varchar2(2000);
 	l_student_id  varchar2(20);
 	begin
+		APEX_DEBUG.message('>>>>> Proc validate ACT data');
 		-- loop through the rows
 		for rec in (select d.*,d.rowid
 			          from DISTRICT_ACT_DATA d
@@ -3640,6 +3657,7 @@ ADD RANGE CHECK ON SCORE
     f_output utl_file.file_type;
     e_zero_rows exception;
   begin
+		APEX_DEBUG.message('>>>>> Proc process ACT data output');
 		select distinct
        s.TSDS_STUDENT_UNIQUE_ID
        ,s.other_id
@@ -3668,7 +3686,7 @@ ADD RANGE CHECK ON SCORE
     else
       n_rows_with_stu_id := t_act_data.count;
     end if;
-
+    APEX_DEBUG.message('>>>>> Proc process ACT data row count: '||t_act_data.count);
 		-- look for higher scores in previous loads
     for i in 1 .. t_act_data.count loop
 	    begin

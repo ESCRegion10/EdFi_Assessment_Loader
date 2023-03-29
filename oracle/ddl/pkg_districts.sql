@@ -333,9 +333,11 @@ create or replace package body PKG_DISTRICTS is
 			select DB_LINK
         into l_db_link
         from DISTRICTS 
-				join DISTRICT_DB_LINK on DISTRICT_DB_LINK.DISTRICT_ID = DISTRICTS.DISTRICT_CDC
+				join DISTRICT_DB_LINK_SY on DISTRICT_DB_LINK_SY.DISTRICT_ID = DISTRICTS.DISTRICT_CDC
        where DISTRICTS.DISTRICT_DB_NUMBER = P_DB_NUMBER
-         and TARGET_DB = 'ODS';
+         and TARGET_DB = 'ODS'
+				 and DISTRICTS.SCHOOL_YEAR = DISTRICT_DB_LINK_SY.SCHOOL_YEAR
+				 and DISTRICTS.PRIMARY_SCHOOL_YEAR = 'Y';
 		  return l_db_link;
 		exception 
 			when no_data_found then

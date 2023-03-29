@@ -1,6 +1,28 @@
 -- create directory newest version
 -- run as 'SYS'
+--select * from ALL_DIRECTORIES
 
+create or replace directory LAKEWORTH_ACT_OUT_DIR as '/home/edfi/data/220910/ACT';
+create or replace directory LAKEWORTH_AP_OUT_DIR as '/home/edfi/data/220910/AP';
+create or replace directory LAKEWORTH_SAT_OUT_DIR as '/home/edfi/data/220910/SAT';
+create or replace directory LAKEWORTH_TSI_OUT_DIR as '/home/edfi/data/220910/TSI';
+create or replace directory LAKEWORTH_TSI2_OUT_DIR as '/home/edfi/data/220910/TSI2';
+create or replace directory LAKEWORTH_IB_OUT_DIR as '/home/edfi/data/220910/IB';
+
+/*create or replace directory COMMUNITY_ACT_OUT_DIR as '/home/edfi/data/043918/ACT';
+create or replace directory COMMUNITY_AP_OUT_DIR as '/home/edfi/data/043918/AP';
+create or replace directory COMMUNITY_SAT_OUT_DIR as '/home/edfi/data/043918/SAT';
+create or replace directory COMMUNITY_TSI_OUT_DIR as '/home/edfi/data/043918/TSI';
+create or replace directory COMMUNITY_TSI2_OUT_DIR as '/home/edfi/data/043918/TSI2';
+create or replace directory COMMUNITY_IB_OUT_DIR as '/home/edfi/data/043918/IB';*/
+
+/*create or replace directory REDOAK_ACT_OUT_DIR as '/home/edfi/data/070911/ACT';
+create or replace directory REDOAK_AP_OUT_DIR as '/home/edfi/data/070911/AP';
+create or replace directory REDOAK_SAT_OUT_DIR as '/home/edfi/data/070911/SAT';
+create or replace directory REDOAK_TSI_OUT_DIR as '/home/edfi/data/070911/TSI';
+create or replace directory REDOAK_TSI2_OUT_DIR as '/home/edfi/data/070911/TSI2';
+create or replace directory REDOAK_IB_OUT_DIR as '/home/edfi/data/070911/IB';*/
+/*
 create or replace directory GARLAND_ACT_OUT_DIR as '/home/edfi/data/057909/ACT';
 create or replace directory GARLAND_AP_OUT_DIR as '/home/edfi/data/057909/AP';
 create or replace directory GARLAND_SAT_OUT_DIR as '/home/edfi/data/057909/SAT';
@@ -65,11 +87,29 @@ create or replace directory CRANDALL_ACT_OUT_DIR as '/home/edfi/data/129901/ACT'
 create or replace directory CRANDALL_AP_OUT_DIR as '/home/edfi/data/129901/AP';
 create or replace directory CRANDALL_SAT_OUT_DIR as '/home/edfi/data/129901/SAT';
 create or replace directory CRANDALL_TSI_OUT_DIR as '/home/edfi/data/129901/TSI';
-create or replace directory CRANDALL_IB_OUT_DIR as '/home/edfi/data/129901/IB';
+create or replace directory CRANDALL_IB_OUT_DIR as '/home/edfi/data/129901/IB';*/
 
 -- add directory to DISTRICT_OUTPUT_DIR
 -- run as 'EDFIDATA'
-insert into DISTRICT_OUTPUT_DIR values ('057909', 'GARLAND_ACT_OUT_DIR', sysdate, 'ACT');
+insert into DISTRICT_OUTPUT_DIR values ('220910', 'LAKEWORTH_ACT_OUT_DIR', sysdate, 'ACT');
+insert into DISTRICT_OUTPUT_DIR values ('220910', 'LAKEWORTH_AP_OUT_DIR', sysdate, 'AP');
+insert into DISTRICT_OUTPUT_DIR values ('220910', 'LAKEWORTH_IB_OUT_DIR', sysdate, 'IB');
+insert into DISTRICT_OUTPUT_DIR values ('220910', 'LAKEWORTH_SAT_OUT_DIR', sysdate, 'SAT');
+insert into DISTRICT_OUTPUT_DIR values ('220910', 'LAKEWORTH_TSI_OUT_DIR', sysdate, 'TSI');
+insert into DISTRICT_OUTPUT_DIR values ('220910', 'LAKEWORTH_TSI2_OUT_DIR', sysdate, 'TSI2');
+/*insert into DISTRICT_OUTPUT_DIR values ('043918', 'COMMUNITY_ACT_OUT_DIR', sysdate, 'ACT');
+insert into DISTRICT_OUTPUT_DIR values ('043918', 'COMMUNITY_AP_OUT_DIR', sysdate, 'AP');
+insert into DISTRICT_OUTPUT_DIR values ('043918', 'COMMUNITY_IB_OUT_DIR', sysdate, 'IB');
+insert into DISTRICT_OUTPUT_DIR values ('043918', 'COMMUNITY_SAT_OUT_DIR', sysdate, 'SAT');
+insert into DISTRICT_OUTPUT_DIR values ('043918', 'COMMUNITY_TSI_OUT_DIR', sysdate, 'TSI');
+insert into DISTRICT_OUTPUT_DIR values ('043918', 'COMMUNITY_TSI2_OUT_DIR', sysdate, 'TSI2');*/
+/*insert into DISTRICT_OUTPUT_DIR values ('070911', 'REDOAK_ACT_OUT_DIR', sysdate, 'ACT');
+insert into DISTRICT_OUTPUT_DIR values ('070911', 'REDOAK_AP_OUT_DIR', sysdate, 'AP');
+insert into DISTRICT_OUTPUT_DIR values ('070911', 'REDOAK_IB_OUT_DIR', sysdate, 'IB');
+insert into DISTRICT_OUTPUT_DIR values ('070911', 'REDOAK_SAT_OUT_DIR', sysdate, 'SAT');
+insert into DISTRICT_OUTPUT_DIR values ('057909', 'REDOAK_TSI_OUT_DIR', sysdate, 'TSI');
+insert into DISTRICT_OUTPUT_DIR values ('057909', 'REDOAK_TSI2_OUT_DIR', sysdate, 'TSI2');*/
+/*insert into DISTRICT_OUTPUT_DIR values ('057909', 'GARLAND_ACT_OUT_DIR', sysdate, 'ACT');
 insert into DISTRICT_OUTPUT_DIR values ('057909', 'GARLAND_AP_OUT_DIR', sysdate, 'AP');
 insert into DISTRICT_OUTPUT_DIR values ('057909', 'GARLAND_IB_OUT_DIR', sysdate, 'IB');
 insert into DISTRICT_OUTPUT_DIR values ('057909', 'GARLAND_SAT_OUT_DIR', sysdate, 'SAT');
@@ -134,10 +174,28 @@ insert into DISTRICT_OUTPUT_DIR values ('129901', 'CRANDALL_AP_OUT_DIR', sysdate
 insert into DISTRICT_OUTPUT_DIR values ('129901', 'CRANDALL_IB_OUT_DIR', sysdate, 'IB');
 insert into DISTRICT_OUTPUT_DIR values ('129901', 'CRANDALL_SAT_OUT_DIR', sysdate, 'SAT');
 insert into DISTRICT_OUTPUT_DIR values ('129901', 'CRANDALL_TSI_OUT_DIR', sysdate, 'TSI');
-
+*/
 -- grants on directory
 -- run as 'EDFIDATA'
-GRANT READ, WRITE ON DIRECTORY GARLAND_ACT_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY LAKEWORTH_ACT_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY LAKEWORTH_AP_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY LAKEWORTH_IB_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY LAKEWORTH_SAT_OUT_DIR TO PUBLIC;
+GRANT READ, WRITE ON DIRECTORY LAKEWORTH_TSI_OUT_DIR TO PUBLIC;
+GRANT READ, WRITE ON DIRECTORY LAKEWORTH_TSI2_OUT_DIR TO PUBLIC;
+/*GRANT READ, WRITE ON DIRECTORY COMMUNITY_ACT_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY COMMUNITY_AP_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY COMMUNITY_IB_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY COMMUNITY_SAT_OUT_DIR TO PUBLIC;
+GRANT READ, WRITE ON DIRECTORY COMMUNITY_TSI_OUT_DIR TO PUBLIC;
+GRANT READ, WRITE ON DIRECTORY COMMUNITY_TSI2_OUT_DIR TO PUBLIC;*/
+/*GRANT READ, WRITE ON DIRECTORY REDOAK_ACT_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY REDOAK_AP_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY REDOAK_IB_OUT_DIR TO PUBLIC; 
+GRANT READ, WRITE ON DIRECTORY REDOAK_SAT_OUT_DIR TO PUBLIC;
+GRANT READ, WRITE ON DIRECTORY REDOAK_TSI_OUT_DIR TO PUBLIC;
+GRANT READ, WRITE ON DIRECTORY REDOAK_TSI2_OUT_DIR TO PUBLIC;*/
+/*GRANT READ, WRITE ON DIRECTORY GARLAND_ACT_OUT_DIR TO PUBLIC; 
 GRANT READ, WRITE ON DIRECTORY GARLAND_AP_OUT_DIR TO PUBLIC; 
 GRANT READ, WRITE ON DIRECTORY GARLAND_IB_OUT_DIR TO PUBLIC; 
 GRANT READ, WRITE ON DIRECTORY GARLAND_SAT_OUT_DIR TO PUBLIC;
@@ -202,7 +260,7 @@ GRANT READ, WRITE ON DIRECTORY CRANDALL_AP_OUT_DIR TO PUBLIC;
 GRANT READ, WRITE ON DIRECTORY CRANDALL_IB_OUT_DIR TO PUBLIC; 
 GRANT READ, WRITE ON DIRECTORY CRANDALL_SAT_OUT_DIR TO PUBLIC;
 GRANT READ, WRITE ON DIRECTORY CRANDALL_TSI_OUT_DIR TO PUBLIC;
-
+*/
   
   
  

@@ -323,7 +323,6 @@ procedure PROC_EDFI_COURSE_DUAL_CR (
 -- Refresh the ODS's with the data in oracle if it is not the same
 --------------------------------------------------------------
    procedure PROC_REFRESH_ODS_UPDATES;
-	 procedure PROC_REFRESH_ODS_UPDATES_test;
 --------------------------------------------------------------
 -- function to validate student id exists.
 --------------------------------------------------------------
@@ -568,12 +567,17 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
     l_error varchar2(200);
 		e_http_error exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
-
+    request_context  UTL_HTTP.REQUEST_CONTEXT_KEY;
+	  -- l_vc_header_name varchar2(256);
+    -- l_vc_header_value varchar2(1024);    
 		begin
 			-- set the url
 			PROC_SET_API_URL(P_DB_NUMBER => P_DB_NUMBER);
 			url := c_api_base||'oauth/token';
-			--dbms_output.put_line(url);
+			
+			dbms_output.put_line(url);
+			APEX_DEBUG.message(url);
+			apex_debug.enable(p_level => apex_debug.c_log_level_app_trace);
 			-- get the key and secret for the users DB
 			select
 			   d.API_KEY
@@ -584,23 +588,32 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 			  and d.PRIMARY_SCHOOL_YEAR = 'Y';
 			-- SET THE REQUEST CONTENT
 			content := 'client_id='||l_client_id||'&client_secret='||l_client_secret||'&grant_type=client_credentials';
-			--dbms_output.put_line(content);
-			--utl_http.set_wallet('file:/u01/app/oracle/12.1/db_1/wallet', 'Spock1234');
-			req  := UTL_HTTP.begin_request(url, 'POST');
+			dbms_output.put_line(content);
+
+			req  := UTL_HTTP.begin_request(url => url,
+			                               method => 'POST' );
 			utl_http.set_header(req, 'Content-Type', 'application/x-www-form-urlencoded');
 			utl_http.set_header(req, 'Content-Length', length(content));
 			utl_http.write_text(req, content);
-
+      utl_http.set_wallet('file:/u01/app/oracle/admin/OCIPrdDB_lfi12f/apex_wallet');
 			res := utl_http.get_response(req);
 			-- process the response from the HTTP call
 			begin
 				utl_http.read_text(res, buffer,32767);
 				--dbms_output.put_line(buffer);
-
+				-- output response headers for debug
+				/* FOR x IN 1..UTL_HTTP.GET_HEADER_COUNT(res)
+         LOOP
+             UTL_HTTP.GET_HEADER(res, x, l_vc_header_name, l_vc_header_value);
+             apex_debug.message(l_vc_header_name || ': ' || l_vc_header_value);
+         end loop;
+        apex_debug.message('>>>>>>>>>>>>>>>>>  Buffer: '||buffer);
+				apex_debug.message('>>>>>>>>>>>>>>>>>  sqlerrm: '||utl_http.get_detailed_sqlerrm);*/
 				utl_http.end_response(res);
 				select json_value(buffer, '$.access_token') into l_token from dual;
 				if l_token is null then
 					 select json_value(buffer, '$.error') into l_error from dual;
+					 apex_debug.message('>>>>>>>>>>>>>>>>>  Error: '||l_error);
 					 raise_application_error(-20009,l_error);
 				else
 				   return l_token;
@@ -611,7 +624,7 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 				then
 					utl_http.end_response(res);
 					return 'ERROR';
-			end;
+		 end;
 		END FN_GET_AUTH_TOKEN_35;
 
 -- THis procedure inserts a student characteristic for ed-fi 2.5
@@ -1835,9 +1848,6 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 		-- CLOSE THE DB_LINK
 		execute immediate 'alter session close database link ' || l_db_link;
 	exception
-		when no_data_found then 
-			-- do nothing since student has no certs
-			null;
 		when others then
 			begin
 			   -- COMMIT THE INSERT AND COMMIT THE DB_LINK
@@ -2038,7 +2048,6 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 				-- get the response from the rest call
 				utl_http.read_text(res, l_json_doc,32767);
 				--DBMS_OUTPUT.put_line('before : ' || l_json_doc);
-				APEX_DEBUG.message('>>>>>>>>>>>>>>before : ' || l_json_doc);
 				-- remove the resource id ("id") from the response.
 				l_json_doc := REGEXP_REPLACE(l_json_doc, '"id":.*','',1,1,'i');
 				-- add characteristics from ':' delimitied list
@@ -2432,8 +2441,8 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 		l_title               int;
     l_end_position        int;
     l_start_position      int;
-    l_error               varchar2(2000);
-		l_warning             varchar2(2000);
+    l_error               varchar2(200);
+		l_warning             varchar2(200);
 		e_http_error          exception;
 		PRAGMA EXCEPTION_INIT (e_http_error, -20009);
 
@@ -2484,16 +2493,14 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 				DBMS_OUTPUT.put_line('certs : ' || l_academic_honors);
 				-- prime l_new_characteristics
 				l_new_academic_honors := l_academic_honors;
-        
-				-- ODS only allows 60 chars for title so substr(p_achievement_title,1,60)
-				
+
 				if p_transaction_type = 'ADD' then
 					-- cert was added to the student
-					DBMS_OUTPUT.put_line('add found : ' || substr(p_achievement_title,1,60));
+					DBMS_OUTPUT.put_line('add found : ' || p_achievement_title);
 					if l_new_academic_honors = '[]' then
-						l_new_academic_honors := '[ { "academicHonorCategoryDescriptor": "uri://ed-fi.org/AcademicHonorCategoryDescriptor#Certificate","achievementCategoryDescriptor":"uri://ed-fi.org/AchievementCategoryDescriptor#Certificate Earned","achievementTitle": "'||substr(p_achievement_title,1,60)||'","honorDescription": "'||substr(p_achievement_title,1,60)||'" } ]';
+						l_new_academic_honors := '[ { "academicHonorCategoryDescriptor": "uri://ed-fi.org/AcademicHonorCategoryDescriptor#Certificate","achievementCategoryDescriptor":"uri://ed-fi.org/AchievementCategoryDescriptor#Certificate Earned","achievementTitle": "'||p_achievement_title||'","honorDescription": "'||p_achievement_title||'" } ]';
 					else
-						l_new_academic_honors := replace(l_new_academic_honors,']',',{ "academicHonorCategoryDescriptor": "uri://ed-fi.org/AcademicHonorCategoryDescriptor#Certificate","achievementCategoryDescriptor":"uri://ed-fi.org/AchievementCategoryDescriptor#Certificate Earned","achievementTitle": "'||substr(p_achievement_title,1,60)||'","honorDescription": "'||substr(p_achievement_title,1,60)||'" }]');
+						l_new_academic_honors := replace(l_new_academic_honors,']',',{ "academicHonorCategoryDescriptor": "uri://ed-fi.org/AcademicHonorCategoryDescriptor#Certificate","achievementCategoryDescriptor":"uri://ed-fi.org/AchievementCategoryDescriptor#Certificate Earned","achievementTitle": "'||p_achievement_title||'","honorDescription": "'||p_achievement_title||'" }]');
 					end if;
 					DBMS_OUTPUT.put_line('add inserted : ' || l_new_academic_honors);
 				end if;
@@ -2506,7 +2513,7 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 
 				if p_transaction_type = 'DELETE' then
 					-- REMOVE THE ENTRY TO BE DELETED
-					l_title := instr(l_new_academic_honors,substr(p_achievement_title,1,60),1,1);
+					l_title := instr(l_new_academic_honors,p_achievement_title,1,1);
 					l_end_position := instr(l_new_academic_honors,'}',l_title,1);
 					for i in REVERSE 1..l_title-1
 						loop
@@ -2652,8 +2659,8 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 				if p_transaction_type = 'ADD' then
 					-- cert was added to the student
 					-- you can't have more than one cert per term on an ADD just replace what was there
-					l_new_recognitions := '[ { "recognitionTypeDescriptor": "uri://ed-fi.org/RecognitionTypeDescriptor#Certificate","criteria": "'||P_CRITERIA||'","achievementTitle": "'||substr(p_achievement_title,1,60)||'","recognitionAwardDate": "'||to_char(P_AWARD_DATE,'YYYY-MM-DD')||'" } ]';
-					DBMS_OUTPUT.put_line('add found : ' || substr(p_achievement_title,1,60));
+					l_new_recognitions := '[ { "recognitionTypeDescriptor": "uri://ed-fi.org/RecognitionTypeDescriptor#Certificate","criteria": "'||P_CRITERIA||'","achievementTitle": "'||p_achievement_title||'","recognitionAwardDate": "'||to_char(P_AWARD_DATE,'YYYY-MM-DD')||'" } ]';
+					DBMS_OUTPUT.put_line('add found : ' || p_achievement_title);
 					/*if l_new_recognitions = '[]' then
 						l_new_recognitions := '[ { "recognitionTypeDescriptor": "uri://ed-fi.org/RecognitionTypeDescriptor#Certificate","criteria": "'||P_CRITERIA||'","achievementTitle": "'||p_achievement_title||'","recognitionAwardDate": "'||to_char(P_AWARD_DATE,'YYYY-MM-DD')||'" } ]';
 					else
@@ -2664,14 +2671,14 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 
 				if p_transaction_type = 'UPDATE' then
 					-- replace the title of the first occurence of the old title
-					l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"achievementTitle":".*?"','"achievementTitle":"'||substr(p_achievement_title,1,60)||'"',1,1,'in');
+					l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"achievementTitle":".*?"','"achievementTitle":"'||p_achievement_title||'"',1,1,'in');
 				  l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"recognitionAwardDate":".*?"','"recognitionAwardDate":"'||to_char(P_AWARD_DATE,'YYYY-MM-DD')||'"',1,1,'in');
 				  l_new_recognitions := REGEXP_REPLACE(l_new_recognitions,'"criteria":".*?"','"criteria":"'||P_CRITERIA||'"',1,1,'in');
 				end if;
 
 				if p_transaction_type = 'DELETE' then
 					-- REMOVE THE ENTRY TO BE DELETED
-					l_title := instr(l_new_recognitions,substr(p_achievement_title,1,60),1,1);
+					l_title := instr(l_new_recognitions,p_achievement_title,1,1);
 					l_end_position := instr(l_new_recognitions,'}',l_title,1);
 					for i in REVERSE 1..l_title-1
 						loop
@@ -2989,7 +2996,7 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 				 and achievement_title = P_OLD_ACHIEVEMENT_TITLE;
 			-- found a record so update
 			update EDFI_STUDENT_CERTS set
-            ACHIEVEMENT_TITLE     = substr(P_ACHIEVEMENT_TITLE,1,60),
+            ACHIEVEMENT_TITLE     = P_ACHIEVEMENT_TITLE,
             CRITERIA              = P_CRITERIA,
             AWARD_DATE            = P_AWARD_DATE,
             CERT_TYPE             = P_CERT_TYPE
@@ -3017,7 +3024,7 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
          P_STUDENT_UNIQUE_ID,
          P_SCHOOL_YEAR,
          P_TERM,
-         substr(P_ACHIEVEMENT_TITLE,1,60),
+         P_ACHIEVEMENT_TITLE,
          P_CRITERIA,
          P_AWARD_DATE,
          P_CERT_TYPE
@@ -3155,8 +3162,8 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 																, military_date
 																, meningitis_date
 																, associates_degree_date
-																, nvl(college_app_flag,'N') as college_app_flag
-																, nvl(financial_app_flag,'N') as financial_app_flag
+																, college_app_flag
+																, financial_app_flag
 					                   from edfi_student_data
 														 where district_id =  district.DISTRICT_CDC
 														   and student_unique_id is not null
@@ -3225,10 +3232,7 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 															p_associates_degree_date => l_college_degree_dt,
 															p_college_app_flag       => l_college_app_flag,
 															p_financial_app_flag     => l_fafsa_app_flag);
-              -- default the null values
-							l_college_app_flag := nvl(l_college_app_flag,'N');
-							l_fafsa_app_flag   := nvl(l_fafsa_app_flag,'N');
-							
+
 							if l_college_app_flag        = 'Y'
 									or l_fafsa_app_flag      = 'Y'
 									or l_college_degree_dt   is not null then
@@ -3236,16 +3240,16 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 							end if;
 							---------- now to compare what's in ods vs oracle
 							if not l_rows_found
-								and (nvl(stu_attr.COLLEGE_APP_FLAG,'N') = 'Y'
-								or nvl(stu_attr.FINANCIAL_APP_FLAG,'N') = 'Y'
+								and (stu_attr.COLLEGE_APP_FLAG = 'Y'
+								or stu_attr.FINANCIAL_APP_FLAG = 'Y'
 								or stu_attr.ASSOCIATES_DEGREE_DATE is not null) then
 								l_update_stu_ps_events := true;
 							end if;
 
 							if l_rows_found
-								and (l_college_app_flag != nvl(stu_attr.COLLEGE_APP_FLAG,'N')
+								and (l_college_app_flag != stu_attr.COLLEGE_APP_FLAG
 								or nvl(l_college_degree_dt,to_date('99991231','YYYYMMDD')) != nvl(stu_attr.ASSOCIATES_DEGREE_DATE,to_date('99991231','YYYYMMDD'))
-								or l_fafsa_app_flag != nvl(stu_attr.FINANCIAL_APP_FLAG,'N')) then
+								or l_fafsa_app_flag != stu_attr.FINANCIAL_APP_FLAG) then
 								l_update_stu_ps_events := true;
 							end if;
 
@@ -3261,8 +3265,8 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 								else
 									PROC_PUT_POST_SEC_EVENTS_35(p_student_unique_id      => stu_attr.STUDENT_UNIQUE_ID,
 																							p_associates_degree_date => stu_attr.ASSOCIATES_DEGREE_DATE,
-																							p_college_app_flag       => nvl(stu_attr.COLLEGE_APP_FLAG,'N'),
-																							p_financial_app_flag     =>  nvl(stu_attr.FINANCIAL_APP_FLAG,'N'),
+																							p_college_app_flag       => stu_attr.COLLEGE_APP_FLAG,
+																							p_financial_app_flag     => stu_attr.FINANCIAL_APP_FLAG,
 																							p_database_number        => district.DISTRICT_DB_NUMBER,
 																							p_auth_token             => l_token);
 								end if;
@@ -3377,298 +3381,6 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 				  where session_id = l_session;
 				
    end PROC_REFRESH_ODS_UPDATES;
---------------------------------------------------------------
--- Refresh the ODS's with the data in oracle if it is not the same
---------------------------------------------------------------
-   procedure PROC_REFRESH_ODS_UPDATES_test
-			is
-   l_update_stu_attrs     boolean := false;
-	 l_update_stu_ps_events boolean := false;
-	 l_rows_found           boolean := true;
-	 l_token                varchar2(200);
-	 l_ASVAB_dt             date;
-   l_military_enlist_date date;
-   l_meningitis_date      date;
-	 l_college_app_flag     char;
-   l_fafsa_app_flag       char;
-   l_college_degree_dt    date;
-	 l_found                char;
-	 l_current_stu_id       varchar2(50);
-	 l_session              varchar2(50);
-   begin
-		  -- SET session to timestamp to cache the ods data
-			/*apex_session.create_session (
-					p_app_id   => 130,
-					p_page_id  => 2000,
-					p_username => 'EDFI' );
-			DBMS_OUTPUT.put_line('SESSION= '||nv('APP_SESSION'));*/
-			l_session := to_char(systimestamp,'YYYYMMDDHHMISSFF3');
-			DBMS_OUTPUT.put_line('SESSION= '||l_session);
-			
-      -- loop thru active districts
-			for district in (select district_cdc,
-															 district_name,
-															 district_db_number,
-															 api_key,
-															 api_secret,
-															 edfi_version,
-															 districts.school_year,
-															 db.DB_LINK
-													from districts
-													left join district_db_link_sy db on db.DISTRICT_ID = districts.DISTRICT_CDC
-																												and db.TARGET_DB = 'ODS'
-				                                                and districts.SCHOOL_YEAR = db.SCHOOL_YEAR
-												 where 	active = 'Y'
-												   and districts.PRIMARY_SCHOOL_YEAR = 'Y'
-													 and districts.DISTRICT_CDC = '057914'
-												 and (exists (select edfi_student_certs.DISTRICT_ID
-												                            from edfi_student_certs
-																										where edfi_student_certs.DISTRICT_ID = districts.DISTRICT_CDC )
-												 or exists (select edfi_student_data.DISTRICT_ID
-												                            from edfi_student_data
-																										where edfi_student_data.DISTRICT_ID = districts.DISTRICT_CDC )))
-			  loop
-					-- get a token for this district
-					if DISTRICT.EDFI_VERSION = '2.5' then
-						l_token := FN_GET_AUTH_TOKEN_25(P_DB_NUMBER => district.DISTRICT_DB_NUMBER);
-					else
-						l_token := FN_GET_AUTH_TOKEN_35(P_DB_NUMBER => district.DISTRICT_DB_NUMBER);
-					end if;
-					-------------------------------------
-					-- Student Attributes/characteristics
-					-------------------------------------
-					l_rows_found := false;
-					-- get stu chars from oracle
-					for stu_attr in (select district_id
-																, student_unique_id
-																, asvab_date
-																, military_date
-																, meningitis_date
-																, associates_degree_date
-																, nvl(college_app_flag,'N') as college_app_flag
-																, nvl(financial_app_flag,'N') as financial_app_flag
-					                   from edfi_student_data
-														 where district_id =  district.DISTRICT_CDC
-														   and student_unique_id is not null
-															 and student_unique_id != '0'
-															 and student_unique_id = '1122714629')
-					  loop
-							-- make sure student is in ODS, if not continue to next rec in loop
-							continue when not PKG_UPDATE_STUDENT_ATTRIBUTES.FN_CHECK_STU_IN_ODS(p_student_unique_id => stu_attr.STUDENT_UNIQUE_ID,
-                                                                                  p_district_id => stu_attr.DISTRICT_ID);
-							-- pull ODS values for stu attrs
-							--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-							PROC_GET_STU_CHARACTERISTICS(P_STUDENT_UNIQUE_ID => stu_attr.STUDENT_UNIQUE_ID,
-																		 P_DISTRICT_ID       => stu_attr.DISTRICT_ID,
-																		 p_ASVAB_date        => l_ASVAB_dt,
-																		 p_Military_date     => l_military_enlist_date,
-																		 p_Meningitis_date   => l_meningitis_date);
-
-								if l_ASVAB_dt is not null
-									or l_military_enlist_date is not null
-									or l_meningitis_date  is not null then
-									l_rows_found := true;
-								end if;
-
-								-- compare oracle values to ODS values to see if attrs changed
-								if not l_rows_found
-									and (stu_attr.ASVAB_DATE is not null
-									or stu_attr.MILITARY_DATE is not null
-									or stu_attr.MENINGITIS_DATE is not null) then
-									l_update_stu_attrs := true;
-								end if;
-
-								if l_rows_found
-									and (l_ASVAB_dt != stu_attr.ASVAB_DATE
-									or l_military_enlist_date != stu_attr.MILITARY_DATE
-									or l_meningitis_date != stu_attr.MENINGITIS_DATE) then
-									l_update_stu_attrs := true;
-								end if;
-
-								if l_update_stu_attrs then
-									-- update the stu_attrs
-									if district.EDFI_VERSION = '2.5' then
-									  PROC_PUT_STU_CHAR_25(p_student_unique_id => stu_attr.STUDENT_UNIQUE_ID,
-                                p_ASVAB_date        => stu_attr.ASVAB_DATE,
-                                p_Military_date     => stu_attr.MILITARY_DATE,
-                                p_Meningitis_date   => stu_attr.MENINGITIS_DATE,
-                                p_database_number   => district.DISTRICT_DB_NUMBER,
-                                p_auth_token        => l_token);
-									else
-										PROC_PUT_STU_CHAR_35(p_student_unique_id => stu_attr.STUDENT_UNIQUE_ID,
-                               p_ASVAB_date        => stu_attr.ASVAB_DATE,
-                               p_Military_date     => stu_attr.MILITARY_DATE,
-                               p_Meningitis_date   => stu_attr.MENINGITIS_DATE,
-                               p_database_number   => district.DISTRICT_DB_NUMBER,
-                               p_auth_token        => l_token);
-									end if;
-								  l_update_stu_attrs := false;
-								end if;
-
-							----------------------------------------------------------
-							-- process post secondary events
-							----------------------------------------------------------
-							l_rows_found := false;
-
-							PROC_GET_POST_SEC_EVENTS(P_STUDENT_UNIQUE_ID      => stu_attr.STUDENT_UNIQUE_ID,
-															P_DISTRICT_ID            => stu_attr.DISTRICT_ID,
-															P_ODS_NUMBER             => district.DISTRICT_DB_NUMBER,
-															p_associates_degree_date => l_college_degree_dt,
-															p_college_app_flag       => l_college_app_flag,
-															p_financial_app_flag     => l_fafsa_app_flag);
-              -- default the null values
-							l_college_app_flag := nvl(l_college_app_flag,'N');
-							l_fafsa_app_flag   := nvl(l_fafsa_app_flag,'N');
-							
-							if l_college_app_flag        = 'Y'
-									or l_fafsa_app_flag      = 'Y'
-									or l_college_degree_dt   is not null then
-									l_rows_found := true;
-							end if;
-							---------- now to compare what's in ods vs oracle
-							if not l_rows_found
-								and (stu_attr.COLLEGE_APP_FLAG = 'Y'
-								or stu_attr.FINANCIAL_APP_FLAG = 'Y'
-								or stu_attr.ASSOCIATES_DEGREE_DATE is not null) then
-								l_update_stu_ps_events := true;
-							end if;
-
-							if l_rows_found
-								and (l_college_app_flag != stu_attr.COLLEGE_APP_FLAG
-								or nvl(l_college_degree_dt,to_date('99991231','YYYYMMDD')) != nvl(stu_attr.ASSOCIATES_DEGREE_DATE,to_date('99991231','YYYYMMDD'))
-								or l_fafsa_app_flag != stu_attr.FINANCIAL_APP_FLAG) then
-								l_update_stu_ps_events := true;
-							end if;
-
-							if l_update_stu_ps_events then
-								-- update the stu_attrs
-								if district.EDFI_VERSION = '2.5' then
-									PROC_PUT_POST_SEC_EVENTS_25(p_student_unique_id      => stu_attr.STUDENT_UNIQUE_ID,
-																							p_associates_degree_date => stu_attr.ASSOCIATES_DEGREE_DATE,
-																							p_college_app_flag       => stu_attr.COLLEGE_APP_FLAG,
-																							p_financial_app_flag     => stu_attr.FINANCIAL_APP_FLAG,
-																							p_database_number        => district.DISTRICT_DB_NUMBER,
-																							p_auth_token             => l_token);
-								else
-									PROC_PUT_POST_SEC_EVENTS_35(p_student_unique_id      => stu_attr.STUDENT_UNIQUE_ID,
-																							p_associates_degree_date => stu_attr.ASSOCIATES_DEGREE_DATE,
-																							p_college_app_flag       => stu_attr.COLLEGE_APP_FLAG,
-																							p_financial_app_flag     => stu_attr.FINANCIAL_APP_FLAG,
-																							p_database_number        => district.DISTRICT_DB_NUMBER,
-																							p_auth_token             => l_token);
-								end if;
-								l_update_stu_ps_events := false;
-							end if;
-
-						end loop stu_attr;
-						----------------------------
-            -- industry and level 1 2 certifications
-						----------------------------
-						l_current_stu_id := '999999999999';
-						l_found := 'N';
-						for stu_industry_certs in (select district_id
-																						, district_ods_number
-																						, student_unique_id
-																						, school_year
-																						, term
-																						, achievement_title
-																						, criteria
-																						, award_date
-																						, cert_type
-																						from edfi_student_certs
-																						where district_id = district.DISTRICT_CDC
-																						and student_unique_id = '1122714629'
-																						order by student_unique_id
-																						)
-							loop
-								-- make sure student is in ODS, if not continue to next rec in loop
-								 continue when not PKG_UPDATE_STUDENT_ATTRIBUTES.FN_CHECK_STU_IN_ODS(p_student_unique_id => stu_industry_certs.STUDENT_UNIQUE_ID,
-                                                              P_DISTRICT_ID => stu_industry_certs.DISTRICT_ID);
-								dbms_output.put_line('district id: '||stu_industry_certs.DISTRICT_ID);
-								-- check for stu change
-								if l_current_stu_id != stu_industry_certs.STUDENT_UNIQUE_ID then
-									-- load the certs cache which contains both industry and level 1 2 certs
-									PROC_INSERT_STU_CERTS_CACHE2(P_STUDENT_UNIQUE_ID => stu_industry_certs.STUDENT_UNIQUE_ID
-																								, P_ODS_NUMBER => stu_industry_certs.district_ods_number
-																								,P_SESSION_ID => l_session);
-									l_current_stu_id := stu_industry_certs.STUDENT_UNIQUE_ID;
-								end if;
-								begin
-									select 'Y'
-									into l_found
-									from v_district_stu_certs_cache
-									where session_id = l_session
-									  and student_unique_id           = stu_industry_certs.STUDENT_UNIQUE_ID
-										and school_year                 = stu_industry_certs.SCHOOL_YEAR
-										and Term                        = stu_industry_certs.TERM
-										and achievement_title           = stu_industry_certs.ACHIEVEMENT_TITLE
-										and (cert_type                   = 'INDUSTRY'
-										or (criteria                    = stu_industry_certs.CRITERIA
-										and award_date                  = stu_industry_certs.AWARD_DATE
-										and cert_type                   = 'LEVEL1_2'));
-									-- found a match so do nothing
-								exception
-								  when no_data_found then
-										-- it is missing so add it back
-										if stu_industry_certs.CERT_TYPE = 'INDUSTRY' then
-											if district.EDFI_VERSION = 2.5 then
-												PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_PUT_STU_IND_CERTS_25(p_student_unique_id     => stu_industry_certs.STUDENT_UNIQUE_ID,
-																																			p_district_id           => stu_industry_certs.DISTRICT_ID,
-																																			p_database_number       => stu_industry_certs.DISTRICT_ODS_NUMBER,
-																																			p_auth_token            => l_token,
-																																			p_school_year           => stu_industry_certs.SCHOOL_YEAR,
-																																			p_term                  => stu_industry_certs.TERM,
-																																			p_achievement_title     => stu_industry_certs.ACHIEVEMENT_TITLE,
-																																			p_old_achievement_title => null,
-																																			p_transaction_type      => 'ADD');
-											else
-												PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_PUT_STU_IND_CERTS_35(p_student_unique_id     => stu_industry_certs.STUDENT_UNIQUE_ID,
-																																			p_district_id           => stu_industry_certs.DISTRICT_ID,
-																																			p_database_number       => stu_industry_certs.DISTRICT_ODS_NUMBER,
-																																			p_auth_token            => l_token,
-																																			p_school_year           => stu_industry_certs.SCHOOL_YEAR,
-																																			p_term                  => stu_industry_certs.TERM,
-																																			p_achievement_title     => stu_industry_certs.ACHIEVEMENT_TITLE,
-																																			p_old_achievement_title => null,
-																																			p_transaction_type      => 'ADD');
-											end if;
-										else
-											if district.EDFI_VERSION = 2.5 then
-											PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_PUT_STU_LVL12_CERTS_25(p_student_unique_id     => stu_industry_certs.STUDENT_UNIQUE_ID,
-																																		p_district_id           => stu_industry_certs.DISTRICT_ID,
-																																		p_database_number       => stu_industry_certs.DISTRICT_ODS_NUMBER,
-																																		p_auth_token            => l_token,
-																																		p_school_year           => stu_industry_certs.SCHOOL_YEAR,
-																																		p_term                  => stu_industry_certs.TERM,
-																																		p_achievement_title     => stu_industry_certs.ACHIEVEMENT_TITLE,
-																																		p_old_achievement_title => null,
-																																		P_CRITERIA              => stu_industry_certs.CRITERIA,
-                                                                    P_AWARD_DATE            => stu_industry_certs.AWARD_DATE,
-																																		p_transaction_type      => 'ADD');
-										else
-											PKG_UPDATE_STUDENT_ATTRIBUTES.PROC_PUT_STU_LVL12_CERTS_35(p_student_unique_id     => stu_industry_certs.STUDENT_UNIQUE_ID,
-																																		p_district_id           => stu_industry_certs.DISTRICT_ID,
-																																		p_database_number       => stu_industry_certs.DISTRICT_ODS_NUMBER,
-																																		p_auth_token            => l_token,
-																																		p_school_year           => stu_industry_certs.SCHOOL_YEAR,
-																																		p_term                  => stu_industry_certs.TERM,
-																																		p_achievement_title     => stu_industry_certs.ACHIEVEMENT_TITLE,
-																																		p_old_achievement_title => null,
-																																		P_CRITERIA              => stu_industry_certs.CRITERIA,
-                                                                    P_AWARD_DATE            => stu_industry_certs.AWARD_DATE,
-																																		p_transaction_type      => 'ADD');
-										end if;
-								end if;
-							end;
-							end loop stu_industry_certs;
-
-        end loop districts;
-				
-        -- CLEAR THE serts cache TABLE
-			  delete from district_student_certs_cache
-				  where session_id = l_session;
-				
-   end PROC_REFRESH_ODS_UPDATES_test;
 -- function to validate student id exists.
   FUNCTION FN_VALIDATE_STUDENT_UNIQUE_ID (
        P_STUDENT_UNIQUE_ID IN varchar2,
@@ -3687,15 +3399,15 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 											 and db.DISTRICT_ID = d.DISTRICT_CDC
 			 where db.DISTRICT_ID = P_DISTRICT_ID
 				 and TARGET_DB = 'ODS';
-    apex_debug.message('>>>>>>>>>>>>>>>>db link '||l_db_link||' stu id: '||P_STUDENT_UNIQUE_ID||'dist: '||P_DISTRICT_ID);
+
 		OPEN l_cursor for 'select "StudentUniqueId"
 													from edfi.v_StudentIds@'||l_db_link||'
 												 where "StudentUniqueId" = '''||P_STUDENT_UNIQUE_ID||'''';
 			 LOOP
 					FETCH l_cursor INTO l_stu_id;
-          
+
 					EXIT WHEN l_cursor%NOTFOUND;
-          apex_debug.message('>>>>>>>>>>>>>>>>Stu Id found '||l_stu_id);
+
 					l_found := true;
 			 END loop;
 
@@ -3964,7 +3676,6 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 						-- validate the STUDENT ids
 						if not FN_VALIDATE_STUDENT_UNIQUE_ID(P_STUDENT_UNIQUE_ID => r.STUDENT_UNIQUE_ID
 						                                , P_DISTRICT_ID => P_DISTRICT_ID) then
-							apex_debug.message('>>>>>>>>>>>>>>>>Stu Id NOT found '||r.STUDENT_UNIQUE_ID);
 							l_error_message := l_error_message||' | Student Unique ID is not Found';
 						end if;
 						-- validate the AWARD_DATE date
@@ -4005,10 +3716,6 @@ create or replace package body PKG_UPDATE_STUDENT_ATTRIBUTES is
 						-- validate the ACHIEVEMENT_TITLE
 						if r.ACHIEVEMENT_TITLE is null then
 							l_error_message := l_error_message||' | ACHIEVEMENT_TITLE is required';
-						end if;
-						-- validate the ACHIEVEMENT_TITLE <= length of 60
-						if length(r.ACHIEVEMENT_TITLE) > 60 then
-							l_error_message := l_error_message||' | ACHIEVEMENT_TITLE must be 60 characters or less';
 						end if;
 						-- validate the CRITERIA
 						if r.CRITERIA not in ('CERT1','CERT2')

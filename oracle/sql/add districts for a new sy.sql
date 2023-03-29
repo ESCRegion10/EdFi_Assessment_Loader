@@ -1,9 +1,9 @@
-select t.*, t.rowid from DISTRICTS t
+select t.*, t.rowid from DISTRICTS t   
 insert into districts 
 select district_cdc,
 			 district_name,
 			 district_db_number,
-			 'P' as active,
+			 'Y' as active,
 			 SID_SEQUENCE.NEXTVAL as district_sid,
 			 api_key,
 			 api_secret,
@@ -18,7 +18,13 @@ select district_cdc,
 			 level_1_2_cert_flag,
 			 industry_cert_flag,
 			 dual_cr_course_flag,
-			 '2021' as school_year,
+			 '2023' as school_year,
 			 proxy_district_name,
-			 'N' as primary_school_year
+			 'Y' as primary_school_year
 	from districts
+	where school_year = '2022'
+	
+	update districts
+	  set active = 'P',
+		    primary_school_year = 'N'
+	where school_year = '2022' 
