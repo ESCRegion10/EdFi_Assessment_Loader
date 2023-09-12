@@ -28,21 +28,21 @@ prompt APPLICATION 130 - CCMR Assessment File Data Loader
 -- Application Export:
 --   Application:     130
 --   Name:            CCMR Assessment File Data Loader
---   Date and Time:   21:12 Tuesday September 12, 2023
+--   Date and Time:   20:55 Tuesday September 12, 2023
 --   Exported By:     CHRISB_EDFI
 --   Flashback:       0
 --   Export Type:     Application Export
---     Pages:                     21
---       Items:                   69
+--     Pages:                     17
+--       Items:                   61
 --       Computations:             2
 --       Validations:             90
---       Processes:               33
---       Regions:                 65
---       Buttons:                 41
---       Dynamic Actions:         26
+--       Processes:               30
+--       Regions:                 56
+--       Buttons:                 37
+--       Dynamic Actions:         21
 --     Shared Components:
 --       Logic:
---         Items:                  5
+--         Items:                  4
 --         Data Loads:             2
 --       Navigation:
 --         Lists:                  6
@@ -70,7 +70,7 @@ prompt APPLICATION 130 - CCMR Assessment File Data Loader
 --       E-Mail:
 --     Supporting Objects:  Included
 --   Version:         21.2.3
---   Instance ID:     697912742147843
+--   Instance ID:     697905647524160
 --
 
 prompt --application/delete_application
@@ -122,7 +122,7 @@ wwv_flow_api.create_flow(
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'CCMR Assessment File Data Loader'
 ,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230912210851'
+,p_last_upd_yyyymmddhh24miss=>'20230908190654'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'/i/')
 ,p_files_version=>8
 ,p_ui_type_name => null
@@ -797,44 +797,11 @@ wwv_flow_api.create_list_item(
 ,p_list_item_current_type=>'TARGET_PAGE'
 );
 wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(75948727717381216)
-,p_list_item_display_sequence=>90
-,p_list_item_link_text=>'Programs of Study'
-,p_list_item_link_target=>'f?p=&APP_ID.:200:&SESSION.::&DEBUG.::::'
-,p_list_item_icon=>'fa-graduation-cap'
-,p_parent_list_item_id=>wwv_flow_api.id(33997962485127332)
-,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
-,p_list_item_current_for_pages=>'200'
-);
-wwv_flow_api.create_list_item(
  p_id=>wwv_flow_api.id(33999941115127338)
 ,p_list_item_display_sequence=>30
 ,p_list_item_link_text=>'Ed-Fi Connection Info'
 ,p_list_item_link_target=>'f?p=119:3:&SESSION.::&DEBUG.::::'
 ,p_list_item_icon=>'fa-plug'
-,p_list_item_current_type=>'TARGET_PAGE'
-);
-wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(76897812910164637)
-,p_list_item_display_sequence=>35
-,p_list_item_link_text=>'Reports'
-,p_list_item_current_type=>'TARGET_PAGE'
-);
-wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(77148063177791687)
-,p_list_item_display_sequence=>105
-,p_list_item_link_text=>'Student Attributes'
-,p_list_item_link_target=>'f?p=&APP_ID.:310:&SESSION.::&DEBUG.::::'
-,p_parent_list_item_id=>wwv_flow_api.id(76897812910164637)
-,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
-,p_list_item_current_for_pages=>'310'
-);
-wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(76898198905165849)
-,p_list_item_display_sequence=>110
-,p_list_item_link_text=>'Student Certifications'
-,p_list_item_link_target=>'f?p=&APP_ID.:300:&SESSION.::&DEBUG.::::'
-,p_parent_list_item_id=>wwv_flow_api.id(76897812910164637)
 ,p_list_item_current_type=>'TARGET_PAGE'
 );
 wwv_flow_api.create_list_item(
@@ -878,20 +845,9 @@ wwv_flow_api.create_list_item(
 ,p_list_item_display_sequence=>80
 ,p_list_item_link_text=>'ODS Row Counts'
 ,p_list_item_link_target=>'f?p=119:20:&SESSION.::&DEBUG.::::'
-,p_list_item_disp_cond_type=>'NEVER'
 ,p_parent_list_item_id=>wwv_flow_api.id(34000379244127341)
 ,p_security_scheme=>wwv_flow_api.id(34000524604127350)
 ,p_list_item_current_type=>'TARGET_PAGE'
-);
-wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(76824197141985955)
-,p_list_item_display_sequence=>100
-,p_list_item_link_text=>'Switch My District'
-,p_list_item_link_target=>'f?p=&APP_ID.:250:&SESSION.::&DEBUG.::P250_CURRENT_PAGE,P250_CURRENT_APP:&APP_PAGE_ID.,&APP_ID.:'
-,p_parent_list_item_id=>wwv_flow_api.id(34000379244127341)
-,p_security_scheme=>wwv_flow_api.id(34000524604127350)
-,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
-,p_list_item_current_for_pages=>'250'
 );
 end;
 /
@@ -2054,16 +2010,6 @@ end;
 prompt --application/shared_components/navigation/navigation_bar
 begin
 null;
-end;
-/
-prompt --application/shared_components/logic/application_items/g_district_cdn
-begin
-wwv_flow_api.create_flow_item(
- p_id=>wwv_flow_api.id(76836444387372768)
-,p_name=>'G_DISTRICT_CDN'
-,p_scope=>'GLOBAL'
-,p_protection_level=>'N'
-);
 end;
 /
 prompt --application/shared_components/logic/application_items/g_district_id
@@ -15663,8 +15609,20 @@ wwv_flow_api.create_page(
 ,p_step_template=>wwv_flow_api.id(32389539971647231)
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>'MUST_NOT_BE_PUBLIC_USER'
-,p_last_updated_by=>'CHRIS.BULL@REGION10.ORG'
-,p_last_upd_yyyymmddhh24miss=>'20230908184122'
+,p_last_updated_by=>'CHRISB_EDFI'
+,p_last_upd_yyyymmddhh24miss=>'20230908190654'
+);
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(44616576334499301)
+,p_plug_name=>'Notice'
+,p_region_template_options=>'#DEFAULT#:t-Alert--horizontal:t-Alert--defaultIcons:t-Alert--danger'
+,p_plug_template=>wwv_flow_api.id(32394861046647226)
+,p_plug_display_sequence=>10
+,p_plug_source=>'We are performing the end of year roll over and preparing for the 2023-2024 school year.  During this process, assessment uploads should not be attempted until your 23-24 ODS has been completely loaded. '
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_plug_display_condition_type=>'NEVER'
+,p_attribute_01=>'N'
+,p_attribute_02=>'HTML'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(44909804395233628)
@@ -15717,7 +15675,7 @@ wwv_flow_api.create_page_plug(
 ,p_plug_name=>'Import Errors'
 ,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
 ,p_plug_template=>wwv_flow_api.id(32423732821647198)
-,p_plug_display_sequence=>70
+,p_plug_display_sequence=>30
 ,p_include_in_reg_disp_sel_yn=>'Y'
 ,p_plug_source_type=>'NATIVE_DISPLAY_SELECTOR'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
@@ -21788,7 +21746,7 @@ wwv_flow_api.create_report_region(
  p_id=>wwv_flow_api.id(146599603153855770)
 ,p_name=>'Assessment File Upload'
 ,p_template=>wwv_flow_api.id(32423732821647198)
-,p_display_sequence=>50
+,p_display_sequence=>20
 ,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
 ,p_component_template_options=>'#DEFAULT#:t-Report--altRowsDefault:t-Report--rowHighlight'
 ,p_source_type=>'NATIVE_SQL_REPORT'
@@ -25007,1440 +24965,6 @@ wwv_flow_api.create_page_process(
 );
 end;
 /
-prompt --application/pages/page_00200
-begin
-wwv_flow_api.create_page(
- p_id=>200
-,p_user_interface_id=>wwv_flow_api.id(32502397090647103)
-,p_name=>'Programs of Study'
-,p_alias=>'PROGRAMS-OF-STUDY'
-,p_step_title=>'Programs of Study'
-,p_autocomplete_on_off=>'OFF'
-,p_inline_css=>'.fa-warning {color:gold;}'
-,p_page_template_options=>'#DEFAULT#'
-,p_protection_level=>'C'
-,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230905165556'
-);
-wwv_flow_api.create_report_region(
- p_id=>wwv_flow_api.id(27314135045699525)
-,p_name=>'Current Selections'
-,p_template=>wwv_flow_api.id(32423732821647198)
-,p_display_sequence=>20
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
-,p_component_template_options=>'#DEFAULT#:t-Report--stretch:t-Report--altRowsDefault:t-Report--rowHighlight:t-Report--hideNoPagination'
-,p_new_grid_row=>false
-,p_grid_column_span=>4
-,p_source_type=>'NATIVE_SQL_REPORT'
-,p_query_type=>'SQL'
-,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select case when s.district_sid is not null then ''Y'' else ''N'' end as selected',
-'                ,s.district_cdc',
-'				,ps.PROGRAM_OF_STUDY_SID',
-'				,ps.PROGRAM_CODE',
-'				,ps.PROGRAM_TITLE',
-'				,ps.SCHOOL_YEAR',
-'from v_program_of_study ps',
-'join v_district_program_of_study s on s.PROGRAM_OF_STUDY_SID = ps.PROGRAM_OF_STUDY_SID',
-'and s.district_cdc = :G_DISTRICT_ID'))
-,p_ajax_enabled=>'Y'
-,p_lazy_loading=>true
-,p_query_row_template=>wwv_flow_api.id(32446447746647176)
-,p_query_num_rows=>50
-,p_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_query_break_cols=>'1'
-,p_query_num_rows_type=>'NEXT_PREVIOUS_LINKS'
-,p_pagination_display_position=>'BOTTOM_RIGHT'
-,p_break_type_flag=>'DEFAULT_BREAK_FORMATTING'
-,p_csv_output=>'N'
-,p_prn_output=>'N'
-,p_sort_null=>'L'
-,p_plug_query_strip_html=>'N'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(27314277436699526)
-,p_query_column_id=>1
-,p_column_alias=>'SELECTED'
-,p_column_display_sequence=>30
-,p_hidden_column=>'Y'
-,p_derived_column=>'N'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(27314385694699527)
-,p_query_column_id=>2
-,p_column_alias=>'DISTRICT_CDC'
-,p_column_display_sequence=>40
-,p_hidden_column=>'Y'
-,p_derived_column=>'N'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(27314454814699528)
-,p_query_column_id=>3
-,p_column_alias=>'PROGRAM_OF_STUDY_SID'
-,p_column_display_sequence=>50
-,p_hidden_column=>'Y'
-,p_derived_column=>'N'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(27314581857699529)
-,p_query_column_id=>4
-,p_column_alias=>'PROGRAM_CODE'
-,p_column_display_sequence=>60
-,p_hidden_column=>'Y'
-,p_derived_column=>'N'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(27314613463699530)
-,p_query_column_id=>5
-,p_column_alias=>'PROGRAM_TITLE'
-,p_column_display_sequence=>20
-,p_column_heading=>'Program Title'
-,p_use_as_row_header=>'N'
-,p_heading_alignment=>'LEFT'
-,p_default_sort_column_sequence=>2
-,p_disable_sort_column=>'N'
-,p_derived_column=>'N'
-,p_include_in_export=>'Y'
-);
-wwv_flow_api.create_report_columns(
- p_id=>wwv_flow_api.id(27314721979699531)
-,p_query_column_id=>6
-,p_column_alias=>'SCHOOL_YEAR'
-,p_column_display_sequence=>10
-,p_column_heading=>'School Year'
-,p_use_as_row_header=>'Y'
-,p_column_html_expression=>'<h4>#SCHOOL_YEAR#</h4>'
-,p_heading_alignment=>'LEFT'
-,p_default_sort_column_sequence=>1
-,p_default_sort_dir=>'desc'
-,p_disable_sort_column=>'N'
-,p_derived_column=>'N'
-,p_include_in_export=>'Y'
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(27314809870699532)
-,p_plug_name=>'left container'
-,p_region_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(32398553479647218)
-,p_plug_display_sequence=>10
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_plug_grid_column_span=>5
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(27313179475699515)
-,p_plug_name=>'Select Programs of Study'
-,p_parent_plug_id=>wwv_flow_api.id(27314809870699532)
-,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
-,p_plug_template=>wwv_flow_api.id(32423732821647198)
-,p_plug_display_sequence=>10
-,p_plug_display_point=>'SUB_REGIONS'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(75949102893381217)
-,p_plug_name=>'Programs of Study'
-,p_parent_plug_id=>wwv_flow_api.id(27314809870699532)
-,p_region_template_options=>'#DEFAULT#'
-,p_component_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(32422679959647198)
-,p_plug_display_sequence=>30
-,p_plug_display_point=>'SUB_REGIONS'
-,p_query_type=>'SQL'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select case when s.district_sid is not null then ''Y'' else ''N'' end as selected',
-'                ,s.district_sid',
-'                ,s.district_cdc',
-'				,ps.PROGRAM_OF_STUDY_SID',
-'				,ps.PROGRAM_CODE',
-'				,ps.PROGRAM_TITLE',
-'				,ps.SCHOOL_YEAR',
-'from v_program_of_study ps',
-'left join v_district_program_of_study s on s.PROGRAM_OF_STUDY_SID = ps.PROGRAM_OF_STUDY_SID',
-'and s.district_cdc = :G_DISTRICT_ID',
-'where ps.SCHOOL_YEAR = :P200_SHOOL_YEAR'))
-,p_plug_source_type=>'NATIVE_IG'
-,p_ajax_items_to_submit=>'P200_SHOOL_YEAR'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_prn_page_header=>'Programs of Study'
-);
-wwv_flow_api.create_region_column(
- p_id=>wwv_flow_api.id(27315201112699536)
-,p_name=>'DISTRICT_SID'
-,p_source_type=>'DB_COLUMN'
-,p_source_expression=>'DISTRICT_SID'
-,p_data_type=>'NUMBER'
-,p_is_query_only=>false
-,p_item_type=>'NATIVE_HIDDEN'
-,p_display_sequence=>100
-,p_attribute_01=>'Y'
-,p_filter_is_required=>false
-,p_use_as_row_header=>false
-,p_enable_sort_group=>false
-,p_is_primary_key=>false
-,p_duplicate_value=>true
-,p_include_in_export=>false
-);
-wwv_flow_api.create_region_column(
- p_id=>wwv_flow_api.id(75950471369381228)
-,p_name=>'SELECTED'
-,p_source_type=>'SQL_EXPRESSION'
-,p_source_expression=>'SELECTED'
-,p_data_type=>'VARCHAR2'
-,p_item_type=>'NATIVE_SINGLE_CHECKBOX'
-,p_heading_alignment=>'LEFT'
-,p_display_sequence=>30
-,p_value_alignment=>'CENTER'
-,p_stretch=>'N'
-,p_attribute_01=>'Y'
-,p_is_required=>false
-,p_enable_filter=>false
-,p_filter_is_required=>false
-,p_use_as_row_header=>false
-,p_enable_sort_group=>true
-,p_enable_control_break=>false
-,p_enable_hide=>false
-,p_enable_pivot=>false
-,p_include_in_export=>true
-);
-wwv_flow_api.create_region_column(
- p_id=>wwv_flow_api.id(75951427061381232)
-,p_name=>'DISTRICT_CDC'
-,p_source_type=>'DB_COLUMN'
-,p_source_expression=>'DISTRICT_CDC'
-,p_data_type=>'VARCHAR2'
-,p_is_query_only=>false
-,p_item_type=>'NATIVE_HIDDEN'
-,p_display_sequence=>40
-,p_attribute_01=>'Y'
-,p_filter_is_required=>false
-,p_use_as_row_header=>false
-,p_enable_sort_group=>false
-,p_enable_pivot=>false
-,p_is_primary_key=>false
-,p_duplicate_value=>true
-,p_include_in_export=>false
-);
-wwv_flow_api.create_region_column(
- p_id=>wwv_flow_api.id(75952418649381233)
-,p_name=>'PROGRAM_OF_STUDY_SID'
-,p_source_type=>'DB_COLUMN'
-,p_source_expression=>'PROGRAM_OF_STUDY_SID'
-,p_data_type=>'NUMBER'
-,p_is_query_only=>false
-,p_item_type=>'NATIVE_HIDDEN'
-,p_display_sequence=>50
-,p_attribute_01=>'Y'
-,p_filter_is_required=>false
-,p_use_as_row_header=>false
-,p_enable_sort_group=>false
-,p_enable_pivot=>false
-,p_is_primary_key=>true
-,p_duplicate_value=>true
-,p_include_in_export=>false
-);
-wwv_flow_api.create_region_column(
- p_id=>wwv_flow_api.id(75953418490381233)
-,p_name=>'PROGRAM_CODE'
-,p_source_type=>'DB_COLUMN'
-,p_source_expression=>'PROGRAM_CODE'
-,p_data_type=>'VARCHAR2'
-,p_is_query_only=>false
-,p_item_type=>'NATIVE_HIDDEN'
-,p_display_sequence=>60
-,p_attribute_01=>'Y'
-,p_filter_is_required=>false
-,p_use_as_row_header=>false
-,p_enable_sort_group=>false
-,p_enable_pivot=>false
-,p_is_primary_key=>false
-,p_duplicate_value=>true
-,p_include_in_export=>false
-);
-wwv_flow_api.create_region_column(
- p_id=>wwv_flow_api.id(75954461850381234)
-,p_name=>'PROGRAM_TITLE'
-,p_source_type=>'DB_COLUMN'
-,p_source_expression=>'PROGRAM_TITLE'
-,p_data_type=>'VARCHAR2'
-,p_is_query_only=>true
-,p_item_type=>'NATIVE_DISPLAY_ONLY'
-,p_heading=>'Program Title'
-,p_heading_alignment=>'LEFT'
-,p_display_sequence=>70
-,p_value_alignment=>'LEFT'
-,p_attribute_02=>'VALUE'
-,p_attribute_05=>'PLAIN'
-,p_enable_filter=>true
-,p_filter_operators=>'C:S:CASE_INSENSITIVE:REGEXP'
-,p_filter_is_required=>false
-,p_filter_text_case=>'MIXED'
-,p_filter_lov_type=>'NONE'
-,p_use_as_row_header=>false
-,p_enable_sort_group=>true
-,p_enable_control_break=>false
-,p_enable_hide=>false
-,p_enable_pivot=>false
-,p_is_primary_key=>false
-,p_include_in_export=>true
-);
-wwv_flow_api.create_region_column(
- p_id=>wwv_flow_api.id(75955465100381234)
-,p_name=>'SCHOOL_YEAR'
-,p_source_type=>'DB_COLUMN'
-,p_source_expression=>'SCHOOL_YEAR'
-,p_data_type=>'VARCHAR2'
-,p_is_query_only=>false
-,p_item_type=>'NATIVE_HIDDEN'
-,p_display_sequence=>80
-,p_attribute_01=>'Y'
-,p_filter_is_required=>false
-,p_use_as_row_header=>false
-,p_enable_sort_group=>false
-,p_enable_pivot=>false
-,p_is_primary_key=>false
-,p_duplicate_value=>true
-,p_include_in_export=>false
-);
-wwv_flow_api.create_interactive_grid(
- p_id=>wwv_flow_api.id(75949649304381221)
-,p_internal_uid=>75949649304381221
-,p_is_editable=>true
-,p_edit_operations=>'u'
-,p_lost_update_check_type=>'VALUES'
-,p_submit_checked_rows=>false
-,p_lazy_loading=>false
-,p_requires_filter=>false
-,p_select_first_row=>true
-,p_fixed_row_height=>true
-,p_pagination_type=>'SCROLL'
-,p_show_total_row_count=>false
-,p_show_toolbar=>true
-,p_toolbar_buttons=>null
-,p_enable_save_public_report=>false
-,p_enable_subscriptions=>true
-,p_enable_flashback=>false
-,p_define_chart_view=>true
-,p_enable_download=>true
-,p_download_formats=>null
-,p_enable_mail_download=>true
-,p_fixed_header=>'PAGE'
-,p_show_icon_view=>false
-,p_show_detail_view=>false
-,p_javascript_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'function(o) {',
-'    var toolbar = apex.jQuery.apex.interactiveGrid.copyDefaultToolbar();',
-'    toolbar.toolbarRemove("edit");    // remove edit button',
-'    o.toolbarData = toolbar;',
-'',
-'    // pick your poison:',
-'    // 1) this gets rid of single row view but prior to 18.2 causes error when changing reports',
-'    // now in 18.2 this works so it is a reasonable way to keep the user from leaving edit mode',
-'    if (!o.views) { o.views = {}; }',
-'    if (!o.views.grid) { o.views.grid = {features:{}}; }',
-'    o.views.grid.features.singleRowView = false;',
-'',
-'    // 2) this puts single row view in always edit mode but causes errors when changing reports',
-'    //o.defaultSingleRowOptions = {',
-'    //    alwaysEdit: true',
-'    //};',
-'    return o;',
-'}'))
-);
-wwv_flow_api.create_ig_report(
- p_id=>wwv_flow_api.id(75950042202381222)
-,p_interactive_grid_id=>wwv_flow_api.id(75949649304381221)
-,p_static_id=>'759501'
-,p_type=>'PRIMARY'
-,p_default_view=>'GRID'
-,p_show_row_number=>false
-,p_settings_area_expanded=>true
-);
-wwv_flow_api.create_ig_report_view(
- p_id=>wwv_flow_api.id(75950264848381223)
-,p_report_id=>wwv_flow_api.id(75950042202381222)
-,p_view_type=>'GRID'
-,p_stretch_columns=>true
-,p_srv_exclude_null_values=>false
-,p_srv_only_display_columns=>true
-,p_edit_mode=>false
-);
-wwv_flow_api.create_ig_report_column(
- p_id=>wwv_flow_api.id(75950886576381231)
-,p_view_id=>wwv_flow_api.id(75950264848381223)
-,p_display_seq=>1
-,p_column_id=>wwv_flow_api.id(75950471369381228)
-,p_is_visible=>true
-,p_is_frozen=>false
-,p_width=>100
-);
-wwv_flow_api.create_ig_report_column(
- p_id=>wwv_flow_api.id(75951802282381232)
-,p_view_id=>wwv_flow_api.id(75950264848381223)
-,p_display_seq=>2
-,p_column_id=>wwv_flow_api.id(75951427061381232)
-,p_is_visible=>true
-,p_is_frozen=>false
-);
-wwv_flow_api.create_ig_report_column(
- p_id=>wwv_flow_api.id(75952862347381233)
-,p_view_id=>wwv_flow_api.id(75950264848381223)
-,p_display_seq=>3
-,p_column_id=>wwv_flow_api.id(75952418649381233)
-,p_is_visible=>true
-,p_is_frozen=>false
-);
-wwv_flow_api.create_ig_report_column(
- p_id=>wwv_flow_api.id(75953826134381233)
-,p_view_id=>wwv_flow_api.id(75950264848381223)
-,p_display_seq=>4
-,p_column_id=>wwv_flow_api.id(75953418490381233)
-,p_is_visible=>true
-,p_is_frozen=>false
-);
-wwv_flow_api.create_ig_report_column(
- p_id=>wwv_flow_api.id(75954858483381234)
-,p_view_id=>wwv_flow_api.id(75950264848381223)
-,p_display_seq=>5
-,p_column_id=>wwv_flow_api.id(75954461850381234)
-,p_is_visible=>true
-,p_is_frozen=>false
-,p_sort_order=>1
-,p_sort_direction=>'ASC'
-,p_sort_nulls=>'LAST'
-);
-wwv_flow_api.create_ig_report_column(
- p_id=>wwv_flow_api.id(75955877611381235)
-,p_view_id=>wwv_flow_api.id(75950264848381223)
-,p_display_seq=>6
-,p_column_id=>wwv_flow_api.id(75955465100381234)
-,p_is_visible=>true
-,p_is_frozen=>false
-);
-wwv_flow_api.create_ig_report_column(
- p_id=>wwv_flow_api.id(76226494242893892)
-,p_view_id=>wwv_flow_api.id(75950264848381223)
-,p_display_seq=>7
-,p_column_id=>wwv_flow_api.id(27315201112699536)
-,p_is_visible=>true
-,p_is_frozen=>false
-);
-wwv_flow_api.create_page_button(
- p_id=>wwv_flow_api.id(27313973449699523)
-,p_button_sequence=>20
-,p_button_plug_id=>wwv_flow_api.id(27313179475699515)
-,p_button_name=>'Save'
-,p_button_action=>'SUBMIT'
-,p_button_template_options=>'#DEFAULT#:t-Button--large:t-Button--success'
-,p_button_template_id=>wwv_flow_api.id(32479868277647142)
-,p_button_image_alt=>'Save'
-,p_grid_new_row=>'N'
-,p_grid_column=>9
-);
-wwv_flow_api.create_page_button(
- p_id=>wwv_flow_api.id(27314079998699524)
-,p_button_sequence=>30
-,p_button_plug_id=>wwv_flow_api.id(27313179475699515)
-,p_button_name=>'Copy_Previous_Year'
-,p_button_action=>'DEFINED_BY_DA'
-,p_button_template_options=>'#DEFAULT#:t-Button--large:t-Button--success'
-,p_button_template_id=>wwv_flow_api.id(32479868277647142)
-,p_button_image_alt=>'Copy Previous Year'
-,p_warn_on_unsaved_changes=>null
-,p_grid_new_row=>'N'
-,p_grid_new_column=>'N'
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(75957103910394891)
-,p_name=>'P200_SHOOL_YEAR'
-,p_is_required=>true
-,p_item_sequence=>10
-,p_item_plug_id=>wwv_flow_api.id(27313179475699515)
-,p_item_default=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'case when to_char(sysdate,''MM'') in (''08'',''09'',''10'',''11'',''12'') then to_char(to_char(sysdate,''YYYY'') + 1)',
-'                                      else to_char(sysdate,''YYYY'') end'))
-,p_item_default_type=>'EXPRESSION'
-,p_item_default_language=>'PLSQL'
-,p_prompt=>'School Year'
-,p_display_as=>'NATIVE_SELECT_LIST'
-,p_lov=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select yrs.column_value as display',
-'       ,substr(yrs.column_value,-4) as return',
-'from table(APEX_STRING.split(''2022-2023:2023-2024:2024-2025:2025-2026:2026-2027:2027-2028:2028-2029:2029-2030'','':'')) yrs',
-'where substr(yrs.column_value,-4)  <= case when to_char(sysdate,''MM'') in (''08'',''09'',''10'',''11'',''12'') then to_char(to_char(sysdate,''YYYY'') + 1)',
-'                                      else to_char(sysdate,''YYYY'') end',
-'order by 1 desc'))
-,p_cHeight=>1
-,p_begin_on_new_line=>'N'
-,p_grid_label_column_span=>2
-,p_field_template=>wwv_flow_api.id(32478503873647146)
-,p_item_template_options=>'#DEFAULT#'
-,p_lov_display_extra=>'NO'
-,p_encrypt_session_state_yn=>'N'
-,p_attribute_01=>'NONE'
-,p_attribute_02=>'N'
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(27313282635699516)
-,p_name=>'SCHOOL YEAR CHANGE'
-,p_event_sequence=>10
-,p_triggering_element_type=>'ITEM'
-,p_triggering_element=>'P200_SHOOL_YEAR'
-,p_bind_type=>'bind'
-,p_bind_event_type=>'change'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(27313354543699517)
-,p_event_id=>wwv_flow_api.id(27313282635699516)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_REFRESH'
-,p_affected_elements_type=>'REGION'
-,p_affected_region_id=>wwv_flow_api.id(75949102893381217)
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(27315378744699537)
-,p_name=>'copy prior year DA'
-,p_event_sequence=>20
-,p_triggering_element_type=>'BUTTON'
-,p_triggering_button_id=>wwv_flow_api.id(27314079998699524)
-,p_bind_type=>'bind'
-,p_bind_event_type=>'click'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(27315515958699539)
-,p_event_id=>wwv_flow_api.id(27315378744699537)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_CONFIRM'
-,p_attribute_01=>'This action will copy the selected programs of study from the prior school year and add them to the &P200_SHOOL_YEAR. school year.'
-,p_attribute_02=>'Confirm Copy From Prior School Year'
-,p_attribute_04=>'fa-warning'
-,p_attribute_06=>'Confirm'
-,p_attribute_07=>'Cancel'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(27315458190699538)
-,p_event_id=>wwv_flow_api.id(27315378744699537)
-,p_event_result=>'TRUE'
-,p_action_sequence=>20
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_EXECUTE_PLSQL_CODE'
-,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'PKG_CCMR_ADMIN.COPY_DISTRICT_PROGRAM_OF_STUDY(P_DISTRICT_ID => :G_DISTRICT_ID,',
-'                                                P_SCHOOL_YEAR => :P200_SHOOL_YEAR);'))
-,p_attribute_02=>'P200_SHOOL_YEAR'
-,p_attribute_05=>'PLSQL'
-,p_wait_for_result=>'Y'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(27315616997699540)
-,p_event_id=>wwv_flow_api.id(27315378744699537)
-,p_event_result=>'TRUE'
-,p_action_sequence=>30
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_REFRESH'
-,p_affected_elements_type=>'REGION'
-,p_affected_region_id=>wwv_flow_api.id(75949102893381217)
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(27315760876699541)
-,p_event_id=>wwv_flow_api.id(27315378744699537)
-,p_event_result=>'TRUE'
-,p_action_sequence=>40
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_REFRESH'
-,p_affected_elements_type=>'REGION'
-,p_affected_region_id=>wwv_flow_api.id(27314135045699525)
-);
-wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(27314972189699533)
-,p_process_sequence=>20
-,p_process_point=>'AFTER_SUBMIT'
-,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'delete all entries for selected year'
-,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'declare',
-'    l_district_sid number;',
-'begin',
-'    select district_sid',
-'    into l_district_sid',
-'    from v_districts',
-'    where district_cdc = :g_district_id',
-'    and school_year = :P200_SHOOL_YEAR;',
-'',
-'    PKG_CCMR_ADMIN.DEL_DISTRICT_PROGRAM_OF_STUDY(P_DISTRICT_SID => l_district_sid,',
-'                                                P_SCHOOL_YEAR => :P200_SHOOL_YEAR);',
-' end;'))
-,p_process_clob_language=>'PLSQL'
-,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-,p_process_when_button_id=>wwv_flow_api.id(27313973449699523)
-,p_process_when_type=>'NEVER'
-);
-wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(27315080660699534)
-,p_process_sequence=>30
-,p_process_point=>'AFTER_SUBMIT'
-,p_region_id=>wwv_flow_api.id(75949102893381217)
-,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'insert new POS'
-,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'IF :SELECTED = ''Y'' THEN',
-'    APEX_DEBUG.MESSAGE(''DIST ID: ''||:G_DISTRICT_ID||'' POS: ''||:PROGRAM_OF_STUDY_SID||'' sy:''||:P200_SHOOL_YEAR);',
-'    PKG_CCMR_ADMIN.INS_DISTRICT_PROGRAM_OF_STUDY(P_DISTRICT_ID => :G_DISTRICT_ID,',
-'                                               P_PROGRAM_OF_STUDY_SID => :PROGRAM_OF_STUDY_SID,',
-'                                               P_SCHOOL_YEAR => :P200_SHOOL_YEAR);',
-'ELSE ',
-'    PKG_CCMR_ADMIN.DEL_DISTRICT_PROGRAM_OF_STUDY(P_DISTRICT_SID => :DISTRICT_SID,',
-'                                                P_PROGRAM_OF_STUDY_SID => :PROGRAM_OF_STUDY_SID);',
-'END IF;'))
-,p_process_clob_language=>'PLSQL'
-,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-,p_process_when_button_id=>wwv_flow_api.id(27313973449699523)
-,p_only_for_changed_rows=>'N'
-);
-end;
-/
-prompt --application/pages/page_00250
-begin
-wwv_flow_api.create_page(
- p_id=>250
-,p_user_interface_id=>wwv_flow_api.id(32502397090647103)
-,p_name=>'Switch My District'
-,p_alias=>'SWITCH-MY-DISTRICT'
-,p_page_mode=>'MODAL'
-,p_step_title=>'Switch My District'
-,p_autocomplete_on_off=>'OFF'
-,p_page_template_options=>'#DEFAULT#'
-,p_protection_level=>'C'
-,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230908151025'
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(27315877207699542)
-,p_plug_name=>'Change My District'
-,p_region_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(32398553479647218)
-,p_plug_display_sequence=>10
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(27316146083699545)
-,p_plug_name=>'buttons'
-,p_region_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(32399586131647217)
-,p_plug_display_sequence=>10
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_plug_display_point=>'REGION_POSITION_03'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
-);
-wwv_flow_api.create_page_button(
- p_id=>wwv_flow_api.id(27316245212699546)
-,p_button_sequence=>10
-,p_button_plug_id=>wwv_flow_api.id(27316146083699545)
-,p_button_name=>'Cancel'
-,p_button_action=>'DEFINED_BY_DA'
-,p_button_template_options=>'#DEFAULT#:t-Button--large'
-,p_button_template_id=>wwv_flow_api.id(32479868277647142)
-,p_button_image_alt=>'Cancel'
-,p_button_position=>'CLOSE'
-,p_warn_on_unsaved_changes=>null
-);
-wwv_flow_api.create_page_button(
- p_id=>wwv_flow_api.id(27316545310699549)
-,p_button_sequence=>20
-,p_button_plug_id=>wwv_flow_api.id(27316146083699545)
-,p_button_name=>'Save'
-,p_button_action=>'SUBMIT'
-,p_button_template_options=>'#DEFAULT#:t-Button--large:t-Button--success'
-,p_button_template_id=>wwv_flow_api.id(32479868277647142)
-,p_button_image_alt=>'Save'
-,p_button_position=>'NEXT'
-);
-wwv_flow_api.create_page_branch(
- p_id=>wwv_flow_api.id(76831189279344803)
-,p_branch_name=>'BACK TO CALLING PAGE'
-,p_branch_action=>'f?p=&P250_CURRENT_APP.:&P250_CURRENT_PAGE.:&SESSION.::&DEBUG.:::&success_msg=#SUCCESS_MSG#'
-,p_branch_point=>'AFTER_PROCESSING'
-,p_branch_type=>'REDIRECT_URL'
-,p_branch_sequence=>10
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(27315903549699543)
-,p_name=>'P250_DISTRICT_SID'
-,p_item_sequence=>20
-,p_item_plug_id=>wwv_flow_api.id(27315877207699542)
-,p_item_default=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select district_sid',
-'from USER_ACCOUNT_V t',
-'where upper(t.user_id) = upper(:P250_USER_ID)'))
-,p_item_default_type=>'SQL_QUERY'
-,p_prompt=>'District Sid'
-,p_display_as=>'NATIVE_SELECT_LIST'
-,p_lov=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select district_name',
-'     , district_sid ',
-'from v_district',
-'where active = ''1'' ',
-'and org_type = ''LEA''',
-'order by 1'))
-,p_cHeight=>1
-,p_field_template=>wwv_flow_api.id(32478735398647145)
-,p_item_template_options=>'#DEFAULT#'
-,p_lov_display_extra=>'NO'
-,p_attribute_01=>'NONE'
-,p_attribute_02=>'N'
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(27316045708699544)
-,p_name=>'P250_USER_ID'
-,p_item_sequence=>10
-,p_item_plug_id=>wwv_flow_api.id(27315877207699542)
-,p_item_default=>':APP_USER'
-,p_item_default_type=>'EXPRESSION'
-,p_item_default_language=>'PLSQL'
-,p_prompt=>'User Id'
-,p_display_as=>'NATIVE_DISPLAY_ONLY'
-,p_field_template=>wwv_flow_api.id(32478735398647145)
-,p_item_template_options=>'#DEFAULT#'
-,p_attribute_01=>'Y'
-,p_attribute_02=>'VALUE'
-,p_attribute_04=>'Y'
-,p_attribute_05=>'PLAIN'
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(76831068965344802)
-,p_name=>'P250_CURRENT_PAGE'
-,p_item_sequence=>30
-,p_item_plug_id=>wwv_flow_api.id(27315877207699542)
-,p_display_as=>'NATIVE_HIDDEN'
-,p_attribute_01=>'Y'
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(76831275760344804)
-,p_name=>'P250_CURRENT_APP'
-,p_item_sequence=>40
-,p_item_plug_id=>wwv_flow_api.id(27315877207699542)
-,p_display_as=>'NATIVE_HIDDEN'
-,p_attribute_01=>'Y'
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(27316310702699547)
-,p_name=>'Cancel Dialog'
-,p_event_sequence=>10
-,p_triggering_element_type=>'BUTTON'
-,p_triggering_button_id=>wwv_flow_api.id(27316245212699546)
-,p_bind_type=>'bind'
-,p_bind_event_type=>'click'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(27316450412699548)
-,p_event_id=>wwv_flow_api.id(27316310702699547)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_DIALOG_CANCEL'
-);
-wwv_flow_api.create_page_process(
- p_id=>wwv_flow_api.id(27316625450699550)
-,p_process_sequence=>10
-,p_process_point=>'AFTER_SUBMIT'
-,p_process_type=>'NATIVE_PLSQL'
-,p_process_name=>'update user district'
-,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'PKG_IDMGR_USER_ACCOUNT.PROC_UPD_MY_DISTRICT(P_USER_SID => :G_USER_SID,',
-'                                            P_DISTRICT_SID => :P250_DISTRICT_SID);',
-'',
-'select org_cdn',
-'      ,org_cdn',
-'      ,ltrim(org_cdn, ''0'')',
-'into :G_DISTRICT_CDN, :G_DISTRICT_ID, :g_ods_number',
-'FROM v_district',
-'where district_sid = :P250_DISTRICT_SID;'))
-,p_process_clob_language=>'PLSQL'
-,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-,p_process_when_button_id=>wwv_flow_api.id(27316545310699549)
-,p_process_success_message=>'District Successfully Changed '
-);
-end;
-/
-prompt --application/pages/page_00300
-begin
-wwv_flow_api.create_page(
- p_id=>300
-,p_user_interface_id=>wwv_flow_api.id(32502397090647103)
-,p_name=>'Student Certifications'
-,p_alias=>'STUDENT-CERTIFICATIONS'
-,p_step_title=>'Student Certifications'
-,p_warn_on_unsaved_changes=>'N'
-,p_autocomplete_on_off=>'OFF'
-,p_page_template_options=>'#DEFAULT#'
-,p_protection_level=>'C'
-,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230912181350'
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(76831492161344806)
-,p_plug_name=>'Student Certifications'
-,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
-,p_plug_template=>wwv_flow_api.id(32423732821647198)
-,p_plug_display_sequence=>10
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(76843716104244987)
-,p_plug_name=>'Student Certifications'
-,p_region_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(32422679959647198)
-,p_plug_display_sequence=>30
-,p_query_type=>'SQL'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select * from V_STUDENT_CERTS_RPT',
-'where district_id = :g_district_id',
-'and school_year = :P300_SCHOOL_YEAR'))
-,p_plug_source_type=>'NATIVE_IR'
-,p_ajax_items_to_submit=>'P300_SCHOOL_YEAR'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_prn_page_header=>'Student Certifications'
-);
-wwv_flow_api.create_worksheet(
- p_id=>wwv_flow_api.id(76843860415244987)
-,p_name=>'Student Certifications'
-,p_max_row_count_message=>'The maximum row count for this report is #MAX_ROW_COUNT# rows.  Please apply a filter to reduce the number of records in your query.'
-,p_no_data_found_message=>'No data found.'
-,p_pagination_type=>'ROWS_X_TO_Y'
-,p_pagination_display_pos=>'BOTTOM_RIGHT'
-,p_show_display_row_count=>'Y'
-,p_report_list_mode=>'TABS'
-,p_lazy_loading=>true
-,p_show_detail_link=>'N'
-,p_show_rows_per_page=>'N'
-,p_show_flashback=>'N'
-,p_download_formats=>'CSV'
-,p_enable_mail_download=>'Y'
-,p_owner=>'CHRISB_EDFI'
-,p_internal_uid=>76843860415244987
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76844236192244991)
-,p_db_column_name=>'DISTRICT_ID'
-,p_display_order=>1
-,p_column_identifier=>'A'
-,p_column_label=>'District Id'
-,p_column_type=>'STRING'
-,p_display_text_as=>'HIDDEN_ESCAPE_SC'
-,p_security_scheme=>wwv_flow_api.id(34000524604127350)
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76846624408244993)
-,p_db_column_name=>'SCHOOL_YEAR'
-,p_display_order=>11
-,p_column_identifier=>'G'
-,p_column_label=>'School Year'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76845848587244993)
-,p_db_column_name=>'STUDENT_UNIQUE_ID'
-,p_display_order=>21
-,p_column_identifier=>'E'
-,p_column_label=>'TSDS Student Unique Id'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76844648331244992)
-,p_db_column_name=>'LAST_SURNAME'
-,p_display_order=>31
-,p_column_identifier=>'B'
-,p_column_label=>'Last Name'
-,p_column_link=>'f?p=&APP_ID.:2010:&SESSION.::&DEBUG.::P2010_CALLING_PAGE,P2010_STUDENT_UNIQUE_ID,P2010_STUDENT_NAME:&APP_PAGE_ID.,#STUDENT_UNIQUE_ID#,#FIRST_NAME# #LAST_SURNAME#'
-,p_column_linktext=>'#LAST_SURNAME#'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76845087423244992)
-,p_db_column_name=>'FIRST_NAME'
-,p_display_order=>41
-,p_column_identifier=>'C'
-,p_column_label=>'First Name'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76845450847244992)
-,p_db_column_name=>'BIRTH_DATE'
-,p_display_order=>51
-,p_column_identifier=>'D'
-,p_column_label=>'Birth Date'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76846216651244993)
-,p_db_column_name=>'LOCAL_CODE'
-,p_display_order=>61
-,p_column_identifier=>'F'
-,p_column_label=>'Local District Code'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76847025046244993)
-,p_db_column_name=>'CERT_SCHOOL_YEAR'
-,p_display_order=>81
-,p_column_identifier=>'H'
-,p_column_label=>'Cert School Year'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76847441865244994)
-,p_db_column_name=>'CERT_TERM'
-,p_display_order=>91
-,p_column_identifier=>'I'
-,p_column_label=>'Cert Term'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76847852439244994)
-,p_db_column_name=>'ACHIEVEMENT_TITLE'
-,p_display_order=>101
-,p_column_identifier=>'J'
-,p_column_label=>'Achievement Title'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76848282231244994)
-,p_db_column_name=>'CRITERIA'
-,p_display_order=>111
-,p_column_identifier=>'K'
-,p_column_label=>'Criteria'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76848660515244994)
-,p_db_column_name=>'AWARD_DATE'
-,p_display_order=>121
-,p_column_identifier=>'L'
-,p_column_label=>'Award Date'
-,p_column_type=>'DATE'
-,p_heading_alignment=>'LEFT'
-,p_tz_dependent=>'N'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76849064930244994)
-,p_db_column_name=>'CERT_TYPE'
-,p_display_order=>131
-,p_column_identifier=>'M'
-,p_column_label=>'Cert Type'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_rpt(
- p_id=>wwv_flow_api.id(76853743399269502)
-,p_application_user=>'APXWS_DEFAULT'
-,p_report_seq=>10
-,p_report_alias=>'768538'
-,p_status=>'PUBLIC'
-,p_is_default=>'Y'
-,p_report_columns=>'DISTRICT_ID:SCHOOL_YEAR:STUDENT_UNIQUE_ID:LAST_SURNAME:FIRST_NAME:BIRTH_DATE:LOCAL_CODE:CERT_SCHOOL_YEAR:CERT_TERM:ACHIEVEMENT_TITLE:CRITERIA:AWARD_DATE:CERT_TYPE'
-,p_sort_column_1=>'LAST_SURNAME'
-,p_sort_direction_1=>'ASC'
-,p_sort_column_2=>'FIRST_NAME'
-,p_sort_direction_2=>'ASC'
-,p_sort_column_3=>'CERT_SCHOOL_YEAR'
-,p_sort_direction_3=>'ASC'
-,p_sort_column_4=>'ACHIEVEMENT_TITLE'
-,p_sort_direction_4=>'ASC'
-,p_sort_column_5=>'0'
-,p_sort_direction_5=>'ASC'
-,p_sort_column_6=>'0'
-,p_sort_direction_6=>'ASC'
-,p_break_on=>'SCHOOL_YEAR:STUDENT_UNIQUE_ID'
-,p_break_enabled_on=>'SCHOOL_YEAR:STUDENT_UNIQUE_ID'
-);
-wwv_flow_api.create_worksheet_condition(
- p_id=>wwv_flow_api.id(76896429218084522)
-,p_report_id=>wwv_flow_api.id(76853743399269502)
-,p_condition_type=>'FILTER'
-,p_allow_delete=>'Y'
-,p_column_name=>'CERT_SCHOOL_YEAR'
-,p_operator=>'is not null'
-,p_condition_sql=>'"CERT_SCHOOL_YEAR" is not null'
-,p_condition_display=>'#APXWS_COL_NAME# #APXWS_OP_NAME#'
-,p_enabled=>'Y'
-);
-wwv_flow_api.create_worksheet_rpt(
- p_id=>wwv_flow_api.id(76859646841338794)
-,p_application_user=>'APXWS_ALTERNATIVE'
-,p_name=>'Students without a Cert'
-,p_report_seq=>10
-,p_report_alias=>'768597'
-,p_status=>'PUBLIC'
-,p_is_default=>'Y'
-,p_report_columns=>'DISTRICT_ID:SCHOOL_YEAR:STUDENT_UNIQUE_ID:LAST_SURNAME:FIRST_NAME:BIRTH_DATE:LOCAL_CODE:CERT_SCHOOL_YEAR:CERT_TERM:ACHIEVEMENT_TITLE:CRITERIA:AWARD_DATE:CERT_TYPE'
-,p_sort_column_1=>'LAST_SURNAME'
-,p_sort_direction_1=>'ASC'
-,p_sort_column_2=>'FIRST_NAME'
-,p_sort_direction_2=>'ASC'
-,p_sort_column_3=>'CERT_SCHOOL_YEAR'
-,p_sort_direction_3=>'ASC'
-,p_sort_column_4=>'ACHIEVEMENT_TITLE'
-,p_sort_direction_4=>'ASC'
-,p_sort_column_5=>'0'
-,p_sort_direction_5=>'ASC'
-,p_sort_column_6=>'0'
-,p_sort_direction_6=>'ASC'
-);
-wwv_flow_api.create_worksheet_condition(
- p_id=>wwv_flow_api.id(76860066152338794)
-,p_report_id=>wwv_flow_api.id(76859646841338794)
-,p_condition_type=>'FILTER'
-,p_allow_delete=>'Y'
-,p_column_name=>'CERT_SCHOOL_YEAR'
-,p_operator=>'is null'
-,p_condition_sql=>'"CERT_SCHOOL_YEAR" is null'
-,p_condition_display=>'#APXWS_COL_NAME# #APXWS_OP_NAME#'
-,p_enabled=>'Y'
-);
-wwv_flow_api.create_worksheet_rpt(
- p_id=>wwv_flow_api.id(76861893999349570)
-,p_application_user=>'APXWS_ALTERNATIVE'
-,p_name=>'All Students'
-,p_report_seq=>10
-,p_report_alias=>'768619'
-,p_status=>'PUBLIC'
-,p_is_default=>'Y'
-,p_report_columns=>'DISTRICT_ID:SCHOOL_YEAR:STUDENT_UNIQUE_ID:LAST_SURNAME:FIRST_NAME:BIRTH_DATE:LOCAL_CODE:CERT_SCHOOL_YEAR:CERT_TERM:ACHIEVEMENT_TITLE:CRITERIA:AWARD_DATE:CERT_TYPE'
-,p_sort_column_1=>'LAST_SURNAME'
-,p_sort_direction_1=>'ASC'
-,p_sort_column_2=>'FIRST_NAME'
-,p_sort_direction_2=>'ASC'
-,p_sort_column_3=>'CERT_SCHOOL_YEAR'
-,p_sort_direction_3=>'ASC'
-,p_sort_column_4=>'ACHIEVEMENT_TITLE'
-,p_sort_direction_4=>'ASC'
-,p_sort_column_5=>'0'
-,p_sort_direction_5=>'ASC'
-,p_sort_column_6=>'0'
-,p_sort_direction_6=>'ASC'
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(76855391099286717)
-,p_name=>'P300_SCHOOL_YEAR'
-,p_is_required=>true
-,p_item_sequence=>10
-,p_item_plug_id=>wwv_flow_api.id(76831492161344806)
-,p_item_default=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'case when to_char(sysdate,''MM'') in (''08'',''09'',''10'',''11'',''12'') then to_char(to_char(sysdate,''YYYY'') + 1)',
-'                                      else to_char(sysdate,''YYYY'') end'))
-,p_item_default_type=>'EXPRESSION'
-,p_item_default_language=>'PLSQL'
-,p_prompt=>'School Year'
-,p_display_as=>'NATIVE_SELECT_LIST'
-,p_lov=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select yrs.column_value as display',
-'       ,substr(yrs.column_value,-4) as return',
-'from table(APEX_STRING.split(''2022-2023:2023-2024:2024-2025:2025-2026:2026-2027:2027-2028:2028-2029:2029-2030'','':'')) yrs',
-'where substr(yrs.column_value,-4)  <= case when to_char(sysdate,''MM'') in (''08'',''09'',''10'',''11'',''12'') then to_char(to_char(sysdate,''YYYY'') + 1)',
-'                                      else to_char(sysdate,''YYYY'') end',
-'order by 1 desc'))
-,p_cHeight=>1
-,p_begin_on_new_line=>'N'
-,p_grid_label_column_span=>1
-,p_field_template=>wwv_flow_api.id(32478503873647146)
-,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--large'
-,p_lov_display_extra=>'NO'
-,p_encrypt_session_state_yn=>'N'
-,p_attribute_01=>'NONE'
-,p_attribute_02=>'N'
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(76831534714344807)
-,p_name=>'refresh on change'
-,p_event_sequence=>10
-,p_triggering_element_type=>'ITEM'
-,p_triggering_element=>'P300_SCHOOL_YEAR'
-,p_bind_type=>'bind'
-,p_bind_event_type=>'change'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(76831670625344808)
-,p_event_id=>wwv_flow_api.id(76831534714344807)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_REFRESH'
-,p_affected_elements_type=>'REGION'
-,p_affected_region_id=>wwv_flow_api.id(76843716104244987)
-);
-end;
-/
-prompt --application/pages/page_00310
-begin
-wwv_flow_api.create_page(
- p_id=>310
-,p_user_interface_id=>wwv_flow_api.id(32502397090647103)
-,p_name=>'Student Attributes'
-,p_alias=>'STUDENT-ATTRIBUTES'
-,p_step_title=>'Student Attributes'
-,p_warn_on_unsaved_changes=>'N'
-,p_autocomplete_on_off=>'OFF'
-,p_page_template_options=>'#DEFAULT#'
-,p_protection_level=>'C'
-,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230912181431'
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(153979273848136465)
-,p_plug_name=>'Student Attributes'
-,p_region_template_options=>'#DEFAULT#:t-Region--accent8:t-Region--scrollBody'
-,p_plug_template=>wwv_flow_api.id(32423732821647198)
-,p_plug_display_sequence=>10
-,p_include_in_reg_disp_sel_yn=>'Y'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_attribute_01=>'N'
-,p_attribute_02=>'HTML'
-);
-wwv_flow_api.create_page_plug(
- p_id=>wwv_flow_api.id(153991497791036646)
-,p_plug_name=>'Student Attributes'
-,p_region_template_options=>'#DEFAULT#'
-,p_plug_template=>wwv_flow_api.id(32422679959647198)
-,p_plug_display_sequence=>30
-,p_query_type=>'SQL'
-,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select * from V_STUDENT_ATTRS_RPT',
-'where district_id = :g_district_id',
-'and school_year = :P310_SCHOOL_YEAR'))
-,p_plug_source_type=>'NATIVE_IR'
-,p_ajax_items_to_submit=>'P310_SCHOOL_YEAR'
-,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
-,p_prn_page_header=>'Student Certifications'
-);
-wwv_flow_api.create_worksheet(
- p_id=>wwv_flow_api.id(153991642102036646)
-,p_name=>'Student Certifications'
-,p_max_row_count_message=>'The maximum row count for this report is #MAX_ROW_COUNT# rows.  Please apply a filter to reduce the number of records in your query.'
-,p_no_data_found_message=>'No data found.'
-,p_pagination_type=>'ROWS_X_TO_Y'
-,p_pagination_display_pos=>'BOTTOM_RIGHT'
-,p_show_display_row_count=>'Y'
-,p_report_list_mode=>'TABS'
-,p_lazy_loading=>true
-,p_show_detail_link=>'N'
-,p_show_rows_per_page=>'N'
-,p_show_flashback=>'N'
-,p_download_formats=>'CSV'
-,p_enable_mail_download=>'Y'
-,p_owner=>'CHRISB_EDFI'
-,p_internal_uid=>153991642102036646
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(77149465797791724)
-,p_db_column_name=>'DISTRICT_ID'
-,p_display_order=>1
-,p_column_identifier=>'A'
-,p_column_label=>'District Id'
-,p_column_type=>'STRING'
-,p_display_text_as=>'HIDDEN_ESCAPE_SC'
-,p_security_scheme=>wwv_flow_api.id(34000524604127350)
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(77151864121791726)
-,p_db_column_name=>'SCHOOL_YEAR'
-,p_display_order=>11
-,p_column_identifier=>'G'
-,p_column_label=>'School Year'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(77151083384791726)
-,p_db_column_name=>'STUDENT_UNIQUE_ID'
-,p_display_order=>21
-,p_column_identifier=>'E'
-,p_column_label=>'TSDS Student Unique Id'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(77149838807791725)
-,p_db_column_name=>'LAST_SURNAME'
-,p_display_order=>31
-,p_column_identifier=>'B'
-,p_column_label=>'Last Name'
-,p_column_link=>'f?p=&APP_ID.:2010:&SESSION.::&DEBUG.::P2010_CALLING_PAGE,P2010_STUDENT_NAME,P2010_STUDENT_UNIQUE_ID:&APP_PAGE_ID.,#FIRST_NAME# #LAST_SURNAME#,#STUDENT_UNIQUE_ID#'
-,p_column_linktext=>'#LAST_SURNAME#'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(77150203109791725)
-,p_db_column_name=>'FIRST_NAME'
-,p_display_order=>41
-,p_column_identifier=>'C'
-,p_column_label=>'First Name'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(77150637273791726)
-,p_db_column_name=>'BIRTH_DATE'
-,p_display_order=>51
-,p_column_identifier=>'D'
-,p_column_label=>'Birth Date'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(77151473091791726)
-,p_db_column_name=>'LOCAL_CODE'
-,p_display_order=>61
-,p_column_identifier=>'F'
-,p_column_label=>'Local District Code'
-,p_column_type=>'STRING'
-,p_heading_alignment=>'LEFT'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76831742405344809)
-,p_db_column_name=>'ASVAB_DATE'
-,p_display_order=>71
-,p_column_identifier=>'N'
-,p_column_label=>'ASVAB Date'
-,p_column_type=>'DATE'
-,p_column_alignment=>'CENTER'
-,p_tz_dependent=>'N'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76831841625344810)
-,p_db_column_name=>'MILITARY_DATE'
-,p_display_order=>81
-,p_column_identifier=>'O'
-,p_column_label=>'DD04 Form Date'
-,p_column_type=>'DATE'
-,p_column_alignment=>'CENTER'
-,p_tz_dependent=>'N'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76831963028344811)
-,p_db_column_name=>'MENINGITIS_DATE'
-,p_display_order=>91
-,p_column_identifier=>'P'
-,p_column_label=>'Meningitis Date'
-,p_column_type=>'DATE'
-,p_column_alignment=>'CENTER'
-,p_tz_dependent=>'N'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76832015049344812)
-,p_db_column_name=>'ASSOCIATES_DEGREE_DATE'
-,p_display_order=>101
-,p_column_identifier=>'Q'
-,p_column_label=>'Associates Degree Date'
-,p_column_type=>'DATE'
-,p_column_alignment=>'CENTER'
-,p_tz_dependent=>'N'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76832187734344813)
-,p_db_column_name=>'COLLEGE_APP_FLAG'
-,p_display_order=>111
-,p_column_identifier=>'R'
-,p_column_label=>'College App Flag'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76832212485344814)
-,p_db_column_name=>'FINANCIAL_APP_FLAG'
-,p_display_order=>121
-,p_column_identifier=>'S'
-,p_column_label=>'Financial App Flag'
-,p_column_type=>'STRING'
-);
-wwv_flow_api.create_worksheet_column(
- p_id=>wwv_flow_api.id(76832360416344815)
-,p_db_column_name=>'LAST_UPDATE_DATE'
-,p_display_order=>131
-,p_column_identifier=>'T'
-,p_column_label=>'Last Updated'
-,p_column_type=>'DATE'
-,p_column_alignment=>'CENTER'
-,p_tz_dependent=>'N'
-);
-wwv_flow_api.create_worksheet_rpt(
- p_id=>wwv_flow_api.id(154001525086061161)
-,p_application_user=>'APXWS_DEFAULT'
-,p_report_seq=>10
-,p_report_alias=>'768538'
-,p_status=>'PUBLIC'
-,p_is_default=>'Y'
-,p_report_columns=>'DISTRICT_ID:SCHOOL_YEAR:STUDENT_UNIQUE_ID:LAST_SURNAME:FIRST_NAME:BIRTH_DATE:LOCAL_CODE:ASVAB_DATE:MILITARY_DATE:MENINGITIS_DATE:ASSOCIATES_DEGREE_DATE:COLLEGE_APP_FLAG:FINANCIAL_APP_FLAG:LAST_UPDATE_DATE'
-,p_sort_column_1=>'LAST_SURNAME'
-,p_sort_direction_1=>'ASC'
-,p_sort_column_2=>'FIRST_NAME'
-,p_sort_direction_2=>'ASC'
-,p_sort_column_3=>'CERT_SCHOOL_YEAR'
-,p_sort_direction_3=>'ASC'
-,p_sort_column_4=>'ACHIEVEMENT_TITLE'
-,p_sort_direction_4=>'ASC'
-,p_sort_column_5=>'0'
-,p_sort_direction_5=>'ASC'
-,p_sort_column_6=>'0'
-,p_sort_direction_6=>'ASC'
-,p_break_on=>'SCHOOL_YEAR:STUDENT_UNIQUE_ID'
-,p_break_enabled_on=>'SCHOOL_YEAR:STUDENT_UNIQUE_ID'
-);
-wwv_flow_api.create_worksheet_condition(
- p_id=>wwv_flow_api.id(77170351737828658)
-,p_report_id=>wwv_flow_api.id(154001525086061161)
-,p_name=>'Row Filter'
-,p_condition_type=>'FILTER'
-,p_allow_delete=>'Y'
-,p_expr_type=>'ROW'
-,p_expr=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'N IS  NOT NULL',
-'or  O IS  NOT NULL',
-'or   P IS  NOT NULL',
-'or  Q  IS  NOT NULL',
-'or  R  IS  NOT NULL',
-'or  S  IS  NOT NULL'))
-,p_condition_sql=>'"ASVAB_DATE" IS  NOT NULL or  "MILITARY_DATE" IS  NOT NULL or   "MENINGITIS_DATE" IS  NOT NULL or  "ASSOCIATES_DEGREE_DATE"  IS  NOT NULL or  "COLLEGE_APP_FLAG"  IS  NOT NULL or  "FINANCIAL_APP_FLAG"  IS  NOT NULL'
-,p_enabled=>'Y'
-);
-wwv_flow_api.create_worksheet_rpt(
- p_id=>wwv_flow_api.id(154007428528130453)
-,p_application_user=>'APXWS_ALTERNATIVE'
-,p_name=>'Students without any Attributes'
-,p_report_seq=>10
-,p_report_alias=>'768597'
-,p_status=>'PUBLIC'
-,p_is_default=>'Y'
-,p_report_columns=>'SCHOOL_YEAR:STUDENT_UNIQUE_ID:LAST_SURNAME:FIRST_NAME:BIRTH_DATE:LOCAL_CODE:ASVAB_DATE:ASSOCIATES_DEGREE_DATE:MENINGITIS_DATE:MILITARY_DATE:COLLEGE_APP_FLAG:FINANCIAL_APP_FLAG:LAST_UPDATE_DATE:'
-,p_sort_column_1=>'LAST_SURNAME'
-,p_sort_direction_1=>'ASC'
-,p_sort_column_2=>'FIRST_NAME'
-,p_sort_direction_2=>'ASC'
-,p_sort_column_3=>'CERT_SCHOOL_YEAR'
-,p_sort_direction_3=>'ASC'
-,p_sort_column_4=>'ACHIEVEMENT_TITLE'
-,p_sort_direction_4=>'ASC'
-,p_sort_column_5=>'0'
-,p_sort_direction_5=>'ASC'
-,p_sort_column_6=>'0'
-,p_sort_direction_6=>'ASC'
-);
-wwv_flow_api.create_worksheet_condition(
- p_id=>wwv_flow_api.id(77171757158852412)
-,p_report_id=>wwv_flow_api.id(154007428528130453)
-,p_name=>'No Attributes'
-,p_condition_type=>'FILTER'
-,p_allow_delete=>'Y'
-,p_expr_type=>'ROW'
-,p_expr=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'N IS  NULL',
-'and O IS  NULL',
-'and P IS  NULL',
-'and Q  IS  NULL',
-'and R  IS  NULL',
-'and S  IS  NULL'))
-,p_condition_sql=>'"ASVAB_DATE" IS  NULL and "MILITARY_DATE" IS  NULL and "MENINGITIS_DATE" IS  NULL and "ASSOCIATES_DEGREE_DATE"  IS  NULL and "COLLEGE_APP_FLAG"  IS  NULL and "FINANCIAL_APP_FLAG"  IS  NULL'
-,p_enabled=>'Y'
-);
-wwv_flow_api.create_worksheet_rpt(
- p_id=>wwv_flow_api.id(154009675686141229)
-,p_application_user=>'APXWS_ALTERNATIVE'
-,p_name=>'All Students'
-,p_report_seq=>10
-,p_report_alias=>'768619'
-,p_status=>'PUBLIC'
-,p_is_default=>'Y'
-,p_report_columns=>'SCHOOL_YEAR:STUDENT_UNIQUE_ID:LAST_SURNAME:FIRST_NAME:BIRTH_DATE:LOCAL_CODE:ASVAB_DATE:MENINGITIS_DATE:MILITARY_DATE:ASSOCIATES_DEGREE_DATE:COLLEGE_APP_FLAG:FINANCIAL_APP_FLAG:LAST_UPDATE_DATE:'
-,p_sort_column_1=>'LAST_SURNAME'
-,p_sort_direction_1=>'ASC'
-,p_sort_column_2=>'FIRST_NAME'
-,p_sort_direction_2=>'ASC'
-,p_sort_column_3=>'CERT_SCHOOL_YEAR'
-,p_sort_direction_3=>'ASC'
-,p_sort_column_4=>'ACHIEVEMENT_TITLE'
-,p_sort_direction_4=>'ASC'
-,p_sort_column_5=>'0'
-,p_sort_direction_5=>'ASC'
-,p_sort_column_6=>'0'
-,p_sort_direction_6=>'ASC'
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(77148790699791708)
-,p_name=>'P310_SCHOOL_YEAR'
-,p_is_required=>true
-,p_item_sequence=>10
-,p_item_plug_id=>wwv_flow_api.id(153979273848136465)
-,p_item_default=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'case when to_char(sysdate,''MM'') in (''08'',''09'',''10'',''11'',''12'') then to_char(to_char(sysdate,''YYYY'') + 1)',
-'                                      else to_char(sysdate,''YYYY'') end'))
-,p_item_default_type=>'EXPRESSION'
-,p_item_default_language=>'PLSQL'
-,p_prompt=>'School Year'
-,p_display_as=>'NATIVE_SELECT_LIST'
-,p_lov=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'select yrs.column_value as display',
-'       ,substr(yrs.column_value,-4) as return',
-'from table(APEX_STRING.split(''2022-2023:2023-2024:2024-2025:2025-2026:2026-2027:2027-2028:2028-2029:2029-2030'','':'')) yrs',
-'where substr(yrs.column_value,-4)  <= case when to_char(sysdate,''MM'') in (''08'',''09'',''10'',''11'',''12'') then to_char(to_char(sysdate,''YYYY'') + 1)',
-'                                      else to_char(sysdate,''YYYY'') end',
-'order by 1 desc'))
-,p_cHeight=>1
-,p_begin_on_new_line=>'N'
-,p_grid_label_column_span=>1
-,p_field_template=>wwv_flow_api.id(32478503873647146)
-,p_item_template_options=>'#DEFAULT#:t-Form-fieldContainer--large'
-,p_lov_display_extra=>'NO'
-,p_encrypt_session_state_yn=>'N'
-,p_attribute_01=>'NONE'
-,p_attribute_02=>'N'
-);
-wwv_flow_api.create_page_da_event(
- p_id=>wwv_flow_api.id(77156264241791763)
-,p_name=>'refresh on change'
-,p_event_sequence=>10
-,p_triggering_element_type=>'ITEM'
-,p_triggering_element=>'P310_SCHOOL_YEAR'
-,p_bind_type=>'bind'
-,p_bind_event_type=>'change'
-);
-wwv_flow_api.create_page_da_action(
- p_id=>wwv_flow_api.id(77156748437791769)
-,p_event_id=>wwv_flow_api.id(77156264241791763)
-,p_event_result=>'TRUE'
-,p_action_sequence=>10
-,p_execute_on_page_init=>'N'
-,p_action=>'NATIVE_REFRESH'
-,p_affected_elements_type=>'REGION'
-,p_affected_region_id=>wwv_flow_api.id(153991497791036646)
-);
-end;
-/
 prompt --application/pages/page_02000
 begin
 wwv_flow_api.create_page(
@@ -26453,7 +24977,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230912181240'
+,p_last_upd_yyyymmddhh24miss=>'20230420213931'
 );
 wwv_flow_api.create_report_region(
  p_id=>wwv_flow_api.id(39135437559019981)
@@ -26523,7 +25047,7 @@ wwv_flow_api.create_report_columns(
 ,p_column_display_sequence=>1
 ,p_column_heading=>'Last Name'
 ,p_use_as_row_header=>'N'
-,p_column_link=>'f?p=&APP_ID.:2010:&SESSION.::&DEBUG.:RP,:P2010_STUDENT_UNIQUE_ID,P2010_STUDENT_NAME,P2010_CALLING_PAGE:#STUDENT_UNIQUE_ID#,#FIRST_NAME# #LAST_SURNAME#,&APP_PAGE_ID.'
+,p_column_link=>'f?p=&APP_ID.:2010:&SESSION.::&DEBUG.:RP:P2010_STUDENT_UNIQUE_ID,P2010_STUDENT_NAME:#STUDENT_UNIQUE_ID#,#FIRST_NAME# #LAST_SURNAME#'
 ,p_column_linktext=>'#LAST_SURNAME#'
 ,p_disable_sort_column=>'N'
 ,p_derived_column=>'N'
@@ -26646,7 +25170,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230912210851'
+,p_last_upd_yyyymmddhh24miss=>'20230719202113'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(39157578081840638)
@@ -26998,13 +25522,22 @@ wwv_flow_api.create_page_button(
 ,p_button_sequence=>20
 ,p_button_plug_id=>wwv_flow_api.id(39157578081840638)
 ,p_button_name=>'Cancel'
-,p_button_action=>'REDIRECT_URL'
+,p_button_action=>'REDIRECT_PAGE'
 ,p_button_template_options=>'#DEFAULT#:t-Button--success'
 ,p_button_template_id=>wwv_flow_api.id(32479868277647142)
 ,p_button_image_alt=>'Back to Student List'
 ,p_button_position=>'EDIT'
-,p_button_redirect_url=>'f?p=&APP_ID.:&P2010_CALLING_PAGE.:&SESSION.'
+,p_button_redirect_url=>'f?p=&APP_ID.:2000:&SESSION.::&DEBUG.:RP,2010::'
 ,p_button_cattributes=>'title="Take me back to the student list. UNSAVED changes will be lost"'
+);
+wwv_flow_api.create_page_branch(
+ p_id=>wwv_flow_api.id(39158788706840650)
+,p_branch_name=>'back to student list'
+,p_branch_action=>'f?p=&APP_ID.:2000:&SESSION.::&DEBUG.:RP,2010::&success_msg=#SUCCESS_MSG#'
+,p_branch_point=>'AFTER_PROCESSING'
+,p_branch_type=>'REDIRECT_URL'
+,p_branch_sequence=>10
+,p_branch_condition_type=>'NEVER'
 );
 wwv_flow_api.create_page_item(
  p_id=>wwv_flow_api.id(39157617525840639)
@@ -27177,13 +25710,6 @@ wwv_flow_api.create_page_item(
 ,p_lov_display_extra=>'NO'
 ,p_encrypt_session_state_yn=>'N'
 ,p_attribute_01=>'1'
-);
-wwv_flow_api.create_page_item(
- p_id=>wwv_flow_api.id(76832434578344816)
-,p_name=>'P2010_CALLING_PAGE'
-,p_item_sequence=>40
-,p_display_as=>'NATIVE_HIDDEN'
-,p_attribute_01=>'Y'
 );
 wwv_flow_api.create_page_da_event(
  p_id=>wwv_flow_api.id(40193692786588235)
@@ -28152,7 +26678,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230711132455'
+,p_last_upd_yyyymmddhh24miss=>'20230711132723'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(40279016693533333)
@@ -31158,7 +29684,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230803182347'
+,p_last_upd_yyyymmddhh24miss=>'20230803180614'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(40899256663748047)
@@ -31201,7 +29727,7 @@ wwv_flow_api.create_report_region(
 '  from apex_collections',
 ' where collection_name = ''LOAD_CONTENT''',
 '   and c049 in (''INSERT'',''UPDATE'', ''FAILED'')',
-' order by c049,seq_id'))
+' order by c049, seq_id'))
 ,p_query_headings=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'declare  ',
 '    l_string varchar(32767);',

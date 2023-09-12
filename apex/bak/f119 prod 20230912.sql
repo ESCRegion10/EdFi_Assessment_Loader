@@ -28,7 +28,7 @@ prompt APPLICATION 119 - EDFI Management
 -- Application Export:
 --   Application:     119
 --   Name:            EDFI Management
---   Date and Time:   21:12 Tuesday September 12, 2023
+--   Date and Time:   20:55 Tuesday September 12, 2023
 --   Exported By:     CHRISB_EDFI
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -71,7 +71,7 @@ prompt APPLICATION 119 - EDFI Management
 --       E-Mail:
 --     Supporting Objects:  Included
 --   Version:         21.2.3
---   Instance ID:     697912742147843
+--   Instance ID:     697905647524160
 --
 
 prompt --application/delete_application
@@ -121,8 +121,8 @@ wwv_flow_api.create_flow(
 ,p_friendly_url=>'N'
 ,p_substitution_string_01=>'APP_NAME'
 ,p_substitution_value_01=>'EDFI Management'
-,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230912184418'
+,p_last_updated_by=>'JEFF.PENDILL@REGION10.ORG'
+,p_last_upd_yyyymmddhh24miss=>'20230807200606'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_files_version=>3
 ,p_ui_type_name => null
@@ -1030,42 +1030,11 @@ wwv_flow_api.create_list_item(
 ,p_list_item_current_type=>'TARGET_PAGE'
 );
 wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(76465564807445153)
-,p_list_item_display_sequence=>90
-,p_list_item_link_text=>'Programs of Study'
-,p_list_item_link_target=>'f?p=130:200:&SESSION.::&DEBUG.::::'
-,p_list_item_icon=>'fa-graduation-cap'
-,p_parent_list_item_id=>wwv_flow_api.id(38295780403541398)
-,p_list_item_current_type=>'TARGET_PAGE'
-);
-wwv_flow_api.create_list_item(
  p_id=>wwv_flow_api.id(33976000054901096)
 ,p_list_item_display_sequence=>30
 ,p_list_item_link_text=>'Ed-Fi Connection Info'
 ,p_list_item_link_target=>'f?p=119:3:&SESSION.::&DEBUG.::::'
 ,p_list_item_icon=>'fa-plug'
-,p_list_item_current_type=>'TARGET_PAGE'
-);
-wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(76898705929178970)
-,p_list_item_display_sequence=>35
-,p_list_item_link_text=>'Reports'
-,p_list_item_current_type=>'TARGET_PAGE'
-);
-wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(77173220806866665)
-,p_list_item_display_sequence=>105
-,p_list_item_link_text=>'Student Attributes'
-,p_list_item_link_target=>'f?p=130:310:&SESSION.::&DEBUG.::::'
-,p_parent_list_item_id=>wwv_flow_api.id(76898705929178970)
-,p_list_item_current_type=>'TARGET_PAGE'
-);
-wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(76899095469185480)
-,p_list_item_display_sequence=>110
-,p_list_item_link_text=>'Student Certifications'
-,p_list_item_link_target=>'f?p=130:300:&SESSION.::&DEBUG.::::'
-,p_parent_list_item_id=>wwv_flow_api.id(76898705929178970)
 ,p_list_item_current_type=>'TARGET_PAGE'
 );
 wwv_flow_api.create_list_item(
@@ -1108,18 +1077,9 @@ wwv_flow_api.create_list_item(
  p_id=>wwv_flow_api.id(40304650908841718)
 ,p_list_item_display_sequence=>80
 ,p_list_item_link_text=>'ODS Row Counts'
-,p_list_item_link_target=>'f?p=&APP_ID.:20:&SESSION.::&DEBUG.::::'
-,p_list_item_disp_cond_type=>'NEVER'
+,p_list_item_link_target=>'f?p=119:20:&SESSION.::&DEBUG.::::'
 ,p_parent_list_item_id=>wwv_flow_api.id(33238737820101703)
 ,p_security_scheme=>wwv_flow_api.id(19202259225891723)
-,p_list_item_current_type=>'TARGET_PAGE'
-);
-wwv_flow_api.create_list_item(
- p_id=>wwv_flow_api.id(76839911900624640)
-,p_list_item_display_sequence=>100
-,p_list_item_link_text=>'Switch My District'
-,p_list_item_link_target=>'f?p=130:250:&SESSION.::&DEBUG.::P250_CURRENT_PAGE,P250_CURRENT_APP:&APP_PAGE_ID.,&APP_ID.'
-,p_parent_list_item_id=>wwv_flow_api.id(33238737820101703)
 ,p_list_item_current_type=>'TARGET_PAGE'
 );
 end;
@@ -1330,7 +1290,6 @@ begin
 wwv_flow_api.create_flow_item(
  p_id=>wwv_flow_api.id(33327482128725188)
 ,p_name=>'G_DISTRICT_CDN'
-,p_scope=>'GLOBAL'
 ,p_protection_level=>'I'
 ,p_escape_on_http_output=>'N'
 );
@@ -16245,7 +16204,7 @@ wwv_flow_api.create_page(
 ,p_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_browser_cache=>'N'
 ,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230420201136'
+,p_last_upd_yyyymmddhh24miss=>'20230731160935'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(19415814531810409)
@@ -16920,8 +16879,8 @@ wwv_flow_api.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>wwv_flow_api.id(19202259225891723)
-,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230420201136'
+,p_last_updated_by=>'JEFF.PENDILL@REGION10.ORG'
+,p_last_upd_yyyymmddhh24miss=>'20230807200606'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(19213444417899925)
@@ -17887,7 +17846,7 @@ wwv_flow_api.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_required_role=>'MUST_NOT_BE_PUBLIC_USER'
 ,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230912184418'
+,p_last_upd_yyyymmddhh24miss=>'20230725210029'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(39156799324840630)
@@ -18063,7 +18022,7 @@ wwv_flow_api.create_page(
 ,p_protection_level=>'C'
 ,p_help_text=>'No help is available for this page.'
 ,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230907205852'
+,p_last_upd_yyyymmddhh24miss=>'20230420201136'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(86582310356428501)
@@ -19104,9 +19063,8 @@ wwv_flow_api.create_page_process(
 'where district_sid = :p6_district_sid;'))
 ,p_process_clob_language=>'PLSQL'
 ,p_error_display_location=>'INLINE_IN_NOTIFICATION'
-,p_process_when=>':REQUEST in (''SUBMIT'',''ADD'') AND UPPER(:P6_USER_ID) = UPPER(:APP_USER)'
-,p_process_when_type=>'EXPRESSION'
-,p_process_when2=>'PLSQL'
+,p_process_when=>'SUBMIT,ADD'
+,p_process_when_type=>'REQUEST_IN_CONDITION'
 );
 wwv_flow_api.create_page_process(
  p_id=>wwv_flow_api.id(33202573290674464)
@@ -20993,7 +20951,7 @@ wwv_flow_api.create_page(
 'height: 160px;',
 '}'))
 ,p_last_updated_by=>'CHRISB_EDFI'
-,p_last_upd_yyyymmddhh24miss=>'20230427185121'
+,p_last_upd_yyyymmddhh24miss=>'20230427185022'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(19203713656891735)
