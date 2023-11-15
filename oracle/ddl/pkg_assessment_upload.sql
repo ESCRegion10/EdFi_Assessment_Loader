@@ -3202,10 +3202,29 @@ ADD RANGE CHECK ON SCORE
 													 auto_drop =>  TRUE,
 													 comments  =>  'Processing for: '||l_file_name_school_year);
           end if;
+					
+          -- send email if a prior year upload
+					for i in (
+						select d.PRIMARY_SCHOOL_YEAR,
+									 d.DISTRICT_NAME
+							from V_DISTRICTS d
+							where d.DISTRICT_CDC = p_district_id
+							and  d.school_year = t_school_year(x)
+							and d.PRIMARY_SCHOOL_YEAR = 'N') loop
 
+						apex_mail.send(
+								p_to        => 'chris.bull@region10.org,jeff.pendill@region10.org,garett.jaeckel@region10.org',
+								p_from      => 'info@region10.org',
+								p_body      => p_district_id||' '||i.DISTRICT_NAME||' uploaded '||p_test_type ||' assessments for school year '||t_school_year(x) ,
+								p_subj      => i.DISTRICT_NAME||' Prior Year Assessment Uploaded' );
+
+						APEX_MAIL.PUSH_QUEUE;
+					end loop;
+					
         end loop; -- end of school year loop
     end loop;  -- end files to process loop
-
+		
+		-- log it
     pkg_assessment_upload.prc_log_status ('Main: End of processing ' ||  p_test_type || ' test(s) for ' || p_district_id, 'INFO-91', p_user_id);
 
   end;
@@ -3308,7 +3327,8 @@ ADD RANGE CHECK ON SCORE
                 s_sat_math
           from edfidata.DISTRICT_SAT_DATA s
          where s.LATEST_ASSESSMENT_DATE = t_sat_data(i).latest_assessment_date
-           and (s.SECONDARY_ID = t_sat_data(i).StudentUniqueId
+				  and S.STATUS in ('PENDING','SENT')
+          and (s.SECONDARY_ID = t_sat_data(i).StudentUniqueId
              or s.TSDS_STUDENT_UNIQUE_ID = t_sat_data(i).StudentUniqueId
              or (upper(s.first_name) = upper(t_sat_data(i).first_name)
              and upper(s.last_name) = upper(substr(t_sat_data(i).last_name,1,length(s.last_name)))
@@ -3534,7 +3554,8 @@ ADD RANGE CHECK ON SCORE
                 s_tsi_writing_placement,
                 s_tsi_writeplacer
           from edfidata.district_tsi_data s
-         where district_id = p_district_id
+         where S.STATUS in ('PENDING','SENT')
+           and district_id = p_district_id
            and s.test_start = t_tsi_data(i).test_start
            and (s.TSDS_STUDENT_UNIQUE_ID = t_tsi_data(i).StudentUniqueId
              or s.STUDENT_ID = t_tsi_data(i).StudentUniqueId
@@ -3793,6 +3814,7 @@ ADD RANGE CHECK ON SCORE
                 s_tsi2_elar_essay
           from edfidata.district_tsi2_data s
          where district_id = p_district_id
+           and S.STATUS in ('PENDING','SENT')
            and s.test_start = t_tsi2_data(i).test_start
            and (s.SUPPLEMENTAL_ID = t_tsi2_data(i).StudentUniqueId
              or (upper(s.first_name) = upper(t_tsi2_data(i).first_name)
@@ -4080,7 +4102,8 @@ ADD RANGE CHECK ON SCORE
                 s_act_scale_scores_reading,
                 s_act_scale_scores_science
           from edfidata.district_act_data s
-         where s.TEST_DATE_MONTH_AND_YEAR = t_act_data(i).test_date_month_and_year
+         where S.STATUS in ('PENDING','SENT')
+           and s.TEST_DATE_MONTH_AND_YEAR = t_act_data(i).test_date_month_and_year
            and (s.TSDS_STUDENT_UNIQUE_ID = t_act_data(i).StudentUniqueId
              or s.OTHER_ID = t_act_data(i).StudentUniqueId
              or (upper(s.first_name) = upper(t_act_data(i).first_name)
@@ -4824,7 +4847,23 @@ ADD RANGE CHECK ON SCORE
 																													 p_file_name_school_year => l_file,
 																													 p_status                => 'RESEND');
           end if;
+					-- send email if a prior year upload
+					for i in (
+						select d.PRIMARY_SCHOOL_YEAR,
+									 d.DISTRICT_NAME
+							from V_DISTRICTS d
+							where d.DISTRICT_CDC = p_district_id
+							and  d.school_year = rec.SCHOOL_YEAR_TO_LOAD
+							and d.PRIMARY_SCHOOL_YEAR = 'N') loop
 
+						apex_mail.send(
+								p_to        => 'chris.bull@region10.org,jeff.pendill@region10.org,garett.jaeckel@region10.org',
+								p_from      => 'info@region10.org',
+								p_body      => p_district_id||' '||i.DISTRICT_NAME||' uploaded '||REC.TEST_TYPE ||' assessments for school year '||rec.SCHOOL_YEAR_TO_LOAD ,
+								p_subj      => i.DISTRICT_NAME||' Prior Year Assessment Uploaded' );
+
+						APEX_MAIL.PUSH_QUEUE;
+					end loop;
         end loop;
 
     pkg_assessment_upload.prc_log_status ('Main: End of processing prc_process_asmt_resend', 'INFO-91', V('APP_USER'));
@@ -4948,7 +4987,7 @@ ADD RANGE CHECK ON SCORE
 					l_resp_count := 0;
 				end loop;
 				utl_http.end_response(res_edorg);
-				--DBMS_OUTPUT.put_line('count local ids: '||l_local_id.count);
+				DBMS_OUTPUT.put_line('count local ids: '||l_local_id.count);
 					
 				-- Process the student data and join in the local ids from above
 				l_offset := 0;																		 
@@ -4991,7 +5030,15 @@ ADD RANGE CHECK ON SCORE
 						left join table(l_local_id) l on l.student_unique_id = jt.student_unique_id;
 						
 						l_count := l_count +  l_stu_data.count;
-    
+/*            for indx in l_stu_data.first..l_stu_data.last loop
+							dbms_output.put_line( '-------------------------');
+							dbms_output.put_line( l_stu_data(indx).last_name);
+							dbms_output.put_line( 	 l_stu_data(indx).first_name);
+							dbms_output.put_line(	 to_char(to_date(l_stu_data(indx).birth_date, 'YYYY-MM-DD'),'MM/DD/YYYY'));
+							dbms_output.put_line(	 l_stu_data(indx).student_unique_id);
+							dbms_output.put_line('local:'||	 l_stu_data(indx).local_id);
+						
+						end loop;*/
 						-- add the students to the cache table
 						forall indx in l_stu_data.first..l_stu_data.last
 							insert into district_student_cache
